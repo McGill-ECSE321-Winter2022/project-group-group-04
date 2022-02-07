@@ -1,0 +1,99 @@
+class User
+{
+  email;
+  name;
+  password;
+  enum UserType {Customer, Owner, Employee }  
+}
+
+class Customer
+{
+    isA User;
+UserType type;
+  address;
+  phone;
+  1 <@>- * Order;
+}
+
+class StoreOwner
+{
+    isA User;
+UserType type;
+  1 <@>- 1 StoreInfo;
+}
+
+class Employee
+{
+    isA User;
+  enum EmployeeStatus {Sick, inactive, Working}  
+  EmployeeStatus status;
+  enum Shift {Daytime, Night} 
+  Shift shift;
+ UserType type;
+}
+
+class StoreInfo
+{
+  address;
+  telaphone;
+  email;
+  Time startHour;
+  Time endHour;
+  Time weekendStartHour;
+  Time weekendEndHour;
+}
+
+enum ShoppingType {Delivery, Pickup}  
+
+class Cart
+{
+  Integer cartID;
+  ShoppingType type;
+  1 -<@> 1 Customer;
+  1 -- * CartItem;
+  * -- 1 TimeSlots;
+}
+
+class Order
+{
+  Integer orderID;
+  Boolean completed;
+  ShoppingType shoppingType;
+  Time estimatedDeliveryOrPickupTime;
+  enum PaymentType {CreditCard, Cash, Paypal} 
+  PaymentType paymentType;
+  Date orderDate;
+  Integer total;
+}
+
+class Product
+{
+  productID;
+  isAvailableOnline;
+  Integer price;
+  Integer stock;
+}
+
+class CartItem
+{
+  Integer quantity;
+  * -- 1 Order;
+  * -- 1 Product;
+}
+
+class TimeSlots
+{
+  Time startTime;
+  Time endTime;
+  Integer maxOrderPerSlot;
+}
+
+class DeliveryTimeSlots
+{
+  isA TimeSlots;
+}
+
+class PickUpTimeSlots
+{
+  isA TimeSlots;
+}
