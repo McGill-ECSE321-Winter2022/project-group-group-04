@@ -3,22 +3,17 @@ class User
   email;
   name;
   password;
-  enum UserType {Customer, Owner, Employee }  
 }
 
 class Customer
 {
     isA User;
-UserType type;
-  address;
   phone;
-  1 <@>- * Order;
 }
 
 class StoreOwner
 {
     isA User;
-UserType type;
   1 <@>- 1 StoreInfo;
 }
 
@@ -29,21 +24,14 @@ class Employee
   EmployeeStatus status;
   enum Shift {Daytime, Night} 
   Shift shift;
- UserType type;
+  * -> 1 Shifts;
 }
 
 class StoreInfo
 {
-  address;
-  telaphone;
+  telephone;
   email;
-  Time startHour;
-  Time endHour;
-  Time weekendStartHour;
-  Time weekendEndHour;
 }
-
-enum ShoppingType {Delivery, Pickup}  
 
 class Cart
 {
@@ -51,19 +39,17 @@ class Cart
   ShoppingType type;
   1 -<@> 1 Customer;
   1 -- * CartItem;
-  * -- 1 TimeSlots;
+  * -- 1 TimeSlot;
+  1 <@>- * Order;
 }
 
 class Order
 {
   Integer orderID;
   Boolean completed;
-  ShoppingType shoppingType;
-  Time estimatedDeliveryOrPickupTime;
-  enum PaymentType {CreditCard, Cash, Paypal} 
-  PaymentType paymentType;
   Date orderDate;
   Integer total;
+  payment;
 }
 
 class Product
@@ -77,23 +63,52 @@ class Product
 class CartItem
 {
   Integer quantity;
-  * -- 1 Order;
   * -- 1 Product;
 }
 
-class TimeSlots
+class TimeSlot
 {
   Time startTime;
   Time endTime;
   Integer maxOrderPerSlot;
+  enum ShoppingType {Delivery, Pickup}  
+  ShoppingType shoppingType;
+}
+class Days
+{
+    enum WeekDays {Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday} 
+  WeekDays days;
+  Time storeStartHour;
+  Time storeEndHour;
+  * -- 1 StoreInfo;
+  1 -- * Shifts;
 }
 
-class DeliveryTimeSlots
+class Shifts
 {
-  isA TimeSlots;
+   Time startHour;
+  Time endHour;
 }
 
-class PickUpTimeSlots
+class Address
 {
-  isA TimeSlots;
+  town;
+  street;
+  postalCode;
+  Integer apartmentOrUnit;
+  1 -- * Customer;
+  1 -- 1 StoreInfo;
 }
+
+class TheGroceryStoreSystem
+{
+  1 <@>- * User;
+  1 <@>- * Order;
+  1 <@>- * Product;
+  1 <@>- * TimeSlot;
+  1 <@>- * Shifts;
+  1 <@>- * StoreInfo;
+  1 <@>- * Days;
+  
+}
+
