@@ -12,6 +12,8 @@ public class Project321BackendApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(Project321BackendApplication.class, args);
 	}
+
+	//Request Map
 	@RequestMapping("/")
   	public String greeting(){
     	return "Hello world!";
