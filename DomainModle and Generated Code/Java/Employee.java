@@ -3,8 +3,8 @@
 
 
 
-// line 21 "model.ump"
-// line 138 "model.ump"
+// line 23 "model.ump"
+// line 134 "model.ump"
 public class Employee extends User
 {
 
@@ -12,8 +12,7 @@ public class Employee extends User
   // ENUMERATIONS
   //------------------------
 
-  public enum EmployeeStatus { Sick, Inactive, Working }
-  public enum Shift { Daytime, Night }
+  public enum EmployeeStatus { Sick, Inactive, Active }
 
   //------------------------
   // MEMBER VARIABLES
@@ -21,23 +20,27 @@ public class Employee extends User
 
   //Employee Attributes
   private EmployeeStatus status;
-  private Shift shift;
 
   //Employee Associations
-  private Shifts shifts;
+  private Shift shift;
+  private TheGroceryStoreSystem theGroceryStoreSystem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Employee(String aEmail, String aName, String aPassword, TheGroceryStoreSystem aTheGroceryStoreSystem, EmployeeStatus aStatus, Shift aShift, Shifts aShifts)
+  public Employee(String aEmail, String aName, String aPassword, EmployeeStatus aStatus, Shift aShift, TheGroceryStoreSystem aTheGroceryStoreSystem)
   {
-    super(aEmail, aName, aPassword, aTheGroceryStoreSystem);
+    super(aEmail, aName, aPassword);
     status = aStatus;
-    shift = aShift;
-    if (!setShifts(aShifts))
+    if (!setShift(aShift))
     {
-      throw new RuntimeException("Unable to create Employee due to aShifts. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create Employee due to aShift. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
+    boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
+    if (!didAddTheGroceryStoreSystem)
+    {
+      throw new RuntimeException("Unable to create employee due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
 
@@ -53,43 +56,60 @@ public class Employee extends User
     return wasSet;
   }
 
-  public boolean setShift(Shift aShift)
-  {
-    boolean wasSet = false;
-    shift = aShift;
-    wasSet = true;
-    return wasSet;
-  }
-
   public EmployeeStatus getStatus()
   {
     return status;
   }
-
+  /* Code from template association_GetOne */
   public Shift getShift()
   {
     return shift;
   }
   /* Code from template association_GetOne */
-  public Shifts getShifts()
+  public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
-    return shifts;
+    return theGroceryStoreSystem;
   }
   /* Code from template association_SetUnidirectionalOne */
-  public boolean setShifts(Shifts aNewShifts)
+  public boolean setShift(Shift aNewShift)
   {
     boolean wasSet = false;
-    if (aNewShifts != null)
+    if (aNewShift != null)
     {
-      shifts = aNewShifts;
+      shift = aNewShift;
       wasSet = true;
     }
+    return wasSet;
+  }
+  /* Code from template association_SetOneToMany */
+  public boolean setTheGroceryStoreSystem(TheGroceryStoreSystem aTheGroceryStoreSystem)
+  {
+    boolean wasSet = false;
+    if (aTheGroceryStoreSystem == null)
+    {
+      return wasSet;
+    }
+
+    TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
+    theGroceryStoreSystem = aTheGroceryStoreSystem;
+    if (existingTheGroceryStoreSystem != null && !existingTheGroceryStoreSystem.equals(aTheGroceryStoreSystem))
+    {
+      existingTheGroceryStoreSystem.removeEmployee(this);
+    }
+    theGroceryStoreSystem.addEmployee(this);
+    wasSet = true;
     return wasSet;
   }
 
   public void delete()
   {
-    shifts = null;
+    shift = null;
+    TheGroceryStoreSystem placeholderTheGroceryStoreSystem = theGroceryStoreSystem;
+    this.theGroceryStoreSystem = null;
+    if(placeholderTheGroceryStoreSystem != null)
+    {
+      placeholderTheGroceryStoreSystem.removeEmployee(this);
+    }
     super.delete();
   }
 
@@ -98,7 +118,7 @@ public class Employee extends User
   {
     return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "status" + "=" + (getStatus() != null ? !getStatus().equals(this)  ? getStatus().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "shift" + "=" + (getShift() != null ? !getShift().equals(this)  ? getShift().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "shifts = "+(getShifts()!=null?Integer.toHexString(System.identityHashCode(getShifts())):"null");
+            "  " + "shift = "+(getShift()!=null?Integer.toHexString(System.identityHashCode(getShift())):"null") + System.getProperties().getProperty("line.separator") +
+            "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
   }
 }

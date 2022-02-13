@@ -1,5 +1,7 @@
-class User
+lass User
 {
+  abstract;
+  autounique userID;
   email;
   name;
   password;
@@ -7,45 +9,37 @@ class User
 
 class Customer
 {
-    isA User;
+  isA User;
   phone;
+  * Customer -> 1 Address;
 }
 
 class StoreOwner
 {
-    isA User;
-  1 <@>- 1 StoreInfo;
+  isA User;
 }
 
 class Employee
 {
-    isA User;
-  enum EmployeeStatus {Sick, inactive, Working}  
+  isA User;
+  enum EmployeeStatus {Sick, Inactive, Active}  
   EmployeeStatus status;
-  enum Shift {Daytime, Night} 
-  Shift shift;
-  * -> 1 Shifts;
-}
-
-class StoreInfo
-{
-  telephone;
-  email;
+  * -> 1 Shift;
 }
 
 class Cart
 {
-  Integer cartID;
+  autounique cartID;
   ShoppingType type;
   1 -<@> 1 Customer;
-  1 -- * CartItem;
-  * -- 1 TimeSlot;
+  * -> * CartItem;
+  * -> 1 TimeSlot;
   1 <@>- * Order;
 }
 
 class Order
 {
-  Integer orderID;
+  autounique orderID;
   Boolean completed;
   Date orderDate;
   Integer total;
@@ -54,7 +48,7 @@ class Order
 
 class Product
 {
-  productID;
+  autounique productID;
   isAvailableOnline;
   Integer price;
   Integer stock;
@@ -63,31 +57,34 @@ class Product
 class CartItem
 {
   Integer quantity;
-  * -- 1 Product;
+  * -> 1 Product;
 }
 
 class TimeSlot
 {
   Time startTime;
   Time endTime;
+  Date date;
   Integer maxOrderPerSlot;
   enum ShoppingType {Delivery, Pickup}  
   ShoppingType shoppingType;
-}
-class Days
-{
-    enum WeekDays {Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday} 
-  WeekDays days;
-  Time storeStartHour;
-  Time storeEndHour;
-  * -- 1 StoreInfo;
-  1 -- * Shifts;
+  * -> 1 Day;
 }
 
-class Shifts
+class Day
 {
-   Time startHour;
+    enum WeekDays {Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday} 
+  WeekDays day;
+  Time storeStartHour;
+  Time storeEndHour;
+}
+
+class Shift
+{
+  Time startHour;
   Time endHour;
+  Date date;
+  * -> 1 Day;
 }
 
 class Address
@@ -95,20 +92,19 @@ class Address
   town;
   street;
   postalCode;
-  Integer apartmentOrUnit;
-  1 -- * Customer;
-  1 -- 1 StoreInfo;
+  Integer unit;
 }
 
 class TheGroceryStoreSystem
 {
-  1 <@>- * User;
-  1 <@>- * Order;
+  1 <@>- 1 StoreOwner;
+  1 <@>- * Employee;
+  1 <@>- * Customer;
   1 <@>- * Product;
   1 <@>- * TimeSlot;
-  1 <@>- * Shifts;
-  1 <@>- * StoreInfo;
-  1 <@>- * Days;
-  
+  1 <@>- * Shift;
+  1 <@>- 7 Day;
+  1 <@>- 1 Address;
+  telephone;
+  email;
 }
-

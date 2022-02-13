@@ -3,11 +3,11 @@
 
 
 import java.util.*;
-import java.sql.Time;
 import java.sql.Date;
+import java.sql.Time;
 
-// line 99 "model.ump"
-// line 177 "model.ump"
+// line 104 "model.ump"
+// line 199 "model.ump"
 public class TheGroceryStoreSystem
 {
 
@@ -15,152 +15,91 @@ public class TheGroceryStoreSystem
   // MEMBER VARIABLES
   //------------------------
 
-  //TheGroceryStoreSystem Attributes
-  private String telephone;
-  private String email;
-
   //TheGroceryStoreSystem Associations
-  private StoreOwner storeOwner;
-  private List<Employee> employees;
-  private List<Customer> customers;
+  private List<User> users;
+  private List<Order> orders;
   private List<Product> products;
   private List<TimeSlot> timeSlots;
-  private List<Shift> shifts;
-  private List<Day> daies;
-  private Address address;
+  private List<Shifts> shifts;
+  private List<StoreInfo> storeInfos;
+  private List<Days> days;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public TheGroceryStoreSystem(String aTelephone, String aEmail, StoreOwner aStoreOwner, Address aAddress)
+  public TheGroceryStoreSystem()
   {
-    telephone = aTelephone;
-    email = aEmail;
-    if (aStoreOwner == null || aStoreOwner.getTheGroceryStoreSystem() != null)
-    {
-      throw new RuntimeException("Unable to create TheGroceryStoreSystem due to aStoreOwner. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    storeOwner = aStoreOwner;
-    employees = new ArrayList<Employee>();
-    customers = new ArrayList<Customer>();
+    users = new ArrayList<User>();
+    orders = new ArrayList<Order>();
     products = new ArrayList<Product>();
     timeSlots = new ArrayList<TimeSlot>();
-    shifts = new ArrayList<Shift>();
-    daies = new ArrayList<Day>();
-    if (aAddress == null || aAddress.getTheGroceryStoreSystem() != null)
-    {
-      throw new RuntimeException("Unable to create TheGroceryStoreSystem due to aAddress. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    address = aAddress;
-  }
-
-  public TheGroceryStoreSystem(String aTelephone, String aEmail, String aEmailForStoreOwner, String aNameForStoreOwner, String aPasswordForStoreOwner, String aTownForAddress, String aStreetForAddress, String aPostalCodeForAddress, int aUnitForAddress)
-  {
-    telephone = aTelephone;
-    email = aEmail;
-    storeOwner = new StoreOwner(aEmailForStoreOwner, aNameForStoreOwner, aPasswordForStoreOwner, this);
-    employees = new ArrayList<Employee>();
-    customers = new ArrayList<Customer>();
-    products = new ArrayList<Product>();
-    timeSlots = new ArrayList<TimeSlot>();
-    shifts = new ArrayList<Shift>();
-    daies = new ArrayList<Day>();
-    address = new Address(aTownForAddress, aStreetForAddress, aPostalCodeForAddress, aUnitForAddress, this);
+    shifts = new ArrayList<Shifts>();
+    storeInfos = new ArrayList<StoreInfo>();
+    days = new ArrayList<Days>();
   }
 
   //------------------------
   // INTERFACE
   //------------------------
-
-  public boolean setTelephone(String aTelephone)
-  {
-    boolean wasSet = false;
-    telephone = aTelephone;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public boolean setEmail(String aEmail)
-  {
-    boolean wasSet = false;
-    email = aEmail;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public String getTelephone()
-  {
-    return telephone;
-  }
-
-  public String getEmail()
-  {
-    return email;
-  }
-  /* Code from template association_GetOne */
-  public StoreOwner getStoreOwner()
-  {
-    return storeOwner;
-  }
   /* Code from template association_GetMany */
-  public Employee getEmployee(int index)
+  public User getUser(int index)
   {
-    Employee aEmployee = employees.get(index);
-    return aEmployee;
+    User aUser = users.get(index);
+    return aUser;
   }
 
-  public List<Employee> getEmployees()
+  public List<User> getUsers()
   {
-    List<Employee> newEmployees = Collections.unmodifiableList(employees);
-    return newEmployees;
+    List<User> newUsers = Collections.unmodifiableList(users);
+    return newUsers;
   }
 
-  public int numberOfEmployees()
+  public int numberOfUsers()
   {
-    int number = employees.size();
+    int number = users.size();
     return number;
   }
 
-  public boolean hasEmployees()
+  public boolean hasUsers()
   {
-    boolean has = employees.size() > 0;
+    boolean has = users.size() > 0;
     return has;
   }
 
-  public int indexOfEmployee(Employee aEmployee)
+  public int indexOfUser(User aUser)
   {
-    int index = employees.indexOf(aEmployee);
+    int index = users.indexOf(aUser);
     return index;
   }
   /* Code from template association_GetMany */
-  public Customer getCustomer(int index)
+  public Order getOrder(int index)
   {
-    Customer aCustomer = customers.get(index);
-    return aCustomer;
+    Order aOrder = orders.get(index);
+    return aOrder;
   }
 
-  public List<Customer> getCustomers()
+  public List<Order> getOrders()
   {
-    List<Customer> newCustomers = Collections.unmodifiableList(customers);
-    return newCustomers;
+    List<Order> newOrders = Collections.unmodifiableList(orders);
+    return newOrders;
   }
 
-  public int numberOfCustomers()
+  public int numberOfOrders()
   {
-    int number = customers.size();
+    int number = orders.size();
     return number;
   }
 
-  public boolean hasCustomers()
+  public boolean hasOrders()
   {
-    boolean has = customers.size() > 0;
+    boolean has = orders.size() > 0;
     return has;
   }
 
-  public int indexOfCustomer(Customer aCustomer)
+  public int indexOfOrder(Order aOrder)
   {
-    int index = customers.indexOf(aCustomer);
+    int index = orders.indexOf(aOrder);
     return index;
   }
   /* Code from template association_GetMany */
@@ -224,15 +163,15 @@ public class TheGroceryStoreSystem
     return index;
   }
   /* Code from template association_GetMany */
-  public Shift getShift(int index)
+  public Shifts getShift(int index)
   {
-    Shift aShift = shifts.get(index);
+    Shifts aShift = shifts.get(index);
     return aShift;
   }
 
-  public List<Shift> getShifts()
+  public List<Shifts> getShifts()
   {
-    List<Shift> newShifts = Collections.unmodifiableList(shifts);
+    List<Shifts> newShifts = Collections.unmodifiableList(shifts);
     return newShifts;
   }
 
@@ -248,187 +187,212 @@ public class TheGroceryStoreSystem
     return has;
   }
 
-  public int indexOfShift(Shift aShift)
+  public int indexOfShift(Shifts aShift)
   {
     int index = shifts.indexOf(aShift);
     return index;
   }
   /* Code from template association_GetMany */
-  public Day getDay(int index)
+  public StoreInfo getStoreInfo(int index)
   {
-    Day aDay = daies.get(index);
-    return aDay;
+    StoreInfo aStoreInfo = storeInfos.get(index);
+    return aStoreInfo;
   }
 
-  public List<Day> getDaies()
+  public List<StoreInfo> getStoreInfos()
   {
-    List<Day> newDaies = Collections.unmodifiableList(daies);
-    return newDaies;
+    List<StoreInfo> newStoreInfos = Collections.unmodifiableList(storeInfos);
+    return newStoreInfos;
   }
 
-  public int numberOfDaies()
+  public int numberOfStoreInfos()
   {
-    int number = daies.size();
+    int number = storeInfos.size();
     return number;
   }
 
-  public boolean hasDaies()
+  public boolean hasStoreInfos()
   {
-    boolean has = daies.size() > 0;
+    boolean has = storeInfos.size() > 0;
     return has;
   }
 
-  public int indexOfDay(Day aDay)
+  public int indexOfStoreInfo(StoreInfo aStoreInfo)
   {
-    int index = daies.indexOf(aDay);
+    int index = storeInfos.indexOf(aStoreInfo);
     return index;
   }
-  /* Code from template association_GetOne */
-  public Address getAddress()
+  /* Code from template association_GetMany */
+  public Days getDay(int index)
   {
-    return address;
+    Days aDay = days.get(index);
+    return aDay;
+  }
+
+  public List<Days> getDays()
+  {
+    List<Days> newDays = Collections.unmodifiableList(days);
+    return newDays;
+  }
+
+  public int numberOfDays()
+  {
+    int number = days.size();
+    return number;
+  }
+
+  public boolean hasDays()
+  {
+    boolean has = days.size() > 0;
+    return has;
+  }
+
+  public int indexOfDay(Days aDay)
+  {
+    int index = days.indexOf(aDay);
+    return index;
   }
   /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfEmployees()
+  public static int minimumNumberOfUsers()
   {
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Employee addEmployee(String aEmail, String aName, String aPassword, Employee.EmployeeStatus aStatus, Shift aShift)
+  public User addUser(String aEmail, String aName, String aPassword)
   {
-    return new Employee(aEmail, aName, aPassword, aStatus, aShift, this);
+    return new User(aEmail, aName, aPassword, this);
   }
 
-  public boolean addEmployee(Employee aEmployee)
+  public boolean addUser(User aUser)
   {
     boolean wasAdded = false;
-    if (employees.contains(aEmployee)) { return false; }
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = aEmployee.getTheGroceryStoreSystem();
+    if (users.contains(aUser)) { return false; }
+    TheGroceryStoreSystem existingTheGroceryStoreSystem = aUser.getTheGroceryStoreSystem();
     boolean isNewTheGroceryStoreSystem = existingTheGroceryStoreSystem != null && !this.equals(existingTheGroceryStoreSystem);
     if (isNewTheGroceryStoreSystem)
     {
-      aEmployee.setTheGroceryStoreSystem(this);
+      aUser.setTheGroceryStoreSystem(this);
     }
     else
     {
-      employees.add(aEmployee);
+      users.add(aUser);
     }
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeEmployee(Employee aEmployee)
+  public boolean removeUser(User aUser)
   {
     boolean wasRemoved = false;
-    //Unable to remove aEmployee, as it must always have a theGroceryStoreSystem
-    if (!this.equals(aEmployee.getTheGroceryStoreSystem()))
+    //Unable to remove aUser, as it must always have a theGroceryStoreSystem
+    if (!this.equals(aUser.getTheGroceryStoreSystem()))
     {
-      employees.remove(aEmployee);
+      users.remove(aUser);
       wasRemoved = true;
     }
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
-  public boolean addEmployeeAt(Employee aEmployee, int index)
+  public boolean addUserAt(User aUser, int index)
   {  
     boolean wasAdded = false;
-    if(addEmployee(aEmployee))
+    if(addUser(aUser))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfEmployees()) { index = numberOfEmployees() - 1; }
-      employees.remove(aEmployee);
-      employees.add(index, aEmployee);
+      if(index > numberOfUsers()) { index = numberOfUsers() - 1; }
+      users.remove(aUser);
+      users.add(index, aUser);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveEmployeeAt(Employee aEmployee, int index)
+  public boolean addOrMoveUserAt(User aUser, int index)
   {
     boolean wasAdded = false;
-    if(employees.contains(aEmployee))
+    if(users.contains(aUser))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfEmployees()) { index = numberOfEmployees() - 1; }
-      employees.remove(aEmployee);
-      employees.add(index, aEmployee);
+      if(index > numberOfUsers()) { index = numberOfUsers() - 1; }
+      users.remove(aUser);
+      users.add(index, aUser);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addEmployeeAt(aEmployee, index);
+      wasAdded = addUserAt(aUser, index);
     }
     return wasAdded;
   }
   /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfCustomers()
+  public static int minimumNumberOfOrders()
   {
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Customer addCustomer(String aEmail, String aName, String aPassword, String aPhone, Address aAddress, Cart aCart)
+  public Order addOrder(int aOrderID, boolean aCompleted, Date aOrderDate, int aTotal, String aPayment, Cart aCart)
   {
-    return new Customer(aEmail, aName, aPassword, aPhone, aAddress, aCart, this);
+    return new Order(aOrderID, aCompleted, aOrderDate, aTotal, aPayment, aCart, this);
   }
 
-  public boolean addCustomer(Customer aCustomer)
+  public boolean addOrder(Order aOrder)
   {
     boolean wasAdded = false;
-    if (customers.contains(aCustomer)) { return false; }
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = aCustomer.getTheGroceryStoreSystem();
+    if (orders.contains(aOrder)) { return false; }
+    TheGroceryStoreSystem existingTheGroceryStoreSystem = aOrder.getTheGroceryStoreSystem();
     boolean isNewTheGroceryStoreSystem = existingTheGroceryStoreSystem != null && !this.equals(existingTheGroceryStoreSystem);
     if (isNewTheGroceryStoreSystem)
     {
-      aCustomer.setTheGroceryStoreSystem(this);
+      aOrder.setTheGroceryStoreSystem(this);
     }
     else
     {
-      customers.add(aCustomer);
+      orders.add(aOrder);
     }
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeCustomer(Customer aCustomer)
+  public boolean removeOrder(Order aOrder)
   {
     boolean wasRemoved = false;
-    //Unable to remove aCustomer, as it must always have a theGroceryStoreSystem
-    if (!this.equals(aCustomer.getTheGroceryStoreSystem()))
+    //Unable to remove aOrder, as it must always have a theGroceryStoreSystem
+    if (!this.equals(aOrder.getTheGroceryStoreSystem()))
     {
-      customers.remove(aCustomer);
+      orders.remove(aOrder);
       wasRemoved = true;
     }
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
-  public boolean addCustomerAt(Customer aCustomer, int index)
+  public boolean addOrderAt(Order aOrder, int index)
   {  
     boolean wasAdded = false;
-    if(addCustomer(aCustomer))
+    if(addOrder(aOrder))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfCustomers()) { index = numberOfCustomers() - 1; }
-      customers.remove(aCustomer);
-      customers.add(index, aCustomer);
+      if(index > numberOfOrders()) { index = numberOfOrders() - 1; }
+      orders.remove(aOrder);
+      orders.add(index, aOrder);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveCustomerAt(Customer aCustomer, int index)
+  public boolean addOrMoveOrderAt(Order aOrder, int index)
   {
     boolean wasAdded = false;
-    if(customers.contains(aCustomer))
+    if(orders.contains(aOrder))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfCustomers()) { index = numberOfCustomers() - 1; }
-      customers.remove(aCustomer);
-      customers.add(index, aCustomer);
+      if(index > numberOfOrders()) { index = numberOfOrders() - 1; }
+      orders.remove(aOrder);
+      orders.add(index, aOrder);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addCustomerAt(aCustomer, index);
+      wasAdded = addOrderAt(aOrder, index);
     }
     return wasAdded;
   }
@@ -438,9 +402,9 @@ public class TheGroceryStoreSystem
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Product addProduct(String aIsAvailableOnline, int aPrice, int aStock)
+  public Product addProduct(String aProductID, String aIsAvailableOnline, int aPrice, int aStock)
   {
-    return new Product(aIsAvailableOnline, aPrice, aStock, this);
+    return new Product(aProductID, aIsAvailableOnline, aPrice, aStock, this);
   }
 
   public boolean addProduct(Product aProduct)
@@ -510,9 +474,9 @@ public class TheGroceryStoreSystem
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public TimeSlot addTimeSlot(Time aStartTime, Time aEndTime, Date aDate, int aMaxOrderPerSlot, TimeSlot.ShoppingType aShoppingType, Day aDay)
+  public TimeSlot addTimeSlot(Time aStartTime, Time aEndTime, int aMaxOrderPerSlot, TimeSlot.ShoppingType aShoppingType)
   {
-    return new TimeSlot(aStartTime, aEndTime, aDate, aMaxOrderPerSlot, aShoppingType, aDay, this);
+    return new TimeSlot(aStartTime, aEndTime, aMaxOrderPerSlot, aShoppingType, this);
   }
 
   public boolean addTimeSlot(TimeSlot aTimeSlot)
@@ -582,12 +546,12 @@ public class TheGroceryStoreSystem
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Shift addShift(Time aStartHour, Time aEndHour, Date aDate, Day aDay)
+  public Shifts addShift(Time aStartHour, Time aEndHour, Days aDays)
   {
-    return new Shift(aStartHour, aEndHour, aDate, aDay, this);
+    return new Shifts(aStartHour, aEndHour, aDays, this);
   }
 
-  public boolean addShift(Shift aShift)
+  public boolean addShift(Shifts aShift)
   {
     boolean wasAdded = false;
     if (shifts.contains(aShift)) { return false; }
@@ -605,7 +569,7 @@ public class TheGroceryStoreSystem
     return wasAdded;
   }
 
-  public boolean removeShift(Shift aShift)
+  public boolean removeShift(Shifts aShift)
   {
     boolean wasRemoved = false;
     //Unable to remove aShift, as it must always have a theGroceryStoreSystem
@@ -617,7 +581,7 @@ public class TheGroceryStoreSystem
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
-  public boolean addShiftAt(Shift aShift, int index)
+  public boolean addShiftAt(Shifts aShift, int index)
   {  
     boolean wasAdded = false;
     if(addShift(aShift))
@@ -631,7 +595,7 @@ public class TheGroceryStoreSystem
     return wasAdded;
   }
 
-  public boolean addOrMoveShiftAt(Shift aShift, int index)
+  public boolean addOrMoveShiftAt(Shifts aShift, int index)
   {
     boolean wasAdded = false;
     if(shifts.contains(aShift))
@@ -648,108 +612,165 @@ public class TheGroceryStoreSystem
     }
     return wasAdded;
   }
-  /* Code from template association_IsNumberOfValidMethod */
-  public boolean isNumberOfDaiesValid()
-  {
-    boolean isValid = numberOfDaies() >= minimumNumberOfDaies() && numberOfDaies() <= maximumNumberOfDaies();
-    return isValid;
-  }
-  /* Code from template association_RequiredNumberOfMethod */
-  public static int requiredNumberOfDaies()
-  {
-    return 7;
-  }
   /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfDaies()
+  public static int minimumNumberOfStoreInfos()
   {
-    return 7;
+    return 0;
   }
-  /* Code from template association_MaximumNumberOfMethod */
-  public static int maximumNumberOfDaies()
+  /* Code from template association_AddManyToOne */
+  public StoreInfo addStoreInfo(String aTelephone, String aEmail, StoreOwner aStoreOwner, Address aAddress)
   {
-    return 7;
+    return new StoreInfo(aTelephone, aEmail, aStoreOwner, aAddress, this);
   }
-  /* Code from template association_AddMNToOnlyOne */
-  public Day addDay(Day.WeekDays aDay, Time aStoreStartHour, Time aStoreEndHour)
+
+  public boolean addStoreInfo(StoreInfo aStoreInfo)
   {
-    if (numberOfDaies() >= maximumNumberOfDaies())
+    boolean wasAdded = false;
+    if (storeInfos.contains(aStoreInfo)) { return false; }
+    TheGroceryStoreSystem existingTheGroceryStoreSystem = aStoreInfo.getTheGroceryStoreSystem();
+    boolean isNewTheGroceryStoreSystem = existingTheGroceryStoreSystem != null && !this.equals(existingTheGroceryStoreSystem);
+    if (isNewTheGroceryStoreSystem)
     {
-      return null;
+      aStoreInfo.setTheGroceryStoreSystem(this);
     }
     else
     {
-      return new Day(aDay, aStoreStartHour, aStoreEndHour, this);
+      storeInfos.add(aStoreInfo);
     }
+    wasAdded = true;
+    return wasAdded;
   }
 
-  public boolean addDay(Day aDay)
+  public boolean removeStoreInfo(StoreInfo aStoreInfo)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aStoreInfo, as it must always have a theGroceryStoreSystem
+    if (!this.equals(aStoreInfo.getTheGroceryStoreSystem()))
+    {
+      storeInfos.remove(aStoreInfo);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+  /* Code from template association_AddIndexControlFunctions */
+  public boolean addStoreInfoAt(StoreInfo aStoreInfo, int index)
+  {  
+    boolean wasAdded = false;
+    if(addStoreInfo(aStoreInfo))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfStoreInfos()) { index = numberOfStoreInfos() - 1; }
+      storeInfos.remove(aStoreInfo);
+      storeInfos.add(index, aStoreInfo);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveStoreInfoAt(StoreInfo aStoreInfo, int index)
   {
     boolean wasAdded = false;
-    if (daies.contains(aDay)) { return false; }
-    if (numberOfDaies() >= maximumNumberOfDaies())
+    if(storeInfos.contains(aStoreInfo))
     {
-      return wasAdded;
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfStoreInfos()) { index = numberOfStoreInfos() - 1; }
+      storeInfos.remove(aStoreInfo);
+      storeInfos.add(index, aStoreInfo);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addStoreInfoAt(aStoreInfo, index);
     }
+    return wasAdded;
+  }
+  /* Code from template association_MinimumNumberOfMethod */
+  public static int minimumNumberOfDays()
+  {
+    return 0;
+  }
+  /* Code from template association_AddManyToOne */
+  public Days addDay(Days.WeekDays aDays, Time aStoreStartHour, Time aStoreEndHour, StoreInfo aStoreInfo)
+  {
+    return new Days(aDays, aStoreStartHour, aStoreEndHour, aStoreInfo, this);
+  }
 
+  public boolean addDay(Days aDay)
+  {
+    boolean wasAdded = false;
+    if (days.contains(aDay)) { return false; }
     TheGroceryStoreSystem existingTheGroceryStoreSystem = aDay.getTheGroceryStoreSystem();
     boolean isNewTheGroceryStoreSystem = existingTheGroceryStoreSystem != null && !this.equals(existingTheGroceryStoreSystem);
-
-    if (isNewTheGroceryStoreSystem && existingTheGroceryStoreSystem.numberOfDaies() <= minimumNumberOfDaies())
-    {
-      return wasAdded;
-    }
-
     if (isNewTheGroceryStoreSystem)
     {
       aDay.setTheGroceryStoreSystem(this);
     }
     else
     {
-      daies.add(aDay);
+      days.add(aDay);
     }
     wasAdded = true;
     return wasAdded;
   }
 
-  public boolean removeDay(Day aDay)
+  public boolean removeDay(Days aDay)
   {
     boolean wasRemoved = false;
     //Unable to remove aDay, as it must always have a theGroceryStoreSystem
-    if (this.equals(aDay.getTheGroceryStoreSystem()))
+    if (!this.equals(aDay.getTheGroceryStoreSystem()))
     {
-      return wasRemoved;
+      days.remove(aDay);
+      wasRemoved = true;
     }
-
-    //theGroceryStoreSystem already at minimum (7)
-    if (numberOfDaies() <= minimumNumberOfDaies())
-    {
-      return wasRemoved;
-    }
-    daies.remove(aDay);
-    wasRemoved = true;
     return wasRemoved;
+  }
+  /* Code from template association_AddIndexControlFunctions */
+  public boolean addDayAt(Days aDay, int index)
+  {  
+    boolean wasAdded = false;
+    if(addDay(aDay))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfDays()) { index = numberOfDays() - 1; }
+      days.remove(aDay);
+      days.add(index, aDay);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveDayAt(Days aDay, int index)
+  {
+    boolean wasAdded = false;
+    if(days.contains(aDay))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfDays()) { index = numberOfDays() - 1; }
+      days.remove(aDay);
+      days.add(index, aDay);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addDayAt(aDay, index);
+    }
+    return wasAdded;
   }
 
   public void delete()
   {
-    StoreOwner existingStoreOwner = storeOwner;
-    storeOwner = null;
-    if (existingStoreOwner != null)
+    while (users.size() > 0)
     {
-      existingStoreOwner.delete();
-    }
-    while (employees.size() > 0)
-    {
-      Employee aEmployee = employees.get(employees.size() - 1);
-      aEmployee.delete();
-      employees.remove(aEmployee);
+      User aUser = users.get(users.size() - 1);
+      aUser.delete();
+      users.remove(aUser);
     }
     
-    while (customers.size() > 0)
+    while (orders.size() > 0)
     {
-      Customer aCustomer = customers.get(customers.size() - 1);
-      aCustomer.delete();
-      customers.remove(aCustomer);
+      Order aOrder = orders.get(orders.size() - 1);
+      aOrder.delete();
+      orders.remove(aOrder);
     }
     
     while (products.size() > 0)
@@ -768,33 +789,25 @@ public class TheGroceryStoreSystem
     
     while (shifts.size() > 0)
     {
-      Shift aShift = shifts.get(shifts.size() - 1);
+      Shifts aShift = shifts.get(shifts.size() - 1);
       aShift.delete();
       shifts.remove(aShift);
     }
     
-    while (daies.size() > 0)
+    while (storeInfos.size() > 0)
     {
-      Day aDay = daies.get(daies.size() - 1);
-      aDay.delete();
-      daies.remove(aDay);
+      StoreInfo aStoreInfo = storeInfos.get(storeInfos.size() - 1);
+      aStoreInfo.delete();
+      storeInfos.remove(aStoreInfo);
     }
     
-    Address existingAddress = address;
-    address = null;
-    if (existingAddress != null)
+    while (days.size() > 0)
     {
-      existingAddress.delete();
+      Days aDay = days.get(days.size() - 1);
+      aDay.delete();
+      days.remove(aDay);
     }
+    
   }
 
-
-  public String toString()
-  {
-    return super.toString() + "["+
-            "telephone" + ":" + getTelephone()+ "," +
-            "email" + ":" + getEmail()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "storeOwner = "+(getStoreOwner()!=null?Integer.toHexString(System.identityHashCode(getStoreOwner())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "address = "+(getAddress()!=null?Integer.toHexString(System.identityHashCode(getAddress())):"null");
-  }
 }

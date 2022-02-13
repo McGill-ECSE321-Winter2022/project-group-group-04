@@ -3,10 +3,10 @@
 
 
 import java.sql.Time;
-import java.sql.Date;
+import java.util.*;
 
-// line 64 "model.ump"
-// line 165 "model.ump"
+// line 70 "model.ump"
+// line 175 "model.ump"
 public class TimeSlot
 {
 
@@ -23,29 +23,24 @@ public class TimeSlot
   //TimeSlot Attributes
   private Time startTime;
   private Time endTime;
-  private Date date;
   private int maxOrderPerSlot;
   private ShoppingType shoppingType;
 
   //TimeSlot Associations
-  private Day day;
+  private List<Cart> carts;
   private TheGroceryStoreSystem theGroceryStoreSystem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public TimeSlot(Time aStartTime, Time aEndTime, Date aDate, int aMaxOrderPerSlot, ShoppingType aShoppingType, Day aDay, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public TimeSlot(Time aStartTime, Time aEndTime, int aMaxOrderPerSlot, ShoppingType aShoppingType, TheGroceryStoreSystem aTheGroceryStoreSystem)
   {
     startTime = aStartTime;
     endTime = aEndTime;
-    date = aDate;
     maxOrderPerSlot = aMaxOrderPerSlot;
     shoppingType = aShoppingType;
-    if (!setDay(aDay))
-    {
-      throw new RuntimeException("Unable to create TimeSlot due to aDay. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
+    carts = new ArrayList<Cart>();
     boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
     if (!didAddTheGroceryStoreSystem)
     {
@@ -69,14 +64,6 @@ public class TimeSlot
   {
     boolean wasSet = false;
     endTime = aEndTime;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public boolean setDate(Date aDate)
-  {
-    boolean wasSet = false;
-    date = aDate;
     wasSet = true;
     return wasSet;
   }
@@ -107,11 +94,6 @@ public class TimeSlot
     return endTime;
   }
 
-  public Date getDate()
-  {
-    return date;
-  }
-
   public int getMaxOrderPerSlot()
   {
     return maxOrderPerSlot;
@@ -121,26 +103,112 @@ public class TimeSlot
   {
     return shoppingType;
   }
-  /* Code from template association_GetOne */
-  public Day getDay()
+  /* Code from template association_GetMany */
+  public Cart getCart(int index)
   {
-    return day;
+    Cart aCart = carts.get(index);
+    return aCart;
+  }
+
+  public List<Cart> getCarts()
+  {
+    List<Cart> newCarts = Collections.unmodifiableList(carts);
+    return newCarts;
+  }
+
+  public int numberOfCarts()
+  {
+    int number = carts.size();
+    return number;
+  }
+
+  public boolean hasCarts()
+  {
+    boolean has = carts.size() > 0;
+    return has;
+  }
+
+  public int indexOfCart(Cart aCart)
+  {
+    int index = carts.indexOf(aCart);
+    return index;
   }
   /* Code from template association_GetOne */
   public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
     return theGroceryStoreSystem;
   }
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setDay(Day aNewDay)
+  /* Code from template association_MinimumNumberOfMethod */
+  public static int minimumNumberOfCarts()
   {
-    boolean wasSet = false;
-    if (aNewDay != null)
+    return 0;
+  }
+  /* Code from template association_AddManyToOne */
+  public Cart addCart(int aCartID, ShoppingType aType, Customer aCustomer)
+  {
+    return new Cart(aCartID, aType, aCustomer, this);
+  }
+
+  public boolean addCart(Cart aCart)
+  {
+    boolean wasAdded = false;
+    if (carts.contains(aCart)) { return false; }
+    TimeSlot existingTimeSlot = aCart.getTimeSlot();
+    boolean isNewTimeSlot = existingTimeSlot != null && !this.equals(existingTimeSlot);
+    if (isNewTimeSlot)
     {
-      day = aNewDay;
-      wasSet = true;
+      aCart.setTimeSlot(this);
     }
-    return wasSet;
+    else
+    {
+      carts.add(aCart);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeCart(Cart aCart)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aCart, as it must always have a timeSlot
+    if (!this.equals(aCart.getTimeSlot()))
+    {
+      carts.remove(aCart);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+  /* Code from template association_AddIndexControlFunctions */
+  public boolean addCartAt(Cart aCart, int index)
+  {  
+    boolean wasAdded = false;
+    if(addCart(aCart))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfCarts()) { index = numberOfCarts() - 1; }
+      carts.remove(aCart);
+      carts.add(index, aCart);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveCartAt(Cart aCart, int index)
+  {
+    boolean wasAdded = false;
+    if(carts.contains(aCart))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfCarts()) { index = numberOfCarts() - 1; }
+      carts.remove(aCart);
+      carts.add(index, aCart);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addCartAt(aCart, index);
+    }
+    return wasAdded;
   }
   /* Code from template association_SetOneToMany */
   public boolean setTheGroceryStoreSystem(TheGroceryStoreSystem aTheGroceryStoreSystem)
@@ -164,7 +232,11 @@ public class TimeSlot
 
   public void delete()
   {
-    day = null;
+    for(int i=carts.size(); i > 0; i--)
+    {
+      Cart aCart = carts.get(i - 1);
+      aCart.delete();
+    }
     TheGroceryStoreSystem placeholderTheGroceryStoreSystem = theGroceryStoreSystem;
     this.theGroceryStoreSystem = null;
     if(placeholderTheGroceryStoreSystem != null)
@@ -180,9 +252,7 @@ public class TimeSlot
             "maxOrderPerSlot" + ":" + getMaxOrderPerSlot()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "startTime" + "=" + (getStartTime() != null ? !getStartTime().equals(this)  ? getStartTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "endTime" + "=" + (getEndTime() != null ? !getEndTime().equals(this)  ? getEndTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "date" + "=" + (getDate() != null ? !getDate().equals(this)  ? getDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "shoppingType" + "=" + (getShoppingType() != null ? !getShoppingType().equals(this)  ? getShoppingType().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "day = "+(getDay()!=null?Integer.toHexString(System.identityHashCode(getDay())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
   }
 }

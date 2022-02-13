@@ -3,8 +3,8 @@
 
 
 
-// line 15 "model.ump"
-// line 132 "model.ump"
+// line 18 "model.ump"
+// line 128 "model.ump"
 public class StoreOwner extends User
 {
 
@@ -13,44 +13,44 @@ public class StoreOwner extends User
   //------------------------
 
   //StoreOwner Associations
-  private StoreInfo storeInfo;
+  private TheGroceryStoreSystem theGroceryStoreSystem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public StoreOwner(String aEmail, String aName, String aPassword, TheGroceryStoreSystem aTheGroceryStoreSystem, StoreInfo aStoreInfo)
+  public StoreOwner(String aEmail, String aName, String aPassword, TheGroceryStoreSystem aTheGroceryStoreSystem)
   {
-    super(aEmail, aName, aPassword, aTheGroceryStoreSystem);
-    if (aStoreInfo == null || aStoreInfo.getStoreOwner() != null)
+    super(aEmail, aName, aPassword);
+    if (aTheGroceryStoreSystem == null || aTheGroceryStoreSystem.getStoreOwner() != null)
     {
-      throw new RuntimeException("Unable to create StoreOwner due to aStoreInfo. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create StoreOwner due to aTheGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
-    storeInfo = aStoreInfo;
+    theGroceryStoreSystem = aTheGroceryStoreSystem;
   }
 
-  public StoreOwner(String aEmail, String aName, String aPassword, TheGroceryStoreSystem aTheGroceryStoreSystem, String aTelephoneForStoreInfo, String aEmailForStoreInfo, Address aAddressForStoreInfo, TheGroceryStoreSystem aTheGroceryStoreSystemForStoreInfo)
+  public StoreOwner(String aEmail, String aName, String aPassword, String aTelephoneForTheGroceryStoreSystem, String aEmailForTheGroceryStoreSystem, Address aAddressForTheGroceryStoreSystem)
   {
-    super(aEmail, aName, aPassword, aTheGroceryStoreSystem);
-    storeInfo = new StoreInfo(aTelephoneForStoreInfo, aEmailForStoreInfo, this, aAddressForStoreInfo, aTheGroceryStoreSystemForStoreInfo);
+    super(aEmail, aName, aPassword);
+    theGroceryStoreSystem = new TheGroceryStoreSystem(aTelephoneForTheGroceryStoreSystem, aEmailForTheGroceryStoreSystem, this, aAddressForTheGroceryStoreSystem);
   }
 
   //------------------------
   // INTERFACE
   //------------------------
   /* Code from template association_GetOne */
-  public StoreInfo getStoreInfo()
+  public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
-    return storeInfo;
+    return theGroceryStoreSystem;
   }
 
   public void delete()
   {
-    StoreInfo existingStoreInfo = storeInfo;
-    storeInfo = null;
-    if (existingStoreInfo != null)
+    TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
+    theGroceryStoreSystem = null;
+    if (existingTheGroceryStoreSystem != null)
     {
-      existingStoreInfo.delete();
+      existingTheGroceryStoreSystem.delete();
     }
     super.delete();
   }

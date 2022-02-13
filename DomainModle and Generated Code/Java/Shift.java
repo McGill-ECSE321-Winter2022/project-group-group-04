@@ -5,29 +5,21 @@
 import java.sql.Time;
 import java.sql.Date;
 
-// line 64 "model.ump"
-// line 165 "model.ump"
-public class TimeSlot
+// line 83 "model.ump"
+// line 193 "model.ump"
+public class Shift
 {
-
-  //------------------------
-  // ENUMERATIONS
-  //------------------------
-
-  public enum ShoppingType { Delivery, Pickup }
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
 
-  //TimeSlot Attributes
-  private Time startTime;
-  private Time endTime;
+  //Shift Attributes
+  private Time startHour;
+  private Time endHour;
   private Date date;
-  private int maxOrderPerSlot;
-  private ShoppingType shoppingType;
 
-  //TimeSlot Associations
+  //Shift Associations
   private Day day;
   private TheGroceryStoreSystem theGroceryStoreSystem;
 
@@ -35,21 +27,19 @@ public class TimeSlot
   // CONSTRUCTOR
   //------------------------
 
-  public TimeSlot(Time aStartTime, Time aEndTime, Date aDate, int aMaxOrderPerSlot, ShoppingType aShoppingType, Day aDay, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public Shift(Time aStartHour, Time aEndHour, Date aDate, Day aDay, TheGroceryStoreSystem aTheGroceryStoreSystem)
   {
-    startTime = aStartTime;
-    endTime = aEndTime;
+    startHour = aStartHour;
+    endHour = aEndHour;
     date = aDate;
-    maxOrderPerSlot = aMaxOrderPerSlot;
-    shoppingType = aShoppingType;
     if (!setDay(aDay))
     {
-      throw new RuntimeException("Unable to create TimeSlot due to aDay. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create Shift due to aDay. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
     boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
     if (!didAddTheGroceryStoreSystem)
     {
-      throw new RuntimeException("Unable to create timeSlot due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create shift due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
 
@@ -57,18 +47,18 @@ public class TimeSlot
   // INTERFACE
   //------------------------
 
-  public boolean setStartTime(Time aStartTime)
+  public boolean setStartHour(Time aStartHour)
   {
     boolean wasSet = false;
-    startTime = aStartTime;
+    startHour = aStartHour;
     wasSet = true;
     return wasSet;
   }
 
-  public boolean setEndTime(Time aEndTime)
+  public boolean setEndHour(Time aEndHour)
   {
     boolean wasSet = false;
-    endTime = aEndTime;
+    endHour = aEndHour;
     wasSet = true;
     return wasSet;
   }
@@ -81,45 +71,19 @@ public class TimeSlot
     return wasSet;
   }
 
-  public boolean setMaxOrderPerSlot(int aMaxOrderPerSlot)
+  public Time getStartHour()
   {
-    boolean wasSet = false;
-    maxOrderPerSlot = aMaxOrderPerSlot;
-    wasSet = true;
-    return wasSet;
+    return startHour;
   }
 
-  public boolean setShoppingType(ShoppingType aShoppingType)
+  public Time getEndHour()
   {
-    boolean wasSet = false;
-    shoppingType = aShoppingType;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public Time getStartTime()
-  {
-    return startTime;
-  }
-
-  public Time getEndTime()
-  {
-    return endTime;
+    return endHour;
   }
 
   public Date getDate()
   {
     return date;
-  }
-
-  public int getMaxOrderPerSlot()
-  {
-    return maxOrderPerSlot;
-  }
-
-  public ShoppingType getShoppingType()
-  {
-    return shoppingType;
   }
   /* Code from template association_GetOne */
   public Day getDay()
@@ -155,9 +119,9 @@ public class TimeSlot
     theGroceryStoreSystem = aTheGroceryStoreSystem;
     if (existingTheGroceryStoreSystem != null && !existingTheGroceryStoreSystem.equals(aTheGroceryStoreSystem))
     {
-      existingTheGroceryStoreSystem.removeTimeSlot(this);
+      existingTheGroceryStoreSystem.removeShift(this);
     }
-    theGroceryStoreSystem.addTimeSlot(this);
+    theGroceryStoreSystem.addShift(this);
     wasSet = true;
     return wasSet;
   }
@@ -169,19 +133,17 @@ public class TimeSlot
     this.theGroceryStoreSystem = null;
     if(placeholderTheGroceryStoreSystem != null)
     {
-      placeholderTheGroceryStoreSystem.removeTimeSlot(this);
+      placeholderTheGroceryStoreSystem.removeShift(this);
     }
   }
 
 
   public String toString()
   {
-    return super.toString() + "["+
-            "maxOrderPerSlot" + ":" + getMaxOrderPerSlot()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "startTime" + "=" + (getStartTime() != null ? !getStartTime().equals(this)  ? getStartTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "endTime" + "=" + (getEndTime() != null ? !getEndTime().equals(this)  ? getEndTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+    return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "startHour" + "=" + (getStartHour() != null ? !getStartHour().equals(this)  ? getStartHour().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+            "  " + "endHour" + "=" + (getEndHour() != null ? !getEndHour().equals(this)  ? getEndHour().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "date" + "=" + (getDate() != null ? !getDate().equals(this)  ? getDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "shoppingType" + "=" + (getShoppingType() != null ? !getShoppingType().equals(this)  ? getShoppingType().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "day = "+(getDay()!=null?Integer.toHexString(System.identityHashCode(getDay())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
   }

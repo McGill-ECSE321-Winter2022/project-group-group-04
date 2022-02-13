@@ -3,46 +3,36 @@
 
 
 
-// line 50 "model.ump"
-// line 154 "model.ump"
-public class Product
+// line 2 "model.ump"
+// line 121 "model.ump"
+public class User
 {
-
-  //------------------------
-  // STATIC VARIABLES
-  //------------------------
-
-  private static int nextProductID = 1;
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
 
-  //Product Attributes
-  private String isAvailableOnline;
-  private int price;
-  private int stock;
+  //User Attributes
+  private String email;
+  private String name;
+  private String password;
 
-  //Autounique Attributes
-  private int productID;
-
-  //Product Associations
+  //User Associations
   private TheGroceryStoreSystem theGroceryStoreSystem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Product(String aIsAvailableOnline, int aPrice, int aStock, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public User(String aEmail, String aName, String aPassword, TheGroceryStoreSystem aTheGroceryStoreSystem)
   {
-    isAvailableOnline = aIsAvailableOnline;
-    price = aPrice;
-    stock = aStock;
-    productID = nextProductID++;
+    email = aEmail;
+    name = aName;
+    password = aPassword;
     boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
     if (!didAddTheGroceryStoreSystem)
     {
-      throw new RuntimeException("Unable to create product due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create user due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
 
@@ -50,48 +40,43 @@ public class Product
   // INTERFACE
   //------------------------
 
-  public boolean setIsAvailableOnline(String aIsAvailableOnline)
+  public boolean setEmail(String aEmail)
   {
     boolean wasSet = false;
-    isAvailableOnline = aIsAvailableOnline;
+    email = aEmail;
     wasSet = true;
     return wasSet;
   }
 
-  public boolean setPrice(int aPrice)
+  public boolean setName(String aName)
   {
     boolean wasSet = false;
-    price = aPrice;
+    name = aName;
     wasSet = true;
     return wasSet;
   }
 
-  public boolean setStock(int aStock)
+  public boolean setPassword(String aPassword)
   {
     boolean wasSet = false;
-    stock = aStock;
+    password = aPassword;
     wasSet = true;
     return wasSet;
   }
 
-  public String getIsAvailableOnline()
+  public String getEmail()
   {
-    return isAvailableOnline;
+    return email;
   }
 
-  public int getPrice()
+  public String getName()
   {
-    return price;
+    return name;
   }
 
-  public int getStock()
+  public String getPassword()
   {
-    return stock;
-  }
-
-  public int getProductID()
-  {
-    return productID;
+    return password;
   }
   /* Code from template association_GetOne */
   public TheGroceryStoreSystem getTheGroceryStoreSystem()
@@ -111,9 +96,9 @@ public class Product
     theGroceryStoreSystem = aTheGroceryStoreSystem;
     if (existingTheGroceryStoreSystem != null && !existingTheGroceryStoreSystem.equals(aTheGroceryStoreSystem))
     {
-      existingTheGroceryStoreSystem.removeProduct(this);
+      existingTheGroceryStoreSystem.removeUser(this);
     }
-    theGroceryStoreSystem.addProduct(this);
+    theGroceryStoreSystem.addUser(this);
     wasSet = true;
     return wasSet;
   }
@@ -124,7 +109,7 @@ public class Product
     this.theGroceryStoreSystem = null;
     if(placeholderTheGroceryStoreSystem != null)
     {
-      placeholderTheGroceryStoreSystem.removeProduct(this);
+      placeholderTheGroceryStoreSystem.removeUser(this);
     }
   }
 
@@ -132,10 +117,9 @@ public class Product
   public String toString()
   {
     return super.toString() + "["+
-            "productID" + ":" + getProductID()+ "," +
-            "isAvailableOnline" + ":" + getIsAvailableOnline()+ "," +
-            "price" + ":" + getPrice()+ "," +
-            "stock" + ":" + getStock()+ "]" + System.getProperties().getProperty("line.separator") +
+            "email" + ":" + getEmail()+ "," +
+            "name" + ":" + getName()+ "," +
+            "password" + ":" + getPassword()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
   }
 }

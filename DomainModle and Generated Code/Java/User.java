@@ -4,9 +4,15 @@
 
 
 // line 2 "model.ump"
-// line 121 "model.ump"
-public class User
+// line 117 "model.ump"
+public abstract class User
 {
+
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+
+  private static int nextUserID = 1;
 
   //------------------------
   // MEMBER VARIABLES
@@ -17,23 +23,19 @@ public class User
   private String name;
   private String password;
 
-  //User Associations
-  private TheGroceryStoreSystem theGroceryStoreSystem;
+  //Autounique Attributes
+  private int userID;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public User(String aEmail, String aName, String aPassword, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public User(String aEmail, String aName, String aPassword)
   {
     email = aEmail;
     name = aName;
     password = aPassword;
-    boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
-    if (!didAddTheGroceryStoreSystem)
-    {
-      throw new RuntimeException("Unable to create user due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
+    userID = nextUserID++;
   }
 
   //------------------------
@@ -78,48 +80,22 @@ public class User
   {
     return password;
   }
-  /* Code from template association_GetOne */
-  public TheGroceryStoreSystem getTheGroceryStoreSystem()
-  {
-    return theGroceryStoreSystem;
-  }
-  /* Code from template association_SetOneToMany */
-  public boolean setTheGroceryStoreSystem(TheGroceryStoreSystem aTheGroceryStoreSystem)
-  {
-    boolean wasSet = false;
-    if (aTheGroceryStoreSystem == null)
-    {
-      return wasSet;
-    }
 
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
-    theGroceryStoreSystem = aTheGroceryStoreSystem;
-    if (existingTheGroceryStoreSystem != null && !existingTheGroceryStoreSystem.equals(aTheGroceryStoreSystem))
-    {
-      existingTheGroceryStoreSystem.removeUser(this);
-    }
-    theGroceryStoreSystem.addUser(this);
-    wasSet = true;
-    return wasSet;
+  public int getUserID()
+  {
+    return userID;
   }
 
   public void delete()
-  {
-    TheGroceryStoreSystem placeholderTheGroceryStoreSystem = theGroceryStoreSystem;
-    this.theGroceryStoreSystem = null;
-    if(placeholderTheGroceryStoreSystem != null)
-    {
-      placeholderTheGroceryStoreSystem.removeUser(this);
-    }
-  }
+  {}
 
 
   public String toString()
   {
     return super.toString() + "["+
+            "userID" + ":" + getUserID()+ "," +
             "email" + ":" + getEmail()+ "," +
             "name" + ":" + getName()+ "," +
-            "password" + ":" + getPassword()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
+            "password" + ":" + getPassword()+ "]";
   }
 }

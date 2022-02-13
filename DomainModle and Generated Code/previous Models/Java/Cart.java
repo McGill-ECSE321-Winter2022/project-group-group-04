@@ -5,26 +5,18 @@
 import java.util.*;
 import java.sql.Date;
 
-// line 31 "model.ump"
-// line 140 "model.ump"
+// line 37 "model.ump"
+// line 149 "model.ump"
 public class Cart
 {
-
-  //------------------------
-  // STATIC VARIABLES
-  //------------------------
-
-  private static int nextCartID = 1;
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
 
   //Cart Attributes
-  private ShoppingType type;
-
-  //Autounique Attributes
   private int cartID;
+  private ShoppingType type;
 
   //Cart Associations
   private Customer customer;
@@ -36,28 +28,29 @@ public class Cart
   // CONSTRUCTOR
   //------------------------
 
-  public Cart(ShoppingType aType, Customer aCustomer, TimeSlot aTimeSlot)
+  public Cart(int aCartID, ShoppingType aType, Customer aCustomer, TimeSlot aTimeSlot)
   {
+    cartID = aCartID;
     type = aType;
-    cartID = nextCartID++;
     if (aCustomer == null || aCustomer.getCart() != null)
     {
       throw new RuntimeException("Unable to create Cart due to aCustomer. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
     customer = aCustomer;
     cartItems = new ArrayList<CartItem>();
-    if (!setTimeSlot(aTimeSlot))
+    boolean didAddTimeSlot = setTimeSlot(aTimeSlot);
+    if (!didAddTimeSlot)
     {
-      throw new RuntimeException("Unable to create Cart due to aTimeSlot. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create cart due to timeSlot. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
     orders = new ArrayList<Order>();
   }
 
-  public Cart(ShoppingType aType, String aEmailForCustomer, String aNameForCustomer, String aPasswordForCustomer, String aPhoneForCustomer, Address aAddressForCustomer, TheGroceryStoreSystem aTheGroceryStoreSystemForCustomer, TimeSlot aTimeSlot)
+  public Cart(int aCartID, ShoppingType aType, String aEmailForCustomer, String aNameForCustomer, String aPasswordForCustomer, TheGroceryStoreSystem aTheGroceryStoreSystemForCustomer, String aPhoneForCustomer, Address aAddressForCustomer, TimeSlot aTimeSlot)
   {
+    cartID = aCartID;
     type = aType;
-    cartID = nextCartID++;
-    customer = new Customer(aEmailForCustomer, aNameForCustomer, aPasswordForCustomer, aPhoneForCustomer, aAddressForCustomer, this, aTheGroceryStoreSystemForCustomer);
+    customer = new Customer(aEmailForCustomer, aNameForCustomer, aPasswordForCustomer, aTheGroceryStoreSystemForCustomer, aPhoneForCustomer, this, aAddressForCustomer);
     cartItems = new ArrayList<CartItem>();
     boolean didAddTimeSlot = setTimeSlot(aTimeSlot);
     if (!didAddTimeSlot)
@@ -71,6 +64,14 @@ public class Cart
   // INTERFACE
   //------------------------
 
+  public boolean setCartID(int aCartID)
+  {
+    boolean wasSet = false;
+    cartID = aCartID;
+    wasSet = true;
+    return wasSet;
+  }
+
   public boolean setType(ShoppingType aType)
   {
     boolean wasSet = false;
@@ -79,14 +80,14 @@ public class Cart
     return wasSet;
   }
 
-  public ShoppingType getType()
-  {
-    return type;
-  }
-
   public int getCartID()
   {
     return cartID;
+  }
+
+  public ShoppingType getType()
+  {
+    return type;
   }
   /* Code from template association_GetOne */
   public Customer getCustomer()
@@ -163,12 +164,26 @@ public class Cart
   {
     return 0;
   }
-  /* Code from template association_AddUnidirectionalMany */
+  /* Code from template association_AddManyToOne */
+  public CartItem addCartItem(int aQuantity, Product aProduct)
+  {
+    return new CartItem(aQuantity, aProduct, this);
+  }
+
   public boolean addCartItem(CartItem aCartItem)
   {
     boolean wasAdded = false;
     if (cartItems.contains(aCartItem)) { return false; }
-    cartItems.add(aCartItem);
+    Cart existingCart = aCartItem.getCart();
+    boolean isNewCart = existingCart != null && !this.equals(existingCart);
+    if (isNewCart)
+    {
+      aCartItem.setCart(this);
+    }
+    else
+    {
+      cartItems.add(aCartItem);
+    }
     wasAdded = true;
     return wasAdded;
   }
@@ -176,7 +191,8 @@ public class Cart
   public boolean removeCartItem(CartItem aCartItem)
   {
     boolean wasRemoved = false;
-    if (cartItems.contains(aCartItem))
+    //Unable to remove aCartItem, as it must always have a cart
+    if (!this.equals(aCartItem.getCart()))
     {
       cartItems.remove(aCartItem);
       wasRemoved = true;
@@ -215,15 +231,23 @@ public class Cart
     }
     return wasAdded;
   }
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setTimeSlot(TimeSlot aNewTimeSlot)
+  /* Code from template association_SetOneToMany */
+  public boolean setTimeSlot(TimeSlot aTimeSlot)
   {
     boolean wasSet = false;
-    if (aNewTimeSlot != null)
+    if (aTimeSlot == null)
     {
-      timeSlot = aNewTimeSlot;
-      wasSet = true;
+      return wasSet;
     }
+
+    TimeSlot existingTimeSlot = timeSlot;
+    timeSlot = aTimeSlot;
+    if (existingTimeSlot != null && !existingTimeSlot.equals(aTimeSlot))
+    {
+      existingTimeSlot.removeCart(this);
+    }
+    timeSlot.addCart(this);
+    wasSet = true;
     return wasSet;
   }
   /* Code from template association_MinimumNumberOfMethod */
@@ -232,9 +256,9 @@ public class Cart
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Order addOrder(boolean aCompleted, Date aOrderDate, int aTotal, String aPayment)
+  public Order addOrder(int aOrderID, boolean aCompleted, Date aOrderDate, int aTotal, String aPayment, TheGroceryStoreSystem aTheGroceryStoreSystem)
   {
-    return new Order(aCompleted, aOrderDate, aTotal, aPayment, this);
+    return new Order(aOrderID, aCompleted, aOrderDate, aTotal, aPayment, this, aTheGroceryStoreSystem);
   }
 
   public boolean addOrder(Order aOrder)
@@ -307,8 +331,17 @@ public class Cart
     {
       existingCustomer.delete();
     }
-    cartItems.clear();
-    timeSlot = null;
+    for(int i=cartItems.size(); i > 0; i--)
+    {
+      CartItem aCartItem = cartItems.get(i - 1);
+      aCartItem.delete();
+    }
+    TimeSlot placeholderTimeSlot = timeSlot;
+    this.timeSlot = null;
+    if(placeholderTimeSlot != null)
+    {
+      placeholderTimeSlot.removeCart(this);
+    }
     while (orders.size() > 0)
     {
       Order aOrder = orders.get(orders.size() - 1);
