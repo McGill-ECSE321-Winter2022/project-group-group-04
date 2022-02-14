@@ -59,6 +59,7 @@ class Product
 class CartItem
 {
   Integer quantity;
+  cartItemID;
   * -> 1 Product;
 }
 

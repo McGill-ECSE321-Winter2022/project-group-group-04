@@ -4,9 +4,17 @@
 package ca.mcgill.ecse321.project321.model;
 import java.util.*;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
 // line 12 "../../../../../../model.ump"
-// line 119 "../../../../../../model.ump"
-// line 137 "../../../../../../model.ump"
+// line 120 "../../../../../../model.ump"
+// line 139 "../../../../../../model.ump"
+@Entity
 public class Customer extends User
 {
 
@@ -59,11 +67,13 @@ public class Customer extends User
     return phone;
   }
   /* Code from template association_GetOne */
+  @OneToOne(cascade = {CascadeType.ALL})
   public Address getAddress()
   {
     return address;
   }
   /* Code from template association_GetMany */
+  @OneToMany(cascade = {CascadeType.ALL})
   public Cart getCart(int index)
   {
     Cart aCart = carts.get(index);
@@ -94,6 +104,7 @@ public class Customer extends User
     return index;
   }
   /* Code from template association_GetOne */
+  @ManyToOne(cascade = {CascadeType.ALL})
   public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
     return theGroceryStoreSystem;
@@ -115,9 +126,9 @@ public class Customer extends User
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Cart addCart(String aCartID, Cart.ShoppingType aType, TimeSlot aTimeSlot)
+  public Cart addCart(String aCartID, Cart.ShoppingType aType, TimeSlot aTimeSlot, Order aOrder)
   {
-    return new Cart(aCartID, aType, this, aTimeSlot);
+    return new Cart(aCartID, aType, this, aTimeSlot, aOrder);
   }
 
   public boolean addCart(Cart aCart)
@@ -227,5 +238,10 @@ public class Customer extends User
             "phone" + ":" + getPhone()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "address = "+(getAddress()!=null?Integer.toHexString(System.identityHashCode(getAddress())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
+  }
+
+  @Id
+  public String getID() {
+    return super.getEmail();
   }
 }

@@ -3,8 +3,14 @@
 
 package ca.mcgill.ecse321.project321.model;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+
 // line 19 "../../../../../../model.ump"
-// line 142 "../../../../../../model.ump"
+// line 144 "../../../../../../model.ump"
+@Entity
 public class StoreOwner extends User
 {
 
@@ -39,6 +45,7 @@ public class StoreOwner extends User
   // INTERFACE
   //------------------------
   /* Code from template association_GetOne */
+  @OneToOne(cascade = {CascadeType.ALL})
   public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
     return theGroceryStoreSystem;
@@ -53,6 +60,11 @@ public class StoreOwner extends User
       existingTheGroceryStoreSystem.delete();
     }
     super.delete();
+  }
+
+  @Id
+  public String getID() {
+    return super.getEmail();
   }
 
 }

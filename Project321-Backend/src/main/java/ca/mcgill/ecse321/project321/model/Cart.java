@@ -3,10 +3,19 @@
 
 package ca.mcgill.ecse321.project321.model;
 import java.util.*;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
 import java.sql.Date;
 
 // line 32 "../../../../../../model.ump"
-// line 152 "../../../../../../model.ump"
+// line 154 "../../../../../../model.ump"\
+@Entity
 public class Cart
 {
 
@@ -28,13 +37,13 @@ public class Cart
   private Customer customer;
   private List<CartItem> cartItems;
   private TimeSlot timeSlot;
-  private List<Order> orders;
+  private Order order;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Cart(String aCartID, ShoppingType aType, Customer aCustomer, TimeSlot aTimeSlot)
+  public Cart(String aCartID, ShoppingType aType, Customer aCustomer, TimeSlot aTimeSlot, Order aOrder)
   {
     cartID = aCartID;
     type = aType;
@@ -48,7 +57,29 @@ public class Cart
     {
       throw new RuntimeException("Unable to create Cart due to aTimeSlot. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
-    orders = new ArrayList<Order>();
+    if (aOrder == null || aOrder.getCart() != null)
+    {
+      throw new RuntimeException("Unable to create Cart due to aOrder. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
+    order = aOrder;
+  }
+
+  public Cart(String aCartID, ShoppingType aType, Customer aCustomer, TimeSlot aTimeSlot, String aOrderIDForOrder, boolean aCompletedForOrder, Date aOrderDateForOrder, int aTotalForOrder, String aPaymentForOrder)
+  {
+    cartID = aCartID;
+    type = aType;
+    boolean didAddCustomer = setCustomer(aCustomer);
+    if (!didAddCustomer)
+    {
+      throw new RuntimeException("Unable to create cart due to customer. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
+    cartItems = new ArrayList<CartItem>();
+    boolean didAddTimeSlot = setTimeSlot(aTimeSlot);
+    if (!didAddTimeSlot)
+    {
+      throw new RuntimeException("Unable to create cart due to timeSlot. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
+    order = new Order(aOrderIDForOrder, aCompletedForOrder, aOrderDateForOrder, aTotalForOrder, aPaymentForOrder, this);
   }
 
   //------------------------
@@ -71,6 +102,7 @@ public class Cart
     return wasSet;
   }
 
+  @Id
   public String getCartID()
   {
     return cartID;
@@ -81,6 +113,7 @@ public class Cart
     return type;
   }
   /* Code from template association_GetOne */
+  @ManyToOne(cascade = {CascadeType.ALL})
   public Customer getCustomer()
   {
     return customer;
@@ -92,6 +125,7 @@ public class Cart
     return aCartItem;
   }
 
+  @OneToMany(cascade = {CascadeType.ALL})
   public List<CartItem> getCartItems()
   {
     List<CartItem> newCartItems = Collections.unmodifiableList(cartItems);
@@ -116,39 +150,16 @@ public class Cart
     return index;
   }
   /* Code from template association_GetOne */
+  @ManyToOne(cascade = {CascadeType.ALL})
   public TimeSlot getTimeSlot()
   {
     return timeSlot;
   }
-  /* Code from template association_GetMany */
-  public Order getOrder(int index)
+  /* Code from template association_GetOne */
+  @OneToOne(cascade = {CascadeType.ALL})
+  public Order getOrder()
   {
-    Order aOrder = orders.get(index);
-    return aOrder;
-  }
-
-  public List<Order> getOrders()
-  {
-    List<Order> newOrders = Collections.unmodifiableList(orders);
-    return newOrders;
-  }
-
-  public int numberOfOrders()
-  {
-    int number = orders.size();
-    return number;
-  }
-
-  public boolean hasOrders()
-  {
-    boolean has = orders.size() > 0;
-    return has;
-  }
-
-  public int indexOfOrder(Order aOrder)
-  {
-    int index = orders.indexOf(aOrder);
-    return index;
+    return order;
   }
   /* Code from template association_SetOneToMany */
   public boolean setCustomer(Customer aCustomer)
@@ -237,78 +248,6 @@ public class Cart
     }
     return wasSet;
   }
-  /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfOrders()
-  {
-    return 0;
-  }
-  /* Code from template association_AddManyToOne */
-  public Order addOrder(String aOrderID, boolean aCompleted, Date aOrderDate, int aTotal, String aPayment)
-  {
-    return new Order(aOrderID, aCompleted, aOrderDate, aTotal, aPayment, this);
-  }
-
-  public boolean addOrder(Order aOrder)
-  {
-    boolean wasAdded = false;
-    if (orders.contains(aOrder)) { return false; }
-    Cart existingCart = aOrder.getCart();
-    boolean isNewCart = existingCart != null && !this.equals(existingCart);
-    if (isNewCart)
-    {
-      aOrder.setCart(this);
-    }
-    else
-    {
-      orders.add(aOrder);
-    }
-    wasAdded = true;
-    return wasAdded;
-  }
-
-  public boolean removeOrder(Order aOrder)
-  {
-    boolean wasRemoved = false;
-    //Unable to remove aOrder, as it must always have a cart
-    if (!this.equals(aOrder.getCart()))
-    {
-      orders.remove(aOrder);
-      wasRemoved = true;
-    }
-    return wasRemoved;
-  }
-  /* Code from template association_AddIndexControlFunctions */
-  public boolean addOrderAt(Order aOrder, int index)
-  {  
-    boolean wasAdded = false;
-    if(addOrder(aOrder))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfOrders()) { index = numberOfOrders() - 1; }
-      orders.remove(aOrder);
-      orders.add(index, aOrder);
-      wasAdded = true;
-    }
-    return wasAdded;
-  }
-
-  public boolean addOrMoveOrderAt(Order aOrder, int index)
-  {
-    boolean wasAdded = false;
-    if(orders.contains(aOrder))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfOrders()) { index = numberOfOrders() - 1; }
-      orders.remove(aOrder);
-      orders.add(index, aOrder);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addOrderAt(aOrder, index);
-    }
-    return wasAdded;
-  }
 
   public void delete()
   {
@@ -320,13 +259,12 @@ public class Cart
     }
     cartItems.clear();
     timeSlot = null;
-    while (orders.size() > 0)
+    Order existingOrder = order;
+    order = null;
+    if (existingOrder != null)
     {
-      Order aOrder = orders.get(orders.size() - 1);
-      aOrder.delete();
-      orders.remove(aOrder);
+      existingOrder.delete();
     }
-    
   }
 
 
@@ -336,6 +274,7 @@ public class Cart
             "cartID" + ":" + getCartID()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "type" + "=" + (getType() != null ? !getType().equals(this)  ? getType().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "customer = "+(getCustomer()!=null?Integer.toHexString(System.identityHashCode(getCustomer())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "timeSlot = "+(getTimeSlot()!=null?Integer.toHexString(System.identityHashCode(getTimeSlot())):"null");
+            "  " + "timeSlot = "+(getTimeSlot()!=null?Integer.toHexString(System.identityHashCode(getTimeSlot())):"null") + System.getProperties().getProperty("line.separator") +
+            "  " + "order = "+(getOrder()!=null?Integer.toHexString(System.identityHashCode(getOrder())):"null");
   }
 }

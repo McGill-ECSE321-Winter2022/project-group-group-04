@@ -3,8 +3,14 @@
 
 package ca.mcgill.ecse321.project321.model;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
 // line 60 "../../../../../../model.ump"
-// line 167 "../../../../../../model.ump"
+// line 172 "../../../../../../model.ump"
+@Entity
 public class CartItem
 {
 
@@ -13,6 +19,7 @@ public class CartItem
   //------------------------
 
   //CartItem Attributes
+  private String cartItemID;
   private int quantity;
 
   //CartItem Associations
@@ -22,8 +29,9 @@ public class CartItem
   // CONSTRUCTOR
   //------------------------
 
-  public CartItem(int aQuantity, Product aProduct)
+  public CartItem(String aCartItemID, int aQuantity, Product aProduct)
   {
+    cartItemID = aCartItemID;
     quantity = aQuantity;
     if (!setProduct(aProduct))
     {
@@ -35,6 +43,14 @@ public class CartItem
   // INTERFACE
   //------------------------
 
+  public boolean setCartItemID(String aCartItemID)
+  {
+    boolean wasSet = false;
+    cartItemID = aCartItemID;
+    wasSet = true;
+    return wasSet;
+  }
+
   public boolean setQuantity(int aQuantity)
   {
     boolean wasSet = false;
@@ -43,11 +59,18 @@ public class CartItem
     return wasSet;
   }
 
+  @Id
+  public String getCartItemID()
+  {
+    return cartItemID;
+  }
+
   public int getQuantity()
   {
     return quantity;
   }
   /* Code from template association_GetOne */
+  @ManyToOne(cascade = {CascadeType.ALL})
   public Product getProduct()
   {
     return product;
@@ -73,6 +96,7 @@ public class CartItem
   public String toString()
   {
     return super.toString() + "["+
+            "cartItemID" + ":" + getCartItemID()+ "," +
             "quantity" + ":" + getQuantity()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "product = "+(getProduct()!=null?Integer.toHexString(System.identityHashCode(getProduct())):"null");
   }

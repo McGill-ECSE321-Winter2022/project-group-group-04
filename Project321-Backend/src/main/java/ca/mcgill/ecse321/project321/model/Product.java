@@ -3,8 +3,14 @@
 
 package ca.mcgill.ecse321.project321.model;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
 // line 52 "../../../../../../model.ump"
-// line 162 "../../../../../../model.ump"
+// line 167 "../../../../../../model.ump"
+@Entity
 public class Product
 {
 
@@ -74,6 +80,7 @@ public class Product
     return wasSet;
   }
 
+  @Id
   public String getProductID()
   {
     return productID;
@@ -94,6 +101,7 @@ public class Product
     return stock;
   }
   /* Code from template association_GetOne */
+  @ManyToOne(cascade = {CascadeType.ALL})
   public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
     return theGroceryStoreSystem;

@@ -3,8 +3,14 @@
 
 package ca.mcgill.ecse321.project321.model;
 
-// line 93 "../../../../../../model.ump"
-// line 187 "../../../../../../model.ump"
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+
+// line 94 "../../../../../../model.ump"
+// line 194 "../../../../../../model.ump"
+@Entity
 public class Address
 {
 
@@ -103,6 +109,7 @@ public class Address
     return unit;
   }
   /* Code from template association_GetOne */
+  @OneToOne(cascade = {CascadeType.ALL})
   public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
     return theGroceryStoreSystem;
@@ -127,5 +134,10 @@ public class Address
             "postalCode" + ":" + getPostalCode()+ "," +
             "unit" + ":" + getUnit()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
+  }
+
+  @Id
+  public String getID() {
+    return unit + " " + street + ", " + town + ", " + postalCode;
   }
 }

@@ -4,8 +4,14 @@
 package ca.mcgill.ecse321.project321.model;
 import java.sql.Date;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+
 // line 43 "../../../../../../model.ump"
-// line 157 "../../../../../../model.ump"
+// line 162 "../../../../../../model.ump"
+@Entity
 public class Order
 {
 
@@ -34,11 +40,11 @@ public class Order
     orderDate = aOrderDate;
     total = aTotal;
     payment = aPayment;
-    boolean didAddCart = setCart(aCart);
-    if (!didAddCart)
+    if (aCart == null || aCart.getOrder() != null)
     {
-      throw new RuntimeException("Unable to create order due to cart. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create Order due to aCart. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
+    cart = aCart;
   }
 
   //------------------------
@@ -85,6 +91,7 @@ public class Order
     return wasSet;
   }
 
+  @Id
   public String getOrderID()
   {
     return orderID;
@@ -115,37 +122,19 @@ public class Order
     return completed;
   }
   /* Code from template association_GetOne */
+  @OneToOne(cascade = {CascadeType.ALL})
   public Cart getCart()
   {
     return cart;
   }
-  /* Code from template association_SetOneToMany */
-  public boolean setCart(Cart aCart)
-  {
-    boolean wasSet = false;
-    if (aCart == null)
-    {
-      return wasSet;
-    }
-
-    Cart existingCart = cart;
-    cart = aCart;
-    if (existingCart != null && !existingCart.equals(aCart))
-    {
-      existingCart.removeOrder(this);
-    }
-    cart.addOrder(this);
-    wasSet = true;
-    return wasSet;
-  }
 
   public void delete()
   {
-    Cart placeholderCart = cart;
-    this.cart = null;
-    if(placeholderCart != null)
+    Cart existingCart = cart;
+    cart = null;
+    if (existingCart != null)
     {
-      placeholderCart.removeOrder(this);
+      existingCart.delete();
     }
   }
 

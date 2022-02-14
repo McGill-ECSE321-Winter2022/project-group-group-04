@@ -3,12 +3,20 @@
 
 package ca.mcgill.ecse321.project321.model;
 import java.util.*;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
 import java.sql.Time;
 import java.sql.Date;
 
-// line 101 "../../../../../../model.ump"
-// line 124 "../../../../../../model.ump"
-// line 192 "../../../../../../model.ump"
+// line 102 "../../../../../../model.ump"
+// line 125 "../../../../../../model.ump"
+// line 199 "../../../../../../model.ump"
+@Entity
 public class TheGroceryStoreSystem
 {
 
@@ -111,6 +119,7 @@ public class TheGroceryStoreSystem
     return email;
   }
 
+  @Id
   public String getGrocerystoreID()
   {
     return grocerystoreID;
@@ -127,6 +136,7 @@ public class TheGroceryStoreSystem
     return aEmployee;
   }
 
+  @OneToMany(cascade={CascadeType.ALL})
   public List<Employee> getEmployees()
   {
     List<Employee> newEmployees = Collections.unmodifiableList(employees);
@@ -156,7 +166,8 @@ public class TheGroceryStoreSystem
     Customer aCustomer = customers.get(index);
     return aCustomer;
   }
-
+  
+  @OneToMany(cascade={CascadeType.ALL})
   public List<Customer> getCustomers()
   {
     List<Customer> newCustomers = Collections.unmodifiableList(customers);
@@ -187,6 +198,7 @@ public class TheGroceryStoreSystem
     return aProduct;
   }
 
+  @OneToMany(cascade=CascadeType.ALL)
   public List<Product> getProducts()
   {
     List<Product> newProducts = Collections.unmodifiableList(products);
@@ -217,6 +229,7 @@ public class TheGroceryStoreSystem
     return aTimeSlot;
   }
 
+  @OneToMany(cascade={CascadeType.ALL})
   public List<TimeSlot> getTimeSlots()
   {
     List<TimeSlot> newTimeSlots = Collections.unmodifiableList(timeSlots);
@@ -247,6 +260,7 @@ public class TheGroceryStoreSystem
     return aShift;
   }
 
+  @OneToMany(cascade = {CascadeType.ALL})
   public List<Shift> getShifts()
   {
     List<Shift> newShifts = Collections.unmodifiableList(shifts);
@@ -277,6 +291,7 @@ public class TheGroceryStoreSystem
     return aDay;
   }
 
+  @OneToMany(cascade = {CascadeType.ALL})
   public List<Day> getDaies()
   {
     List<Day> newDaies = Collections.unmodifiableList(daies);
@@ -301,6 +316,7 @@ public class TheGroceryStoreSystem
     return index;
   }
   /* Code from template association_GetOne */
+  @OneToOne(cascade = {CascadeType.ALL})
   public Address getAddress()
   {
     return address;
@@ -311,9 +327,9 @@ public class TheGroceryStoreSystem
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Employee addEmployee(String aEmail, String aName, String aPassword, Employee.EmployeeStatus aStatus, Shift aShift)
+  public Employee addEmployee(String aEmail, String aName, String aPassword, Employee.EmployeeStatus aStatus)
   {
-    return new Employee(aEmail, aName, aPassword, aStatus, aShift, this);
+    return new Employee(aEmail, aName, aPassword, aStatus, this);
   }
 
   public boolean addEmployee(Employee aEmployee)

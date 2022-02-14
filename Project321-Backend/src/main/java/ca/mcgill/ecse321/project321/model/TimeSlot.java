@@ -3,10 +3,17 @@
 
 package ca.mcgill.ecse321.project321.model;
 import java.sql.Time;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
 import java.sql.Date;
 
-// line 66 "../../../../../../model.ump"
-// line 172 "../../../../../../model.ump"
+// line 67 "../../../../../../model.ump"
+// line 178 "../../../../../../model.ump"
+@Entity
 public class TimeSlot
 {
 
@@ -91,6 +98,7 @@ public class TimeSlot
     return wasSet;
   }
 
+  @Id
   public String getTimeslotID()
   {
     return timeslotID;
@@ -121,6 +129,7 @@ public class TimeSlot
     return day;
   }
   /* Code from template association_GetOne */
+  @ManyToOne(cascade = {CascadeType.ALL})
   public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
     return theGroceryStoreSystem;

@@ -3,10 +3,17 @@
 
 package ca.mcgill.ecse321.project321.model;
 import java.sql.Time;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
 import java.sql.Date;
 
-// line 84 "../../../../../../model.ump"
-// line 182 "../../../../../../model.ump"
+// line 85 "../../../../../../model.ump"
+// line 189 "../../../../../../model.ump"
+@Entity
 public class Shift
 {
 
@@ -81,6 +88,7 @@ public class Shift
     return wasSet;
   }
 
+  @Id
   public String getShiftID()
   {
     return shiftID;
@@ -101,11 +109,13 @@ public class Shift
     return date;
   }
   /* Code from template association_GetOne */
+  @ManyToOne(cascade = {CascadeType.ALL})
   public Day getDay()
   {
     return day;
   }
   /* Code from template association_GetOne */
+  @ManyToOne(cascade = {CascadeType.ALL})
   public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
     return theGroceryStoreSystem;

@@ -3,8 +3,12 @@
 
 package ca.mcgill.ecse321.project321.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 // line 4 "../../../../../../model.ump"
-// line 132 "../../../../../../model.ump"
+// line 134 "../../../../../../model.ump"
+@Entity
 public abstract class User
 {
 
@@ -56,6 +60,7 @@ public abstract class User
     return wasSet;
   }
 
+  @Id
   public String getEmail()
   {
     return email;

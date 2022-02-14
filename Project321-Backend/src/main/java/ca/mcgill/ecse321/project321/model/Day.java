@@ -4,8 +4,14 @@
 package ca.mcgill.ecse321.project321.model;
 import java.sql.Time;
 
-// line 76 "../../../../../../model.ump"
-// line 177 "../../../../../../model.ump"
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+// line 77 "../../../../../../model.ump"
+// line 184 "../../../../../../model.ump"
+@Entity
 public class Day
 {
 
@@ -86,6 +92,7 @@ public class Day
     return storeEndHour;
   }
   /* Code from template association_GetOne */
+  @ManyToOne(cascade = {CascadeType.ALL})
   public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
     return theGroceryStoreSystem;
@@ -140,5 +147,37 @@ public class Day
             "  " + "storeStartHour" + "=" + (getStoreStartHour() != null ? !getStoreStartHour().equals(this)  ? getStoreStartHour().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "storeEndHour" + "=" + (getStoreEndHour() != null ? !getStoreEndHour().equals(this)  ? getStoreEndHour().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
+  }
+
+  @Id
+  public int getID() {
+    WeekDays day = getDay();
+    int id = 0;
+    switch(day) {
+      case Monday:
+          id = 1;
+          break;
+      case Tuesday:
+          id = 2;
+          break;
+      case Wednesday:
+          id = 3;
+          break;
+      case Thursday:
+          id = 4;
+          break;
+      case Friday:
+          id = 5;
+          break;
+      case Saturday:
+          id = 6;
+          break;
+      case Sunday:
+          id = 7;
+          break;
+      default:
+          break;
+    }
+    return id;
   }
 }
