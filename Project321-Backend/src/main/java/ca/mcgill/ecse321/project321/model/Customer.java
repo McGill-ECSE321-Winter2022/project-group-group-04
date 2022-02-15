@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 // line 12 "../../../../../../model.ump"
 // line 120 "../../../../../../model.ump"
@@ -73,13 +75,17 @@ public class Customer extends User
     return address;
   }
   /* Code from template association_GetMany */
-  @OneToMany(cascade = {CascadeType.ALL})
   public Cart getCart(int index)
   {
     Cart aCart = carts.get(index);
     return aCart;
   }
 
+  public void setCarts(Cart cart) {
+    return;
+  }
+
+  @OneToMany(cascade = {CascadeType.ALL})
   public List<Cart> getCarts()
   {
     List<Cart> newCarts = Collections.unmodifiableList(carts);
@@ -121,6 +127,7 @@ public class Customer extends User
     return wasSet;
   }
   /* Code from template association_MinimumNumberOfMethod */
+  @Transient
   public static int minimumNumberOfCarts()
   {
     return 0;
@@ -243,5 +250,9 @@ public class Customer extends User
   @Id
   public String getID() {
     return super.getEmail();
+  }
+
+  public void setID(String email) {
+    super.setEmail(email);
   }
 }

@@ -3,6 +3,7 @@
 
 package ca.mcgill.ecse321.project321.model;
 
+import javax.persistence.Access;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -115,6 +116,11 @@ public class Address
     return theGroceryStoreSystem;
   }
 
+  // Unused setter: only to please hibernate
+  public void setTheGroceryStoreSystem(TheGroceryStoreSystem tgss) {
+    return;
+  }
+
   public void delete()
   {
     TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
@@ -139,5 +145,10 @@ public class Address
   @Id
   public String getID() {
     return unit + " " + street + ", " + town + ", " + postalCode;
+  }
+
+  // Unused setter: only to please hibernate
+  public void setID(String id) {
+    return;
   }
 }

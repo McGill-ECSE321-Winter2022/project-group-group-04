@@ -8,6 +8,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 // line 43 "../../../../../../model.ump"
 // line 162 "../../../../../../model.ump"
@@ -117,6 +118,7 @@ public class Order
     return payment;
   }
   /* Code from template attribute_IsBoolean */
+  @Transient
   public boolean isCompleted()
   {
     return completed;
@@ -126,6 +128,11 @@ public class Order
   public Cart getCart()
   {
     return cart;
+  }
+
+  // Unused setter: only to please hibernate
+  public void setCart(Cart cart) {
+    return;
   }
 
   public void delete()

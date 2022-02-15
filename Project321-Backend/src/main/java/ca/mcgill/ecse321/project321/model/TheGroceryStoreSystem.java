@@ -11,6 +11,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import java.sql.Time;
+import java.beans.Transient;
 import java.sql.Date;
 
 // line 102 "../../../../../../model.ump"
@@ -125,10 +126,17 @@ public class TheGroceryStoreSystem
     return grocerystoreID;
   }
   /* Code from template association_GetOne */
+  @OneToOne(cascade = {CascadeType.ALL})
   public StoreOwner getStoreOwner()
   {
     return storeOwner;
   }
+
+  // Unused setter for hibernate
+  public void setStoreOwner(StoreOwner storeOwner) {
+    return;
+  }
+
   /* Code from template association_GetMany */
   public Employee getEmployee(int index)
   {
@@ -141,6 +149,11 @@ public class TheGroceryStoreSystem
   {
     List<Employee> newEmployees = Collections.unmodifiableList(employees);
     return newEmployees;
+  }
+
+  // Unused setter for hibernate
+  public void setEmployees(Employee employee) {
+    return;
   }
 
   public int numberOfEmployees()
@@ -165,6 +178,11 @@ public class TheGroceryStoreSystem
   {
     Customer aCustomer = customers.get(index);
     return aCustomer;
+  }
+
+  // Unused setter for hibernate
+  public void setCustomers(Customer customer) {
+    return;
   }
   
   @OneToMany(cascade={CascadeType.ALL})
@@ -205,6 +223,11 @@ public class TheGroceryStoreSystem
     return newProducts;
   }
 
+  // Unused setter for hibernate
+  public void setProducts(Product product) {
+    return;
+  }
+
   public int numberOfProducts()
   {
     int number = products.size();
@@ -227,6 +250,11 @@ public class TheGroceryStoreSystem
   {
     TimeSlot aTimeSlot = timeSlots.get(index);
     return aTimeSlot;
+  }
+
+  // Unused setter for hibernate
+  public void setTimeSlots(TimeSlot timeSlot) {
+    return;
   }
 
   @OneToMany(cascade={CascadeType.ALL})
@@ -267,6 +295,11 @@ public class TheGroceryStoreSystem
     return newShifts;
   }
 
+  // Unused setter for hibernate
+  public void setShifts(Shift shift) {
+    return;
+  }
+
   public int numberOfShifts()
   {
     int number = shifts.size();
@@ -298,11 +331,18 @@ public class TheGroceryStoreSystem
     return newDaies;
   }
 
+  // Unused setter for hibernate
+  public void setDaies(Day day) {
+    return;
+  }
+
+  @Transient
   public int numberOfDaies()
   {
     int number = daies.size();
     return number;
   }
+
 
   public boolean hasDaies()
   {
@@ -321,6 +361,12 @@ public class TheGroceryStoreSystem
   {
     return address;
   }
+
+  // Unused setter to please hibernate
+  public void setAddress(Address address) {
+    return;
+  }
+
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfEmployees()
   {
@@ -682,22 +728,33 @@ public class TheGroceryStoreSystem
     return wasAdded;
   }
   /* Code from template association_IsNumberOfValidMethod */
+  @Transient
   public boolean isNumberOfDaiesValid()
   {
     boolean isValid = numberOfDaies() >= minimumNumberOfDaies() && numberOfDaies() <= maximumNumberOfDaies();
     return isValid;
   }
+
+  //Unused setter for hibernate
+  public void setNumberOfDaiesValid(Day day) {
+    return;
+  }
+
   /* Code from template association_RequiredNumberOfMethod */
+  @Transient
   public static int requiredNumberOfDaies()
   {
     return 7;
   }
+
   /* Code from template association_MinimumNumberOfMethod */
+  @Transient
   public static int minimumNumberOfDaies()
   {
     return 7;
   }
   /* Code from template association_MaximumNumberOfMethod */
+  @Transient
   public static int maximumNumberOfDaies()
   {
     return 7;

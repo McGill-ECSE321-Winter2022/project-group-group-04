@@ -7,6 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 // line 19 "../../../../../../model.ump"
 // line 144 "../../../../../../model.ump"
@@ -51,6 +52,11 @@ public class StoreOwner extends User
     return theGroceryStoreSystem;
   }
 
+  // Unused setter for hibernate
+  public void setTheGroceryStoreSystem(TheGroceryStoreSystem tgss) {
+    return;
+  }
+
   public void delete()
   {
     TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
@@ -67,4 +73,8 @@ public class StoreOwner extends User
     return super.getEmail();
   }
 
+  // Unused setter for hibernate
+  public void setID(String id) {
+    return;
+  }
 }

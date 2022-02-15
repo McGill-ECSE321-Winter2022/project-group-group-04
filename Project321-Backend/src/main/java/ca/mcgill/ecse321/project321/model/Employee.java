@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 // line 24 "../../../../../../model.ump"
 // line 149 "../../../../../../model.ump"
@@ -70,6 +71,11 @@ public class Employee extends User
   {
     Shift aShift = shifts.get(index);
     return aShift;
+  }
+
+  // Unused setter for hibernate
+  public void setShifts(Shift shift) {
+    return;
   }
 
   @OneToMany(cascade = {CascadeType.ALL})
@@ -198,9 +204,11 @@ public class Employee extends User
             "  " + "status" + "=" + (getStatus() != null ? !getStatus().equals(this)  ? getStatus().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
   }
-
   @Id
   public String getID() {
     return super.getEmail();
+  }
+  public void setID(String id) {
+    return;
   }
 }

@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 import java.sql.Date;
 
@@ -132,6 +133,10 @@ public class Cart
     return newCartItems;
   }
 
+  public void setCartItems(CartItem cartItem) {
+    return;
+  }
+
   public int numberOfCartItems()
   {
     int number = cartItems.size();
@@ -161,6 +166,12 @@ public class Cart
   {
     return order;
   }
+
+  // Unused setter: only to please hibernate
+  public void setOrder(Order order) {
+    return;
+  }
+
   /* Code from template association_SetOneToMany */
   public boolean setCustomer(Customer aCustomer)
   {

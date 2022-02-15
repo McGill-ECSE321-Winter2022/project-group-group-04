@@ -124,6 +124,7 @@ public class TimeSlot
     return maxOrderPerSlot;
   }
   /* Code from template association_GetOne */
+  @ManyToOne(cascade = {CascadeType.ALL})
   public Day getDay()
   {
     return day;

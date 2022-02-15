@@ -150,7 +150,7 @@ public class Day
   }
 
   @Id
-  public int getID() {
+  public Integer getID() {
     WeekDays day = getDay();
     int id = 0;
     switch(day) {
@@ -179,5 +179,10 @@ public class Day
           break;
     }
     return id;
+  }
+
+  // Unused setter: only to please hibernate
+  public void setID(Integer id) {
+    return;
   }
 }
