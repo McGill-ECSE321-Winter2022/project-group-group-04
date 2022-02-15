@@ -3,7 +3,6 @@
 
 package ca.mcgill.ecse321.project321.model;
 
-import javax.persistence.Access;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
