@@ -3,8 +3,8 @@
 
 
 
-// line 64 "model.ump"
-// line 168 "model.ump"
+// line 58 "model.ump"
+// line 159 "model.ump"
 public class CartItem
 {
 
@@ -17,24 +17,17 @@ public class CartItem
 
   //CartItem Associations
   private Product product;
-  private Cart cart;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public CartItem(int aQuantity, Product aProduct, Cart aCart)
+  public CartItem(int aQuantity, Product aProduct)
   {
     quantity = aQuantity;
-    boolean didAddProduct = setProduct(aProduct);
-    if (!didAddProduct)
+    if (!setProduct(aProduct))
     {
-      throw new RuntimeException("Unable to create cartItem due to product. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    boolean didAddCart = setCart(aCart);
-    if (!didAddCart)
-    {
-      throw new RuntimeException("Unable to create cartItem due to cart. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create CartItem due to aProduct. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
 
@@ -59,64 +52,21 @@ public class CartItem
   {
     return product;
   }
-  /* Code from template association_GetOne */
-  public Cart getCart()
-  {
-    return cart;
-  }
-  /* Code from template association_SetOneToMany */
-  public boolean setProduct(Product aProduct)
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setProduct(Product aNewProduct)
   {
     boolean wasSet = false;
-    if (aProduct == null)
+    if (aNewProduct != null)
     {
-      return wasSet;
+      product = aNewProduct;
+      wasSet = true;
     }
-
-    Product existingProduct = product;
-    product = aProduct;
-    if (existingProduct != null && !existingProduct.equals(aProduct))
-    {
-      existingProduct.removeCartItem(this);
-    }
-    product.addCartItem(this);
-    wasSet = true;
-    return wasSet;
-  }
-  /* Code from template association_SetOneToMany */
-  public boolean setCart(Cart aCart)
-  {
-    boolean wasSet = false;
-    if (aCart == null)
-    {
-      return wasSet;
-    }
-
-    Cart existingCart = cart;
-    cart = aCart;
-    if (existingCart != null && !existingCart.equals(aCart))
-    {
-      existingCart.removeCartItem(this);
-    }
-    cart.addCartItem(this);
-    wasSet = true;
     return wasSet;
   }
 
   public void delete()
   {
-    Product placeholderProduct = product;
-    this.product = null;
-    if(placeholderProduct != null)
-    {
-      placeholderProduct.removeCartItem(this);
-    }
-    Cart placeholderCart = cart;
-    this.cart = null;
-    if(placeholderCart != null)
-    {
-      placeholderCart.removeCartItem(this);
-    }
+    product = null;
   }
 
 
@@ -124,7 +74,6 @@ public class CartItem
   {
     return super.toString() + "["+
             "quantity" + ":" + getQuantity()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "product = "+(getProduct()!=null?Integer.toHexString(System.identityHashCode(getProduct())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "cart = "+(getCart()!=null?Integer.toHexString(System.identityHashCode(getCart())):"null");
+            "  " + "product = "+(getProduct()!=null?Integer.toHexString(System.identityHashCode(getProduct())):"null");
   }
 }

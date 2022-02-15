@@ -3,8 +3,8 @@
 
 
 
-// line 9 "model.ump"
-// line 126 "model.ump"
+// line 11 "model.ump"
+// line 122 "model.ump"
 public class Customer extends User
 {
 
@@ -16,38 +16,48 @@ public class Customer extends User
   private String phone;
 
   //Customer Associations
-  private Cart cart;
   private Address address;
+  private Cart cart;
+  private TheGroceryStoreSystem theGroceryStoreSystem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Customer(String aEmail, String aName, String aPassword, TheGroceryStoreSystem aTheGroceryStoreSystem, String aPhone, Cart aCart, Address aAddress)
+  public Customer(String aEmail, String aName, String aPassword, String aPhone, Address aAddress, Cart aCart, TheGroceryStoreSystem aTheGroceryStoreSystem)
   {
-    super(aEmail, aName, aPassword, aTheGroceryStoreSystem);
+    super(aEmail, aName, aPassword);
     phone = aPhone;
+    if (!setAddress(aAddress))
+    {
+      throw new RuntimeException("Unable to create Customer due to aAddress. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
     if (aCart == null || aCart.getCustomer() != null)
     {
       throw new RuntimeException("Unable to create Customer due to aCart. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
     cart = aCart;
-    boolean didAddAddress = setAddress(aAddress);
-    if (!didAddAddress)
+    boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
+    if (!didAddTheGroceryStoreSystem)
     {
-      throw new RuntimeException("Unable to create customer due to address. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create customer due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
 
-  public Customer(String aEmail, String aName, String aPassword, TheGroceryStoreSystem aTheGroceryStoreSystem, String aPhone, int aCartIDForCart, ShoppingType aTypeForCart, TimeSlot aTimeSlotForCart, Address aAddress)
+  public Customer(String aEmail, String aName, String aPassword, String aPhone, Address aAddress, ShoppingType aTypeForCart, TimeSlot aTimeSlotForCart, TheGroceryStoreSystem aTheGroceryStoreSystem)
   {
-    super(aEmail, aName, aPassword, aTheGroceryStoreSystem);
+    super(aEmail, aName, aPassword);
     phone = aPhone;
-    cart = new Cart(aCartIDForCart, aTypeForCart, this, aTimeSlotForCart);
     boolean didAddAddress = setAddress(aAddress);
     if (!didAddAddress)
     {
-      throw new RuntimeException("Unable to create customer due to address. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create Customer due to address. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
+    cart = new Cart(aTypeForCart, this, aTimeSlotForCart);
+    boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
+    if (!didAddTheGroceryStoreSystem)
+    {
+      throw new RuntimeException("Unable to create customer due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
 
@@ -68,48 +78,65 @@ public class Customer extends User
     return phone;
   }
   /* Code from template association_GetOne */
+  public Address getAddress()
+  {
+    return address;
+  }
+  /* Code from template association_GetOne */
   public Cart getCart()
   {
     return cart;
   }
   /* Code from template association_GetOne */
-  public Address getAddress()
+  public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
-    return address;
+    return theGroceryStoreSystem;
   }
-  /* Code from template association_SetOneToMany */
-  public boolean setAddress(Address aAddress)
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setAddress(Address aNewAddress)
   {
     boolean wasSet = false;
-    if (aAddress == null)
+    if (aNewAddress != null)
+    {
+      address = aNewAddress;
+      wasSet = true;
+    }
+    return wasSet;
+  }
+  /* Code from template association_SetOneToMany */
+  public boolean setTheGroceryStoreSystem(TheGroceryStoreSystem aTheGroceryStoreSystem)
+  {
+    boolean wasSet = false;
+    if (aTheGroceryStoreSystem == null)
     {
       return wasSet;
     }
 
-    Address existingAddress = address;
-    address = aAddress;
-    if (existingAddress != null && !existingAddress.equals(aAddress))
+    TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
+    theGroceryStoreSystem = aTheGroceryStoreSystem;
+    if (existingTheGroceryStoreSystem != null && !existingTheGroceryStoreSystem.equals(aTheGroceryStoreSystem))
     {
-      existingAddress.removeCustomer(this);
+      existingTheGroceryStoreSystem.removeCustomer(this);
     }
-    address.addCustomer(this);
+    theGroceryStoreSystem.addCustomer(this);
     wasSet = true;
     return wasSet;
   }
 
   public void delete()
   {
+    address = null;
     Cart existingCart = cart;
     cart = null;
     if (existingCart != null)
     {
       existingCart.delete();
     }
-    Address placeholderAddress = address;
-    this.address = null;
-    if(placeholderAddress != null)
+    TheGroceryStoreSystem placeholderTheGroceryStoreSystem = theGroceryStoreSystem;
+    this.theGroceryStoreSystem = null;
+    if(placeholderTheGroceryStoreSystem != null)
     {
-      placeholderAddress.removeCustomer(this);
+      placeholderTheGroceryStoreSystem.removeCustomer(this);
     }
     super.delete();
   }
@@ -119,7 +146,8 @@ public class Customer extends User
   {
     return super.toString() + "["+
             "phone" + ":" + getPhone()+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "address = "+(getAddress()!=null?Integer.toHexString(System.identityHashCode(getAddress())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "cart = "+(getCart()!=null?Integer.toHexString(System.identityHashCode(getCart())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "address = "+(getAddress()!=null?Integer.toHexString(System.identityHashCode(getAddress())):"null");
+            "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
   }
 }
