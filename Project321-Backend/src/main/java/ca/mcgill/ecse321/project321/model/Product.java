@@ -15,6 +15,11 @@ public class Product
 {
 
   //------------------------
+  // CLASS ENUMS
+  //------------------------
+  public enum PriceType {PER_UNIT, PER_KILOS};
+
+  //------------------------
   // MEMBER VARIABLES
   //------------------------
 
@@ -23,6 +28,7 @@ public class Product
   private String isAvailableOnline;
   private int price;
   private int stock;
+  private PriceType priceType; 
 
   //Product Associations
   private TheGroceryStoreSystem theGroceryStoreSystem;
@@ -31,12 +37,13 @@ public class Product
   // CONSTRUCTOR
   //------------------------
 
-  public Product(String aProductID, String aIsAvailableOnline, int aPrice, int aStock, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public Product(String aProductID, String aIsAvailableOnline, int aPrice, int aStock, TheGroceryStoreSystem aTheGroceryStoreSystem, PriceType aPriceType)
   {
     productID = aProductID;
     isAvailableOnline = aIsAvailableOnline;
     price = aPrice;
     stock = aStock;
+    priceType = aPriceType;
     boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
     if (!didAddTheGroceryStoreSystem)
     {
@@ -78,6 +85,15 @@ public class Product
     stock = aStock;
     wasSet = true;
     return wasSet;
+  }
+
+  public PriceType getPriceType() {
+    return priceType;
+  }
+
+  public boolean setPriceType(PriceType aPriceType) {
+    priceType = aPriceType;
+    return true;
   }
 
   @Id

@@ -5,5 +5,5 @@ import ca.mcgill.ecse321.project321.model.Employee;
 
 
 public interface EmployeeRepository extends CrudRepository<Employee, String> {
-    Employee findByEmailAddress(String email);
+    Employee findByEmail(String email);
 }

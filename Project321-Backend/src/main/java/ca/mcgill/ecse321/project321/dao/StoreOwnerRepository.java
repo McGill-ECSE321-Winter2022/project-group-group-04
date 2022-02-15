@@ -5,5 +5,5 @@ import ca.mcgill.ecse321.project321.model.StoreOwner;
 
 
 public interface StoreOwnerRepository extends CrudRepository<StoreOwner, String> {
-    StoreOwner findByEmailAddress(String email);
+    StoreOwner findByEmail(String email);
 }

@@ -5,7 +5,6 @@ package ca.mcgill.ecse321.project321.model;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 // line 19 "../../../../../../model.ump"
@@ -65,15 +64,5 @@ public class StoreOwner extends User
       existingTheGroceryStoreSystem.delete();
     }
     super.delete();
-  }
-
-  @Id
-  public String getID() {
-    return super.getEmail();
-  }
-
-  // Unused setter for hibernate
-  public void setID(String id) {
-    return;
   }
 }

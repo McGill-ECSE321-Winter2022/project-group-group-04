@@ -8,11 +8,13 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 // line 43 "../../../../../../model.ump"
 // line 162 "../../../../../../model.ump"
 @Entity
+@Table(name = "_order_")
 public class Order
 {
 

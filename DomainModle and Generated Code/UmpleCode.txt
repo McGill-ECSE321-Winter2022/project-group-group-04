@@ -25,7 +25,6 @@ class Employee
   isA User;
   enum EmployeeStatus {Sick, Inactive, Active}  
   EmployeeStatus status;
-  * -> 1 Shift;
 }
 
 class Cart
@@ -50,6 +49,8 @@ class Order
 
 class Product
 {
+  enum PriceType {PER_UNIT, PER_KILOS}
+  PriceType priceType;
   productID;
   isAvailableOnline;
   Integer price;
@@ -88,6 +89,7 @@ class Shift
   Time endHour;
   Date date;
   * -> 1 Day;
+  * -> 1 Employee;
 }
 
 class Address

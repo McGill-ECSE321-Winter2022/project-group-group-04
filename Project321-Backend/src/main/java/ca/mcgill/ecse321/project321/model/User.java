@@ -3,11 +3,17 @@
 
 package ca.mcgill.ecse321.project321.model;
 
-import javax.persistence.MappedSuperclass;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 
 // line 4 "../../../../../../model.ump"
 // line 134 "../../../../../../model.ump"
-@MappedSuperclass
+@Entity
+@Table(name = "_users_")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class User
 {
 
@@ -59,6 +65,7 @@ public abstract class User
     return wasSet;
   }
 
+  @Id
   public String getEmail()
   {
     return email;

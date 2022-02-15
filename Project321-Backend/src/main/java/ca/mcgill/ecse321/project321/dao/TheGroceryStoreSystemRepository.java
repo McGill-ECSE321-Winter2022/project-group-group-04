@@ -5,5 +5,5 @@ import ca.mcgill.ecse321.project321.model.TheGroceryStoreSystem;
 
 
 public interface TheGroceryStoreSystemRepository extends CrudRepository<TheGroceryStoreSystem, String> {
-    TheGroceryStoreSystem findByEmailAddress(String email);
+    TheGroceryStoreSystem findByEmail(String email);
 }

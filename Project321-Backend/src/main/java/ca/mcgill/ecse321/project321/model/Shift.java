@@ -11,8 +11,8 @@ import javax.persistence.ManyToOne;
 
 import java.sql.Date;
 
-// line 85 "../../../../../../model.ump"
-// line 189 "../../../../../../model.ump"
+// line 86 "../../../../../../model.ump"
+// line 177 "../../../../../../model.ump"
 @Entity
 public class Shift
 {
@@ -29,13 +29,14 @@ public class Shift
 
   //Shift Associations
   private Day day;
+  private Employee employee;
   private TheGroceryStoreSystem theGroceryStoreSystem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Shift(String aShiftID, Time aStartHour, Time aEndHour, Date aDate, Day aDay, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public Shift(String aShiftID, Time aStartHour, Time aEndHour, Date aDate, Day aDay, Employee aEmployee, TheGroceryStoreSystem aTheGroceryStoreSystem)
   {
     shiftID = aShiftID;
     startHour = aStartHour;
@@ -44,6 +45,10 @@ public class Shift
     if (!setDay(aDay))
     {
       throw new RuntimeException("Unable to create Shift due to aDay. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
+    if (!setEmployee(aEmployee))
+    {
+      throw new RuntimeException("Unable to create Shift due to aEmployee. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
     boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
     if (!didAddTheGroceryStoreSystem)
@@ -115,6 +120,12 @@ public class Shift
     return day;
   }
   /* Code from template association_GetOne */
+  @ManyToOne(cascade = CascadeType.ALL)
+  public Employee getEmployee()
+  {
+    return employee;
+  }
+  /* Code from template association_GetOne */
   @ManyToOne(cascade = {CascadeType.ALL})
   public TheGroceryStoreSystem getTheGroceryStoreSystem()
   {
@@ -127,6 +138,17 @@ public class Shift
     if (aNewDay != null)
     {
       day = aNewDay;
+      wasSet = true;
+    }
+    return wasSet;
+  }
+  /* Code from template association_SetUnidirectionalOne */
+  public boolean setEmployee(Employee aNewEmployee)
+  {
+    boolean wasSet = false;
+    if (aNewEmployee != null)
+    {
+      employee = aNewEmployee;
       wasSet = true;
     }
     return wasSet;
@@ -154,6 +176,7 @@ public class Shift
   public void delete()
   {
     day = null;
+    employee = null;
     TheGroceryStoreSystem placeholderTheGroceryStoreSystem = theGroceryStoreSystem;
     this.theGroceryStoreSystem = null;
     if(placeholderTheGroceryStoreSystem != null)
@@ -171,6 +194,7 @@ public class Shift
             "  " + "endHour" + "=" + (getEndHour() != null ? !getEndHour().equals(this)  ? getEndHour().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "date" + "=" + (getDate() != null ? !getDate().equals(this)  ? getDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "day = "+(getDay()!=null?Integer.toHexString(System.identityHashCode(getDay())):"null") + System.getProperties().getProperty("line.separator") +
+            "  " + "employee = "+(getEmployee()!=null?Integer.toHexString(System.identityHashCode(getEmployee())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
   }
 }

@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import ca.mcgill.ecse321.project321.model.Product.PriceType;
+
 import java.sql.Time;
 import java.beans.Transient;
 import java.sql.Date;
@@ -517,9 +519,9 @@ public class TheGroceryStoreSystem
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Product addProduct(String aProductID, String aIsAvailableOnline, int aPrice, int aStock)
+  public Product addProduct(String aProductID, String aIsAvailableOnline, int aPrice, int aStock, PriceType aPriceType)
   {
-    return new Product(aProductID, aIsAvailableOnline, aPrice, aStock, this);
+    return new Product(aProductID, aIsAvailableOnline, aPrice, aStock, this, aPriceType);
   }
 
   public boolean addProduct(Product aProduct)
@@ -661,9 +663,9 @@ public class TheGroceryStoreSystem
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Shift addShift(String aShiftID, Time aStartHour, Time aEndHour, Date aDate, Day aDay)
+  public Shift addShift(String aShiftID, Time aStartHour, Time aEndHour, Date aDate, Day aDay, Employee aEmployee)
   {
-    return new Shift(aShiftID, aStartHour, aEndHour, aDate, aDay, this);
+    return new Shift(aShiftID, aStartHour, aEndHour, aDate, aDay, aEmployee, this);
   }
 
   public boolean addShift(Shift aShift)

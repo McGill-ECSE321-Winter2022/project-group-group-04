@@ -6,5 +6,5 @@ import ca.mcgill.ecse321.project321.model.Day.WeekDays;
 
 
 public interface DayRepository extends CrudRepository<Day, Integer> {
-    Day findByWeekDay(WeekDays day);
+    Day findByDay(WeekDays day);
 }

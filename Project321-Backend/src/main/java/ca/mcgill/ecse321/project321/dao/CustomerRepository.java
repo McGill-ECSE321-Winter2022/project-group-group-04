@@ -5,5 +5,5 @@ import ca.mcgill.ecse321.project321.model.Customer;
 
 
 public interface CustomerRepository extends CrudRepository<Customer,String> {
-    Customer findByEmailAddress(String email);
+    Customer findByEmail(String email);
 }
