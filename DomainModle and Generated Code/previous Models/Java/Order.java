@@ -4,60 +4,54 @@
 
 import java.sql.Date;
 
-// line 47 "model.ump"
-// line 158 "model.ump"
+// line 41 "model.ump"
+// line 149 "model.ump"
 public class Order
 {
+
+  //------------------------
+  // STATIC VARIABLES
+  //------------------------
+
+  private static int nextOrderID = 1;
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
 
   //Order Attributes
-  private int orderID;
   private boolean completed;
   private Date orderDate;
   private int total;
   private String payment;
 
+  //Autounique Attributes
+  private int orderID;
+
   //Order Associations
   private Cart cart;
-  private TheGroceryStoreSystem theGroceryStoreSystem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Order(int aOrderID, boolean aCompleted, Date aOrderDate, int aTotal, String aPayment, Cart aCart, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public Order(boolean aCompleted, Date aOrderDate, int aTotal, String aPayment, Cart aCart)
   {
-    orderID = aOrderID;
     completed = aCompleted;
     orderDate = aOrderDate;
     total = aTotal;
     payment = aPayment;
+    orderID = nextOrderID++;
     boolean didAddCart = setCart(aCart);
     if (!didAddCart)
     {
       throw new RuntimeException("Unable to create order due to cart. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
-    if (!didAddTheGroceryStoreSystem)
-    {
-      throw new RuntimeException("Unable to create order due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
 
   //------------------------
   // INTERFACE
   //------------------------
-
-  public boolean setOrderID(int aOrderID)
-  {
-    boolean wasSet = false;
-    orderID = aOrderID;
-    wasSet = true;
-    return wasSet;
-  }
 
   public boolean setCompleted(boolean aCompleted)
   {
@@ -91,11 +85,6 @@ public class Order
     return wasSet;
   }
 
-  public int getOrderID()
-  {
-    return orderID;
-  }
-
   public boolean getCompleted()
   {
     return completed;
@@ -115,6 +104,11 @@ public class Order
   {
     return payment;
   }
+
+  public int getOrderID()
+  {
+    return orderID;
+  }
   /* Code from template attribute_IsBoolean */
   public boolean isCompleted()
   {
@@ -124,11 +118,6 @@ public class Order
   public Cart getCart()
   {
     return cart;
-  }
-  /* Code from template association_GetOne */
-  public TheGroceryStoreSystem getTheGroceryStoreSystem()
-  {
-    return theGroceryStoreSystem;
   }
   /* Code from template association_SetOneToMany */
   public boolean setCart(Cart aCart)
@@ -149,25 +138,6 @@ public class Order
     wasSet = true;
     return wasSet;
   }
-  /* Code from template association_SetOneToMany */
-  public boolean setTheGroceryStoreSystem(TheGroceryStoreSystem aTheGroceryStoreSystem)
-  {
-    boolean wasSet = false;
-    if (aTheGroceryStoreSystem == null)
-    {
-      return wasSet;
-    }
-
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
-    theGroceryStoreSystem = aTheGroceryStoreSystem;
-    if (existingTheGroceryStoreSystem != null && !existingTheGroceryStoreSystem.equals(aTheGroceryStoreSystem))
-    {
-      existingTheGroceryStoreSystem.removeOrder(this);
-    }
-    theGroceryStoreSystem.addOrder(this);
-    wasSet = true;
-    return wasSet;
-  }
 
   public void delete()
   {
@@ -176,12 +146,6 @@ public class Order
     if(placeholderCart != null)
     {
       placeholderCart.removeOrder(this);
-    }
-    TheGroceryStoreSystem placeholderTheGroceryStoreSystem = theGroceryStoreSystem;
-    this.theGroceryStoreSystem = null;
-    if(placeholderTheGroceryStoreSystem != null)
-    {
-      placeholderTheGroceryStoreSystem.removeOrder(this);
     }
   }
 
@@ -194,7 +158,6 @@ public class Order
             "total" + ":" + getTotal()+ "," +
             "payment" + ":" + getPayment()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "orderDate" + "=" + (getOrderDate() != null ? !getOrderDate().equals(this)  ? getOrderDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "cart = "+(getCart()!=null?Integer.toHexString(System.identityHashCode(getCart())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
+            "  " + "cart = "+(getCart()!=null?Integer.toHexString(System.identityHashCode(getCart())):"null");
   }
 }
