@@ -6,6 +6,8 @@ import java.sql.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -23,7 +25,7 @@ public class Order
   //------------------------
 
   //Order Attributes
-  private String orderID;
+  private long id;
   private boolean completed;
   private Date orderDate;
   private int total;
@@ -36,9 +38,8 @@ public class Order
   // CONSTRUCTOR
   //------------------------
 
-  public Order(String aOrderID, boolean aCompleted, Date aOrderDate, int aTotal, String aPayment, Cart aCart)
+  public Order(boolean aCompleted, Date aOrderDate, int aTotal, String aPayment, Cart aCart)
   {
-    orderID = aOrderID;
     completed = aCompleted;
     orderDate = aOrderDate;
     total = aTotal;
@@ -54,14 +55,16 @@ public class Order
   // INTERFACE
   //------------------------
 
-  public boolean setOrderID(String aOrderID)
-  {
-    boolean wasSet = false;
-    orderID = aOrderID;
-    wasSet = true;
-    return wasSet;
+  public boolean setId(long id) {
+    this.id = id;
+    return true;
   }
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public long getId() {
+    return id;
+  }
   public boolean setCompleted(boolean aCompleted)
   {
     boolean wasSet = false;
@@ -92,12 +95,6 @@ public class Order
     payment = aPayment;
     wasSet = true;
     return wasSet;
-  }
-
-  @Id
-  public String getOrderID()
-  {
-    return orderID;
   }
 
   public boolean getCompleted()
@@ -151,7 +148,7 @@ public class Order
   public String toString()
   {
     return super.toString() + "["+
-            "orderID" + ":" + getOrderID()+ "," +
+            "id" + ":" + getId()+ "," +
             "completed" + ":" + getCompleted()+ "," +
             "total" + ":" + getTotal()+ "," +
             "payment" + ":" + getPayment()+ "]" + System.getProperties().getProperty("line.separator") +

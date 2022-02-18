@@ -8,7 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Month;
 import java.util.List;
 
 import ca.mcgill.ecse321.project321.model.Address;
@@ -23,6 +25,9 @@ import ca.mcgill.ecse321.project321.model.TheGroceryStoreSystem;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
 import ca.mcgill.ecse321.project321.model.Cart.ShoppingType;
 import ca.mcgill.ecse321.project321.model.Day.WeekDays;
+import ca.mcgill.ecse321.project321.model.Employee;
+import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
+import ca.mcgill.ecse321.project321.model.Product.PriceType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -39,8 +44,8 @@ public class TestProject321Persistence {
 	private TimeslotRepository timeslotRepository;
 	// @Autowired
 	// private TheGroceryStoreSystemRepository tGSRepository;
-    // @Autowired
-    // private StoreOwnerRepository storeOwnerRepository;
+    @Autowired
+    private StoreOwnerRepository storeOwnerRepository;
     @Autowired
     private ShiftRepository shiftRepository;
     @Autowired
@@ -97,14 +102,26 @@ public class TestProject321Persistence {
 		  assertEquals(address.getUnit(),unit);
 		
 	}
+	
+	@Test
+    public void testPersistAndLoadCart() {
+		
+	}
 
 	@Test
     public void testPersistAndLoadCartItem() {
-		String cartItemID = "cartItem321";
+		long id = 321;
 		int quantity = 1;
-		Product product = new Product();
 		
-		CartItem cartItem = new CartItem(cartItemID, quantity,product);
+		String productName = "Apple";
+		String isAvailableOnline = "Yes";
+		int price = 3;
+		int stock = 100;
+		PriceType priceType = PriceType.PER_UNIT;
+		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
+		
+		CartItem cartItem = new CartItem(quantity, product);
+		assertTrue(cartItem.setId(id));
 		cartItemRepository.save(cartItem);
 		
 		cartItem=null;
@@ -112,45 +129,34 @@ public class TestProject321Persistence {
 		List<CartItem> cartItemlist = cartItemRepository.findByProductAndQuantity(product, quantity);
 		cartItem = cartItemlist.get(0);
 		assertNotNull(cartItem);
-		assertEquals(cartItem.getCartItemID(),cartItemID);
+		assertEquals(cartItem.getId(),id);
 		assertEquals(cartItem.getQuantity(),quantity);
 		
-	}
-	
-	@Test
-    public void testPersistAndLoadCart() {
+		assertEquals(cartItem.getProduct().getProductName(),productName);
+		assertEquals(cartItem.getProduct().getIsAvailableOnline(),isAvailableOnline);
+		assertEquals(cartItem.getProduct().getPrice(),price);
+		assertEquals(cartItem.getProduct().getStock(),stock);
+		assertEquals(cartItem.getProduct().getPriceType(),priceType);
 		
-		  String cartID = "cart321";
-		  ShoppingType type = ShoppingType.Delivery;
-		  
-		  Customer customer = new Customer();
-		  TimeSlot timeSlot = new TimeSlot();
-		  Order order= new order();
-		  
-		  Cart cart = new Cart(cartID, type, customer, timeSlot, order);
-		  cartRepository.save(cart);
-		  
-		  cart = null;
-		  
-		  cart = cartRepository.findByOrder(order);
-		  assertNotNull(cart);
-		  assertEquals(cart.getCartID(),cartID);
-		  assertEquals(cart.getType(), type);
-		  
 	}
 	
 	@Test
     public void testPersistAndLoadCustomer() {
 		
-		  String phone = "000-1111";
 		  
 		  String email = "customer@mail.com";
 		  String name = "TestCustomer";
 		  String password = "Testpassword";
-		  Address address = new Address();
-		  TheGroceryStoreSystem theGroceryStoreSystem = new TheGroceryStoreSystem ();
+		  String phone = "000-1111";
 		  
-		  Customer customer = new Customer(email, name, password, phone, address,  theGroceryStoreSystem);
+		  String town = "TestTown";
+		  String street = "TestStreet";
+		  String postalCode = "TestPostalCode";
+		  int unit = 321;
+		  Address address = new Address(town,street,postalCode,unit);
+		  
+		  
+		  Customer customer = new Customer(email, name, password, phone, address);
 		  customerRepository.save(customer);
 		  
 		  customer = null;
@@ -158,12 +164,123 @@ public class TestProject321Persistence {
 		  customer = customerRepository.findByEmail(email);
 		  assertNotNull(customer);
 		  assertEquals(customer.getPhone(),phone);
-		  assertEquals(customer.getAddress(),address);
 		  assertEquals(customer.getEmail(),email);
 		  assertEquals(customer.getPassword(),password);
 		  assertEquals(customer.getName(),name);
-		  
+
+		  assertEquals(customer.getAddress().getTown(),town);
+		  assertEquals(customer.getAddress().getStreet(),street);
+		  assertEquals(customer.getAddress().getPostalCode(),postalCode);
+		  assertEquals(customer.getAddress().getUnit(),unit);
 
 	}
+
+	@Test
+    public void testPersistAndLoadDay() {
+		
+		WeekDays weekDay = WeekDays.Monday;
+		Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
+		Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));
+		
+		Day day = new Day(weekDay, storeStartHour, storeEndHour);
+		
+		dayRepository.save(day);
+		day=null;
+		
+		day = dayRepository.findByDay(weekDay);
+		assertNotNull(day);
+		assertEquals(day.getDay(), weekDay);
+		assertEquals(day.getStoreStartHour(), storeStartHour);
+		assertEquals(day.getStoreEndHour(), storeEndHour);
+		
+	}
+
+	@Test
+    public void testPersistAndLoadEmployee() {
+		  
+		  String email = "employee@mail.com";
+		  String name = "TestEmployee";
+		  String password = "Testpassword";
+		  EmployeeStatus employeeStatus = EmployeeStatus.Active;
+		  
+		  Employee employee = new Employee(email, name, password, employeeStatus);
+		  
+		  employeeRepository.save(employee);
+		  employee = null;
+		  
+		  employee = employeeRepository.findByEmail(email);
+		  assertNotNull(employee);
+		  assertEquals(employee.getEmail(),email);
+		  assertEquals(employee.getName(),name);
+		  assertEquals(employee.getPassword(),password);
+		  assertEquals(employee.getStatus(), employeeStatus);
+		  
+	}
+	@Test
+    public void testPersistAndLoadInStoreBill() {
+		
+	}
+	
+	@Test
+    public void testPersistAndLoadOrder() {
+		
+	}
+	
+	@Test
+    public void testPersistAndLoadProduct() {
+		
+		String productName = "Apple";
+		String isAvailableOnline = "Yes";
+		int price = 3;
+		int stock = 100;
+		PriceType priceType = PriceType.PER_UNIT;
+		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
+  
+		productRepository.save(product);
+		product = null;
+		
+		product = productRepository.findByProductName(productName);
+		assertNotNull(product);
+		assertEquals(product.getProductName(),productName);
+		assertEquals(product.getIsAvailableOnline(),isAvailableOnline);
+		assertEquals(product.getPrice(),price);
+		assertEquals(product.getStock(),stock);
+		assertEquals(product.getPriceType(),priceType);
+		
+	}
+	
+
+	@Test
+    public void testPersistAndLoadShift() {
+		
+		
+	}
+	
+	@Test
+    public void testPersistAndLoadStoreOwner() {
+		  
+		  String email = "owner@mail.com";
+		  String name = "Testowner";
+		  String password = "Testpassword";
+		  
+		  StoreOwner storeOwner = new StoreOwner(email, name, password);
+		  
+		  storeOwnerRepository.save(storeOwner);
+		  storeOwner = null;
+		  
+		  storeOwner = storeOwnerRepository.findByEmail(email);
+		  assertNotNull(storeOwner);
+		  assertEquals(storeOwner.getEmail(),email);
+		  assertEquals(storeOwner.getName(),name);
+		  assertEquals(storeOwner.getPassword(),password);
+		  
+	}
+
+	@Test
+    public void testPersistAndLoadTimeSlot() {
+		
+		
+	}
+
 
 }

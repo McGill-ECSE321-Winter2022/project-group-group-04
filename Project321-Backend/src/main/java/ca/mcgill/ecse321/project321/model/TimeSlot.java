@@ -6,6 +6,8 @@ import java.sql.Time;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
@@ -22,7 +24,7 @@ public class TimeSlot
   //------------------------
 
   //TimeSlot Attributes
-  private String timeslotID;
+  private long id;
   private Time startTime;
   private Time endTime;
   private Date date;
@@ -30,15 +32,13 @@ public class TimeSlot
 
   //TimeSlot Associations
   private Day day;
-  private TheGroceryStoreSystem theGroceryStoreSystem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public TimeSlot(String aTimeslotID, Time aStartTime, Time aEndTime, Date aDate, int aMaxOrderPerSlot, Day aDay, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public TimeSlot(Time aStartTime, Time aEndTime, Date aDate, int aMaxOrderPerSlot, Day aDay)
   {
-    timeslotID = aTimeslotID;
     startTime = aStartTime;
     endTime = aEndTime;
     date = aDate;
@@ -47,23 +47,21 @@ public class TimeSlot
     {
       throw new RuntimeException("Unable to create TimeSlot due to aDay. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
-    boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
-    if (!didAddTheGroceryStoreSystem)
-    {
-      throw new RuntimeException("Unable to create timeSlot due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
   }
 
   //------------------------
   // INTERFACE
   //------------------------
 
-  public boolean setTimeslotID(String aTimeslotID)
-  {
-    boolean wasSet = false;
-    timeslotID = aTimeslotID;
-    wasSet = true;
-    return wasSet;
+  public boolean setId(long id) {
+    this.id = id;
+    return true;
+  }
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public long getId() {
+    return id;
   }
 
   public boolean setStartTime(Time aStartTime)
@@ -98,12 +96,6 @@ public class TimeSlot
     return wasSet;
   }
 
-  @Id
-  public String getTimeslotID()
-  {
-    return timeslotID;
-  }
-
   public Time getStartTime()
   {
     return startTime;
@@ -129,12 +121,7 @@ public class TimeSlot
   {
     return day;
   }
-  /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.ALL})
-  public TheGroceryStoreSystem getTheGroceryStoreSystem()
-  {
-    return theGroceryStoreSystem;
-  }
+  
   /* Code from template association_SetUnidirectionalOne */
   public boolean setDay(Day aNewDay)
   {
@@ -146,47 +133,22 @@ public class TimeSlot
     }
     return wasSet;
   }
-  /* Code from template association_SetOneToMany */
-  public boolean setTheGroceryStoreSystem(TheGroceryStoreSystem aTheGroceryStoreSystem)
-  {
-    boolean wasSet = false;
-    if (aTheGroceryStoreSystem == null)
-    {
-      return wasSet;
-    }
-
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
-    theGroceryStoreSystem = aTheGroceryStoreSystem;
-    if (existingTheGroceryStoreSystem != null && !existingTheGroceryStoreSystem.equals(aTheGroceryStoreSystem))
-    {
-      existingTheGroceryStoreSystem.removeTimeSlot(this);
-    }
-    theGroceryStoreSystem.addTimeSlot(this);
-    wasSet = true;
-    return wasSet;
-  }
+  
 
   public void delete()
   {
     day = null;
-    TheGroceryStoreSystem placeholderTheGroceryStoreSystem = theGroceryStoreSystem;
-    this.theGroceryStoreSystem = null;
-    if(placeholderTheGroceryStoreSystem != null)
-    {
-      placeholderTheGroceryStoreSystem.removeTimeSlot(this);
-    }
   }
 
 
   public String toString()
   {
     return super.toString() + "["+
-            "timeslotID" + ":" + getTimeslotID()+ "," +
+            "id" + ":" + getId()+ "," +
             "maxOrderPerSlot" + ":" + getMaxOrderPerSlot()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "startTime" + "=" + (getStartTime() != null ? !getStartTime().equals(this)  ? getStartTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "endTime" + "=" + (getEndTime() != null ? !getEndTime().equals(this)  ? getEndTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "date" + "=" + (getDate() != null ? !getDate().equals(this)  ? getDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "day = "+(getDay()!=null?Integer.toHexString(System.identityHashCode(getDay())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
+            "  " + "day = "+(getDay()!=null?Integer.toHexString(System.identityHashCode(getDay())):"null") + System.getProperties().getProperty("line.separator");
   }
 }

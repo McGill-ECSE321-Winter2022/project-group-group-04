@@ -3,10 +3,8 @@
 
 package ca.mcgill.ecse321.project321.model;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 
 // line 94 "../../../../../../model.ump"
 // line 194 "../../../../../../model.ump"
@@ -24,33 +22,16 @@ public class Address
   private String postalCode;
   private int unit;
 
-  //Address Associations
-  private TheGroceryStoreSystem theGroceryStoreSystem;
-
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Address(String aTown, String aStreet, String aPostalCode, int aUnit, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public Address(String aTown, String aStreet, String aPostalCode, int aUnit)
   {
     town = aTown;
     street = aStreet;
     postalCode = aPostalCode;
     unit = aUnit;
-    if (aTheGroceryStoreSystem == null || aTheGroceryStoreSystem.getAddress() != null)
-    {
-      throw new RuntimeException("Unable to create Address due to aTheGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    theGroceryStoreSystem = aTheGroceryStoreSystem;
-  }
-
-  public Address(String aTown, String aStreet, String aPostalCode, int aUnit, String aTelephoneForTheGroceryStoreSystem, String aEmailForTheGroceryStoreSystem, String aGrocerystoreIDForTheGroceryStoreSystem, StoreOwner aStoreOwnerForTheGroceryStoreSystem)
-  {
-    town = aTown;
-    street = aStreet;
-    postalCode = aPostalCode;
-    unit = aUnit;
-    theGroceryStoreSystem = new TheGroceryStoreSystem(aTelephoneForTheGroceryStoreSystem, aEmailForTheGroceryStoreSystem, aGrocerystoreIDForTheGroceryStoreSystem, aStoreOwnerForTheGroceryStoreSystem, this);
   }
 
   //------------------------
@@ -108,28 +89,9 @@ public class Address
   {
     return unit;
   }
-  /* Code from template association_GetOne */
-  @OneToOne(cascade = {CascadeType.ALL})
-  public TheGroceryStoreSystem getTheGroceryStoreSystem()
-  {
-    return theGroceryStoreSystem;
-  }
-
-  // Unused setter: only to please hibernate
-  public void setTheGroceryStoreSystem(TheGroceryStoreSystem tgss) {
-    return;
-  }
 
   public void delete()
-  {
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
-    theGroceryStoreSystem = null;
-    if (existingTheGroceryStoreSystem != null)
-    {
-      existingTheGroceryStoreSystem.delete();
-    }
-  }
-
+  {}
 
   public String toString()
   {
@@ -137,9 +99,8 @@ public class Address
             "town" + ":" + getTown()+ "," +
             "street" + ":" + getStreet()+ "," +
             "postalCode" + ":" + getPostalCode()+ "," +
-            "unit" + ":" + getUnit()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
-  }
+            "unit" + ":" + getUnit()+ "]" + System.getProperties().getProperty("line.separator");
+ }
 
   @Id
   public String getID() {

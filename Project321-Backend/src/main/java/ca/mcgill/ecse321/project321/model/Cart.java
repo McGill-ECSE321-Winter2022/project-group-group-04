@@ -6,12 +6,12 @@ import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-
-import java.sql.Date;
 
 // line 32 "../../../../../../model.ump"
 // line 154 "../../../../../../model.ump"\
@@ -30,7 +30,7 @@ public class Cart
   //------------------------
 
   //Cart Attributes
-  private String cartID;
+  private long id;
   private ShoppingType type;
 
   //Cart Associations
@@ -43,9 +43,8 @@ public class Cart
   // CONSTRUCTOR
   //------------------------
 
-  public Cart(String aCartID, ShoppingType aType, Customer aCustomer, TimeSlot aTimeSlot, Order aOrder)
+  public Cart(ShoppingType aType, Customer aCustomer, TimeSlot aTimeSlot)
   {
-    cartID = aCartID;
     type = aType;
     boolean didAddCustomer = setCustomer(aCustomer);
     if (!didAddCustomer)
@@ -57,42 +56,12 @@ public class Cart
     {
       throw new RuntimeException("Unable to create Cart due to aTimeSlot. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
-    if (aOrder == null || aOrder.getCart() != null)
-    {
-      throw new RuntimeException("Unable to create Cart due to aOrder. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    order = aOrder;
-  }
-
-  public Cart(String aCartID, ShoppingType aType, Customer aCustomer, TimeSlot aTimeSlot, String aOrderIDForOrder, boolean aCompletedForOrder, Date aOrderDateForOrder, int aTotalForOrder, String aPaymentForOrder)
-  {
-    cartID = aCartID;
-    type = aType;
-    boolean didAddCustomer = setCustomer(aCustomer);
-    if (!didAddCustomer)
-    {
-      throw new RuntimeException("Unable to create cart due to customer. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    cartItems = new ArrayList<CartItem>();
-    boolean didAddTimeSlot = setTimeSlot(aTimeSlot);
-    if (!didAddTimeSlot)
-    {
-      throw new RuntimeException("Unable to create cart due to timeSlot. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    order = new Order(aOrderIDForOrder, aCompletedForOrder, aOrderDateForOrder, aTotalForOrder, aPaymentForOrder, this);
+    order = null;
   }
 
   //------------------------
   // INTERFACE
   //------------------------
-
-  public boolean setCartID(String aCartID)
-  {
-    boolean wasSet = false;
-    cartID = aCartID;
-    wasSet = true;
-    return wasSet;
-  }
 
   public boolean setType(ShoppingType aType)
   {
@@ -102,10 +71,15 @@ public class Cart
     return wasSet;
   }
 
+  public boolean setId(long id) {
+    this.id = id;
+    return true;
+  }
+
   @Id
-  public String getCartID()
-  {
-    return cartID;
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public long getId() {
+    return id;
   }
 
   public ShoppingType getType()
@@ -281,7 +255,7 @@ public class Cart
   public String toString()
   {
     return super.toString() + "["+
-            "cartID" + ":" + getCartID()+ "]" + System.getProperties().getProperty("line.separator") +
+            "id" + ":" + getId()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "type" + "=" + (getType() != null ? !getType().equals(this)  ? getType().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "customer = "+(getCustomer()!=null?Integer.toHexString(System.identityHashCode(getCustomer())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "timeSlot = "+(getTimeSlot()!=null?Integer.toHexString(System.identityHashCode(getTimeSlot())):"null") + System.getProperties().getProperty("line.separator") +
