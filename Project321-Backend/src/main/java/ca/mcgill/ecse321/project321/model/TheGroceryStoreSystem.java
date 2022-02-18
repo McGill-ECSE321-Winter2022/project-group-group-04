@@ -6,19 +6,16 @@ import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import ca.mcgill.ecse321.project321.model.Product.PriceType;
-
-import java.sql.Time;
 import java.beans.Transient;
-import java.sql.Date;
 
-// line 102 "../../../../../../model.ump"
-// line 125 "../../../../../../model.ump"
-// line 199 "../../../../../../model.ump"
+// line 106 "../../../../../../model.ump"
+// line 192 "../../../../../../model.ump"
 @Entity
 public class TheGroceryStoreSystem
 {
@@ -30,7 +27,7 @@ public class TheGroceryStoreSystem
   //TheGroceryStoreSystem Attributes
   private String telephone;
   private String email;
-  private String grocerystoreID;
+  private long id;
 
   //TheGroceryStoreSystem Associations
   private StoreOwner storeOwner;
@@ -41,17 +38,17 @@ public class TheGroceryStoreSystem
   private List<Shift> shifts;
   private List<Day> daies;
   private Address address;
+  private List<InStoreBill> inStoreBills;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public TheGroceryStoreSystem(String aTelephone, String aEmail, String aGrocerystoreID, StoreOwner aStoreOwner, Address aAddress)
+  public TheGroceryStoreSystem(String aTelephone, String aEmail, StoreOwner aStoreOwner, Address aAddress)
   {
     telephone = aTelephone;
     email = aEmail;
-    grocerystoreID = aGrocerystoreID;
-    if (aStoreOwner == null || aStoreOwner.getTheGroceryStoreSystem() != null)
+    if (aStoreOwner == null)
     {
       throw new RuntimeException("Unable to create TheGroceryStoreSystem due to aStoreOwner. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
@@ -62,26 +59,27 @@ public class TheGroceryStoreSystem
     timeSlots = new ArrayList<TimeSlot>();
     shifts = new ArrayList<Shift>();
     daies = new ArrayList<Day>();
-    if (aAddress == null || aAddress.getTheGroceryStoreSystem() != null)
+    if (aAddress == null)
     {
       throw new RuntimeException("Unable to create TheGroceryStoreSystem due to aAddress. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
     address = aAddress;
+    inStoreBills = new ArrayList<InStoreBill>();
   }
 
-  public TheGroceryStoreSystem(String aTelephone, String aEmail, String aGrocerystoreID, String aEmailForStoreOwner, String aNameForStoreOwner, String aPasswordForStoreOwner, String aTownForAddress, String aStreetForAddress, String aPostalCodeForAddress, int aUnitForAddress)
+  public TheGroceryStoreSystem(String aTelephone, String aEmail, String aEmailForStoreOwner, String aNameForStoreOwner, String aPasswordForStoreOwner, String aTownForAddress, String aStreetForAddress, String aPostalCodeForAddress, int aUnitForAddress)
   {
     telephone = aTelephone;
     email = aEmail;
-    grocerystoreID = aGrocerystoreID;
-    storeOwner = new StoreOwner(aEmailForStoreOwner, aNameForStoreOwner, aPasswordForStoreOwner, this);
+    storeOwner = new StoreOwner(aEmailForStoreOwner, aNameForStoreOwner, aPasswordForStoreOwner);
     employees = new ArrayList<Employee>();
     customers = new ArrayList<Customer>();
     products = new ArrayList<Product>();
     timeSlots = new ArrayList<TimeSlot>();
     shifts = new ArrayList<Shift>();
     daies = new ArrayList<Day>();
-    address = new Address(aTownForAddress, aStreetForAddress, aPostalCodeForAddress, aUnitForAddress, this);
+    address = new Address(aTownForAddress, aStreetForAddress, aPostalCodeForAddress, aUnitForAddress);
+    inStoreBills = new ArrayList<InStoreBill>();
   }
 
   //------------------------
@@ -104,14 +102,6 @@ public class TheGroceryStoreSystem
     return wasSet;
   }
 
-  public boolean setGrocerystoreID(String aGrocerystoreID)
-  {
-    boolean wasSet = false;
-    grocerystoreID = aGrocerystoreID;
-    wasSet = true;
-    return wasSet;
-  }
-
   public String getTelephone()
   {
     return telephone;
@@ -121,12 +111,6 @@ public class TheGroceryStoreSystem
   {
     return email;
   }
-
-  @Id
-  public String getGrocerystoreID()
-  {
-    return grocerystoreID;
-  }
   /* Code from template association_GetOne */
   @OneToOne(cascade = {CascadeType.ALL})
   public StoreOwner getStoreOwner()
@@ -134,9 +118,8 @@ public class TheGroceryStoreSystem
     return storeOwner;
   }
 
-  // Unused setter for hibernate
-  public void setStoreOwner(StoreOwner storeOwner) {
-    return;
+  public boolean setStoreOwner(StoreOwner storeOwner) {
+    return true;
   }
 
   /* Code from template association_GetMany */
@@ -145,17 +128,15 @@ public class TheGroceryStoreSystem
     Employee aEmployee = employees.get(index);
     return aEmployee;
   }
+  public boolean setEmployees(Employee employee) {
+    return true;
+  }
 
   @OneToMany(cascade={CascadeType.ALL})
   public List<Employee> getEmployees()
   {
     List<Employee> newEmployees = Collections.unmodifiableList(employees);
     return newEmployees;
-  }
-
-  // Unused setter for hibernate
-  public void setEmployees(Employee employee) {
-    return;
   }
 
   public int numberOfEmployees()
@@ -182,16 +163,15 @@ public class TheGroceryStoreSystem
     return aCustomer;
   }
 
-  // Unused setter for hibernate
-  public void setCustomers(Customer customer) {
-    return;
-  }
-  
-  @OneToMany(cascade={CascadeType.ALL})
+  @OneToMany(cascade = {CascadeType.ALL})
   public List<Customer> getCustomers()
   {
     List<Customer> newCustomers = Collections.unmodifiableList(customers);
     return newCustomers;
+  }
+
+  public boolean setCustomers(Customer customer) {
+    return true;
   }
 
   public int numberOfCustomers()
@@ -225,9 +205,8 @@ public class TheGroceryStoreSystem
     return newProducts;
   }
 
-  // Unused setter for hibernate
-  public void setProducts(Product product) {
-    return;
+  public boolean setProducts(Product product) {
+    return true;
   }
 
   public int numberOfProducts()
@@ -254,16 +233,15 @@ public class TheGroceryStoreSystem
     return aTimeSlot;
   }
 
-  // Unused setter for hibernate
-  public void setTimeSlots(TimeSlot timeSlot) {
-    return;
-  }
-
   @OneToMany(cascade={CascadeType.ALL})
   public List<TimeSlot> getTimeSlots()
   {
     List<TimeSlot> newTimeSlots = Collections.unmodifiableList(timeSlots);
     return newTimeSlots;
+  }
+
+  public boolean setTimeSlots(TimeSlot timeSlot) {
+    return true;
   }
 
   public int numberOfTimeSlots()
@@ -290,16 +268,15 @@ public class TheGroceryStoreSystem
     return aShift;
   }
 
-  @OneToMany(cascade = {CascadeType.ALL})
+  @OneToMany(cascade={CascadeType.ALL})
   public List<Shift> getShifts()
   {
     List<Shift> newShifts = Collections.unmodifiableList(shifts);
     return newShifts;
   }
 
-  // Unused setter for hibernate
-  public void setShifts(Shift shift) {
-    return;
+  public boolean setShifts(Shift shift) {
+    return true;
   }
 
   public int numberOfShifts()
@@ -326,16 +303,15 @@ public class TheGroceryStoreSystem
     return aDay;
   }
 
-  @OneToMany(cascade = {CascadeType.ALL})
+  @OneToMany(cascade={CascadeType.ALL})
   public List<Day> getDaies()
   {
     List<Day> newDaies = Collections.unmodifiableList(daies);
     return newDaies;
   }
 
-  // Unused setter for hibernate
-  public void setDaies(Day day) {
-    return;
+  public boolean setDaies(Day day) {
+    return true;
   }
 
   @Transient
@@ -344,7 +320,6 @@ public class TheGroceryStoreSystem
     int number = daies.size();
     return number;
   }
-
 
   public boolean hasDaies()
   {
@@ -364,36 +339,56 @@ public class TheGroceryStoreSystem
     return address;
   }
 
-  // Unused setter to please hibernate
-  public void setAddress(Address address) {
-    return;
+  public boolean setAddress(Address address) {
+    return true;
   }
 
+  /* Code from template association_GetMany */
+  public InStoreBill getInStoreBill(int index)
+  {
+    InStoreBill aInStoreBill = inStoreBills.get(index);
+    return aInStoreBill;
+  }
+
+  @OneToMany(cascade={CascadeType.ALL})
+  public List<InStoreBill> getInStoreBills()
+  {
+    List<InStoreBill> newInStoreBills = Collections.unmodifiableList(inStoreBills);
+    return newInStoreBills;
+  }
+
+  public boolean setInStoreBills(InStoreBill inStoreBill) {
+    return true;
+  }
+
+  public int numberOfInStoreBills()
+  {
+    int number = inStoreBills.size();
+    return number;
+  }
+
+  public boolean hasInStoreBills()
+  {
+    boolean has = inStoreBills.size() > 0;
+    return has;
+  }
+
+  public int indexOfInStoreBill(InStoreBill aInStoreBill)
+  {
+    int index = inStoreBills.indexOf(aInStoreBill);
+    return index;
+  }
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfEmployees()
   {
     return 0;
-  }
-  /* Code from template association_AddManyToOne */
-  public Employee addEmployee(String aEmail, String aName, String aPassword, Employee.EmployeeStatus aStatus)
-  {
-    return new Employee(aEmail, aName, aPassword, aStatus, this);
   }
 
   public boolean addEmployee(Employee aEmployee)
   {
     boolean wasAdded = false;
     if (employees.contains(aEmployee)) { return false; }
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = aEmployee.getTheGroceryStoreSystem();
-    boolean isNewTheGroceryStoreSystem = existingTheGroceryStoreSystem != null && !this.equals(existingTheGroceryStoreSystem);
-    if (isNewTheGroceryStoreSystem)
-    {
-      aEmployee.setTheGroceryStoreSystem(this);
-    }
-    else
-    {
-      employees.add(aEmployee);
-    }
+    employees.add(aEmployee);
     wasAdded = true;
     return wasAdded;
   }
@@ -401,12 +396,8 @@ public class TheGroceryStoreSystem
   public boolean removeEmployee(Employee aEmployee)
   {
     boolean wasRemoved = false;
-    //Unable to remove aEmployee, as it must always have a theGroceryStoreSystem
-    if (!this.equals(aEmployee.getTheGroceryStoreSystem()))
-    {
-      employees.remove(aEmployee);
-      wasRemoved = true;
-    }
+    if (employees.contains(aEmployee)) { employees.remove(aEmployee); }
+    wasRemoved = true;
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
@@ -446,26 +437,12 @@ public class TheGroceryStoreSystem
   {
     return 0;
   }
-  /* Code from template association_AddManyToOne */
-  public Customer addCustomer(String aEmail, String aName, String aPassword, String aPhone, Address aAddress)
-  {
-    return new Customer(aEmail, aName, aPassword, aPhone, aAddress, this);
-  }
 
   public boolean addCustomer(Customer aCustomer)
   {
     boolean wasAdded = false;
     if (customers.contains(aCustomer)) { return false; }
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = aCustomer.getTheGroceryStoreSystem();
-    boolean isNewTheGroceryStoreSystem = existingTheGroceryStoreSystem != null && !this.equals(existingTheGroceryStoreSystem);
-    if (isNewTheGroceryStoreSystem)
-    {
-      aCustomer.setTheGroceryStoreSystem(this);
-    }
-    else
-    {
-      customers.add(aCustomer);
-    }
+    customers.add(aCustomer);
     wasAdded = true;
     return wasAdded;
   }
@@ -473,14 +450,11 @@ public class TheGroceryStoreSystem
   public boolean removeCustomer(Customer aCustomer)
   {
     boolean wasRemoved = false;
-    //Unable to remove aCustomer, as it must always have a theGroceryStoreSystem
-    if (!this.equals(aCustomer.getTheGroceryStoreSystem()))
-    {
-      customers.remove(aCustomer);
-      wasRemoved = true;
-    }
+    if (customers.contains(aCustomer)) { customers.remove(aCustomer); }
+    wasRemoved = true;
     return wasRemoved;
   }
+
   /* Code from template association_AddIndexControlFunctions */
   public boolean addCustomerAt(Customer aCustomer, int index)
   {  
@@ -518,26 +492,12 @@ public class TheGroceryStoreSystem
   {
     return 0;
   }
-  /* Code from template association_AddManyToOne */
-  public Product addProduct(String aProductID, String aIsAvailableOnline, int aPrice, int aStock, PriceType aPriceType)
-  {
-    return new Product(aProductID, aIsAvailableOnline, aPrice, aStock, this, aPriceType);
-  }
 
   public boolean addProduct(Product aProduct)
   {
     boolean wasAdded = false;
     if (products.contains(aProduct)) { return false; }
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = aProduct.getTheGroceryStoreSystem();
-    boolean isNewTheGroceryStoreSystem = existingTheGroceryStoreSystem != null && !this.equals(existingTheGroceryStoreSystem);
-    if (isNewTheGroceryStoreSystem)
-    {
-      aProduct.setTheGroceryStoreSystem(this);
-    }
-    else
-    {
-      products.add(aProduct);
-    }
+    products.add(aProduct);
     wasAdded = true;
     return wasAdded;
   }
@@ -545,12 +505,8 @@ public class TheGroceryStoreSystem
   public boolean removeProduct(Product aProduct)
   {
     boolean wasRemoved = false;
-    //Unable to remove aProduct, as it must always have a theGroceryStoreSystem
-    if (!this.equals(aProduct.getTheGroceryStoreSystem()))
-    {
-      products.remove(aProduct);
-      wasRemoved = true;
-    }
+    if (products.contains(aProduct)) { products.remove(aProduct); }
+    wasRemoved = true;
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
@@ -590,26 +546,12 @@ public class TheGroceryStoreSystem
   {
     return 0;
   }
-  /* Code from template association_AddManyToOne */
-  public TimeSlot addTimeSlot(String aTimeslotID, Time aStartTime, Time aEndTime, Date aDate, int aMaxOrderPerSlot, Day aDay)
-  {
-    return new TimeSlot(aTimeslotID, aStartTime, aEndTime, aDate, aMaxOrderPerSlot, aDay, this);
-  }
 
   public boolean addTimeSlot(TimeSlot aTimeSlot)
   {
     boolean wasAdded = false;
     if (timeSlots.contains(aTimeSlot)) { return false; }
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = aTimeSlot.getTheGroceryStoreSystem();
-    boolean isNewTheGroceryStoreSystem = existingTheGroceryStoreSystem != null && !this.equals(existingTheGroceryStoreSystem);
-    if (isNewTheGroceryStoreSystem)
-    {
-      aTimeSlot.setTheGroceryStoreSystem(this);
-    }
-    else
-    {
-      timeSlots.add(aTimeSlot);
-    }
+    timeSlots.add(aTimeSlot);
     wasAdded = true;
     return wasAdded;
   }
@@ -618,11 +560,8 @@ public class TheGroceryStoreSystem
   {
     boolean wasRemoved = false;
     //Unable to remove aTimeSlot, as it must always have a theGroceryStoreSystem
-    if (!this.equals(aTimeSlot.getTheGroceryStoreSystem()))
-    {
-      timeSlots.remove(aTimeSlot);
-      wasRemoved = true;
-    }
+    if (timeSlots.contains(aTimeSlot)) { timeSlots.remove(aTimeSlot); }
+    wasRemoved = true;
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
@@ -662,26 +601,12 @@ public class TheGroceryStoreSystem
   {
     return 0;
   }
-  /* Code from template association_AddManyToOne */
-  public Shift addShift(String aShiftID, Time aStartHour, Time aEndHour, Date aDate, Day aDay, Employee aEmployee)
-  {
-    return new Shift(aShiftID, aStartHour, aEndHour, aDate, aDay, aEmployee, this);
-  }
 
   public boolean addShift(Shift aShift)
   {
     boolean wasAdded = false;
     if (shifts.contains(aShift)) { return false; }
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = aShift.getTheGroceryStoreSystem();
-    boolean isNewTheGroceryStoreSystem = existingTheGroceryStoreSystem != null && !this.equals(existingTheGroceryStoreSystem);
-    if (isNewTheGroceryStoreSystem)
-    {
-      aShift.setTheGroceryStoreSystem(this);
-    }
-    else
-    {
-      shifts.add(aShift);
-    }
+    shifts.add(aShift);
     wasAdded = true;
     return wasAdded;
   }
@@ -690,11 +615,8 @@ public class TheGroceryStoreSystem
   {
     boolean wasRemoved = false;
     //Unable to remove aShift, as it must always have a theGroceryStoreSystem
-    if (!this.equals(aShift.getTheGroceryStoreSystem()))
-    {
-      shifts.remove(aShift);
-      wasRemoved = true;
-    }
+    if (shifts.contains(aShift)) { shifts.remove(aShift); }
+    wasRemoved = true;
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
@@ -737,41 +659,24 @@ public class TheGroceryStoreSystem
     return isValid;
   }
 
-  //Unused setter for hibernate
-  public void setNumberOfDaiesValid(Day day) {
-    return;
+  public boolean setNumberOfDaiesValid(int numberOfDaysValid) {
+    return true;
   }
 
   /* Code from template association_RequiredNumberOfMethod */
-  @Transient
   public static int requiredNumberOfDaies()
   {
     return 7;
   }
-
   /* Code from template association_MinimumNumberOfMethod */
-  @Transient
   public static int minimumNumberOfDaies()
   {
     return 7;
   }
   /* Code from template association_MaximumNumberOfMethod */
-  @Transient
   public static int maximumNumberOfDaies()
   {
     return 7;
-  }
-  /* Code from template association_AddMNToOnlyOne */
-  public Day addDay(Day.WeekDays aDay, Time aStoreStartHour, Time aStoreEndHour)
-  {
-    if (numberOfDaies() >= maximumNumberOfDaies())
-    {
-      return null;
-    }
-    else
-    {
-      return new Day(aDay, aStoreStartHour, aStoreEndHour, this);
-    }
   }
 
   public boolean addDay(Day aDay)
@@ -782,23 +687,7 @@ public class TheGroceryStoreSystem
     {
       return wasAdded;
     }
-
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = aDay.getTheGroceryStoreSystem();
-    boolean isNewTheGroceryStoreSystem = existingTheGroceryStoreSystem != null && !this.equals(existingTheGroceryStoreSystem);
-
-    if (isNewTheGroceryStoreSystem && existingTheGroceryStoreSystem.numberOfDaies() <= minimumNumberOfDaies())
-    {
-      return wasAdded;
-    }
-
-    if (isNewTheGroceryStoreSystem)
-    {
-      aDay.setTheGroceryStoreSystem(this);
-    }
-    else
-    {
-      daies.add(aDay);
-    }
+    daies.add(aDay);
     wasAdded = true;
     return wasAdded;
   }
@@ -806,11 +695,6 @@ public class TheGroceryStoreSystem
   public boolean removeDay(Day aDay)
   {
     boolean wasRemoved = false;
-    //Unable to remove aDay, as it must always have a theGroceryStoreSystem
-    if (this.equals(aDay.getTheGroceryStoreSystem()))
-    {
-      return wasRemoved;
-    }
 
     //theGroceryStoreSystem already at minimum (7)
     if (numberOfDaies() <= minimumNumberOfDaies())
@@ -820,6 +704,61 @@ public class TheGroceryStoreSystem
     daies.remove(aDay);
     wasRemoved = true;
     return wasRemoved;
+  }
+  /* Code from template association_MinimumNumberOfMethod */
+  public static int minimumNumberOfInStoreBills()
+  {
+    return 0;
+  }
+
+  public boolean addInStoreBill(InStoreBill aInStoreBill)
+  {
+    boolean wasAdded = false;
+    if (inStoreBills.contains(aInStoreBill)) { return false; }
+    inStoreBills.add(aInStoreBill);
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeInStoreBill(InStoreBill aInStoreBill)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aInStoreBill, as it must always have a theGroceryStoreSystem
+    if (inStoreBills.contains(aInStoreBill)) { inStoreBills.remove(aInStoreBill); }  
+    wasRemoved = true;
+    return wasRemoved;
+  }
+  /* Code from template association_AddIndexControlFunctions */
+  public boolean addInStoreBillAt(InStoreBill aInStoreBill, int index)
+  {  
+    boolean wasAdded = false;
+    if(addInStoreBill(aInStoreBill))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfInStoreBills()) { index = numberOfInStoreBills() - 1; }
+      inStoreBills.remove(aInStoreBill);
+      inStoreBills.add(index, aInStoreBill);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveInStoreBillAt(InStoreBill aInStoreBill, int index)
+  {
+    boolean wasAdded = false;
+    if(inStoreBills.contains(aInStoreBill))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfInStoreBills()) { index = numberOfInStoreBills() - 1; }
+      inStoreBills.remove(aInStoreBill);
+      inStoreBills.add(index, aInStoreBill);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addInStoreBillAt(aInStoreBill, index);
+    }
+    return wasAdded;
   }
 
   public void delete()
@@ -878,6 +817,13 @@ public class TheGroceryStoreSystem
     {
       existingAddress.delete();
     }
+    while (inStoreBills.size() > 0)
+    {
+      InStoreBill aInStoreBill = inStoreBills.get(inStoreBills.size() - 1);
+      aInStoreBill.delete();
+      inStoreBills.remove(aInStoreBill);
+    }
+    
   }
 
 
@@ -885,9 +831,19 @@ public class TheGroceryStoreSystem
   {
     return super.toString() + "["+
             "telephone" + ":" + getTelephone()+ "," +
-            "email" + ":" + getEmail()+ "," +
-            "grocerystoreID" + ":" + getGrocerystoreID()+ "]" + System.getProperties().getProperty("line.separator") +
+            "email" + ":" + getEmail()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "storeOwner = "+(getStoreOwner()!=null?Integer.toHexString(System.identityHashCode(getStoreOwner())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "address = "+(getAddress()!=null?Integer.toHexString(System.identityHashCode(getAddress())):"null");
+  }
+
+  public boolean setId(long id) {
+    this.id = id;
+    return true;
+  }
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public long getId() {
+    return id;
   }
 }

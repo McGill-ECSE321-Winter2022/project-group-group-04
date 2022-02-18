@@ -5,6 +5,8 @@ package ca.mcgill.ecse321.project321.model;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
@@ -19,7 +21,7 @@ public class CartItem
   //------------------------
 
   //CartItem Attributes
-  private String cartItemID;
+  private long id;
   private int quantity;
 
   //CartItem Associations
@@ -29,9 +31,8 @@ public class CartItem
   // CONSTRUCTOR
   //------------------------
 
-  public CartItem(String aCartItemID, int aQuantity, Product aProduct)
+  public CartItem(int aQuantity, Product aProduct)
   {
-    cartItemID = aCartItemID;
     quantity = aQuantity;
     if (!setProduct(aProduct))
     {
@@ -43,14 +44,6 @@ public class CartItem
   // INTERFACE
   //------------------------
 
-  public boolean setCartItemID(String aCartItemID)
-  {
-    boolean wasSet = false;
-    cartItemID = aCartItemID;
-    wasSet = true;
-    return wasSet;
-  }
-
   public boolean setQuantity(int aQuantity)
   {
     boolean wasSet = false;
@@ -59,12 +52,16 @@ public class CartItem
     return wasSet;
   }
 
-  @Id
-  public String getCartItemID()
-  {
-    return cartItemID;
+  public boolean setId(long id) {
+    this.id = id;
+    return true;
   }
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public long getId() {
+    return id;
+  }
   public int getQuantity()
   {
     return quantity;
@@ -96,7 +93,7 @@ public class CartItem
   public String toString()
   {
     return super.toString() + "["+
-            "cartItemID" + ":" + getCartItemID()+ "," +
+            "id" + ":" + getId()+ "," +
             "quantity" + ":" + getQuantity()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "product = "+(getProduct()!=null?Integer.toHexString(System.identityHashCode(getProduct())):"null");
   }

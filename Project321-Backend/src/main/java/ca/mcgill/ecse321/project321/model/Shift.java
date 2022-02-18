@@ -6,6 +6,8 @@ import java.sql.Time;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
@@ -22,7 +24,7 @@ public class Shift
   //------------------------
 
   //Shift Attributes
-  private String shiftID;
+  private long id;
   private Time startHour;
   private Time endHour;
   private Date date;
@@ -30,15 +32,13 @@ public class Shift
   //Shift Associations
   private Day day;
   private Employee employee;
-  private TheGroceryStoreSystem theGroceryStoreSystem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Shift(String aShiftID, Time aStartHour, Time aEndHour, Date aDate, Day aDay, Employee aEmployee, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public Shift(Time aStartHour, Time aEndHour, Date aDate, Day aDay, Employee aEmployee)
   {
-    shiftID = aShiftID;
     startHour = aStartHour;
     endHour = aEndHour;
     date = aDate;
@@ -50,23 +50,21 @@ public class Shift
     {
       throw new RuntimeException("Unable to create Shift due to aEmployee. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
-    boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
-    if (!didAddTheGroceryStoreSystem)
-    {
-      throw new RuntimeException("Unable to create shift due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
   }
 
   //------------------------
   // INTERFACE
   //------------------------
 
-  public boolean setShiftID(String aShiftID)
-  {
-    boolean wasSet = false;
-    shiftID = aShiftID;
-    wasSet = true;
-    return wasSet;
+  public boolean setId(long id) {
+    this.id = id;
+    return true;
+  }
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public long getId() {
+    return id;
   }
 
   public boolean setStartHour(Time aStartHour)
@@ -91,12 +89,6 @@ public class Shift
     date = aDate;
     wasSet = true;
     return wasSet;
-  }
-
-  @Id
-  public String getShiftID()
-  {
-    return shiftID;
   }
 
   public Time getStartHour()
@@ -125,12 +117,7 @@ public class Shift
   {
     return employee;
   }
-  /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.ALL})
-  public TheGroceryStoreSystem getTheGroceryStoreSystem()
-  {
-    return theGroceryStoreSystem;
-  }
+  
   /* Code from template association_SetUnidirectionalOne */
   public boolean setDay(Day aNewDay)
   {
@@ -153,48 +140,22 @@ public class Shift
     }
     return wasSet;
   }
-  /* Code from template association_SetOneToMany */
-  public boolean setTheGroceryStoreSystem(TheGroceryStoreSystem aTheGroceryStoreSystem)
-  {
-    boolean wasSet = false;
-    if (aTheGroceryStoreSystem == null)
-    {
-      return wasSet;
-    }
-
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
-    theGroceryStoreSystem = aTheGroceryStoreSystem;
-    if (existingTheGroceryStoreSystem != null && !existingTheGroceryStoreSystem.equals(aTheGroceryStoreSystem))
-    {
-      existingTheGroceryStoreSystem.removeShift(this);
-    }
-    theGroceryStoreSystem.addShift(this);
-    wasSet = true;
-    return wasSet;
-  }
 
   public void delete()
   {
     day = null;
     employee = null;
-    TheGroceryStoreSystem placeholderTheGroceryStoreSystem = theGroceryStoreSystem;
-    this.theGroceryStoreSystem = null;
-    if(placeholderTheGroceryStoreSystem != null)
-    {
-      placeholderTheGroceryStoreSystem.removeShift(this);
-    }
   }
 
 
   public String toString()
   {
     return super.toString() + "["+
-            "shiftID" + ":" + getShiftID()+ "]" + System.getProperties().getProperty("line.separator") +
+            "id" + ":" + getId()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "startHour" + "=" + (getStartHour() != null ? !getStartHour().equals(this)  ? getStartHour().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "endHour" + "=" + (getEndHour() != null ? !getEndHour().equals(this)  ? getEndHour().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "date" + "=" + (getDate() != null ? !getDate().equals(this)  ? getDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "day = "+(getDay()!=null?Integer.toHexString(System.identityHashCode(getDay())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "employee = "+(getEmployee()!=null?Integer.toHexString(System.identityHashCode(getEmployee())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
+            "  " + "employee = "+(getEmployee()!=null?Integer.toHexString(System.identityHashCode(getEmployee())):"null") + System.getProperties().getProperty("line.separator");
   }
 }

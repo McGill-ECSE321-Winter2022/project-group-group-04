@@ -4,10 +4,8 @@
 package ca.mcgill.ecse321.project321.model;
 import java.sql.Time;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 
 // line 77 "../../../../../../model.ump"
 // line 184 "../../../../../../model.ump"
@@ -30,23 +28,15 @@ public class Day
   private Time storeStartHour;
   private Time storeEndHour;
 
-  //Day Associations
-  private TheGroceryStoreSystem theGroceryStoreSystem;
-
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Day(WeekDays aDay, Time aStoreStartHour, Time aStoreEndHour, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public Day(WeekDays aDay, Time aStoreStartHour, Time aStoreEndHour)
   {
     day = aDay;
     storeStartHour = aStoreStartHour;
     storeEndHour = aStoreEndHour;
-    boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
-    if (!didAddTheGroceryStoreSystem)
-    {
-      throw new RuntimeException("Unable to create day due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
   }
 
   //------------------------
@@ -91,53 +81,9 @@ public class Day
   {
     return storeEndHour;
   }
-  /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.ALL})
-  public TheGroceryStoreSystem getTheGroceryStoreSystem()
-  {
-    return theGroceryStoreSystem;
-  }
-  /* Code from template association_SetOneToAtMostN */
-  public boolean setTheGroceryStoreSystem(TheGroceryStoreSystem aTheGroceryStoreSystem)
-  {
-    boolean wasSet = false;
-    //Must provide theGroceryStoreSystem to day
-    if (aTheGroceryStoreSystem == null)
-    {
-      return wasSet;
-    }
-
-    //theGroceryStoreSystem already at maximum (7)
-    if (aTheGroceryStoreSystem.numberOfDaies() >= TheGroceryStoreSystem.maximumNumberOfDaies())
-    {
-      return wasSet;
-    }
-    
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
-    theGroceryStoreSystem = aTheGroceryStoreSystem;
-    if (existingTheGroceryStoreSystem != null && !existingTheGroceryStoreSystem.equals(aTheGroceryStoreSystem))
-    {
-      boolean didRemove = existingTheGroceryStoreSystem.removeDay(this);
-      if (!didRemove)
-      {
-        theGroceryStoreSystem = existingTheGroceryStoreSystem;
-        return wasSet;
-      }
-    }
-    theGroceryStoreSystem.addDay(this);
-    wasSet = true;
-    return wasSet;
-  }
 
   public void delete()
-  {
-    TheGroceryStoreSystem placeholderTheGroceryStoreSystem = theGroceryStoreSystem;
-    this.theGroceryStoreSystem = null;
-    if(placeholderTheGroceryStoreSystem != null)
-    {
-      placeholderTheGroceryStoreSystem.removeDay(this);
-    }
-  }
+  {}
 
 
   public String toString()
@@ -145,8 +91,7 @@ public class Day
     return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "day" + "=" + (getDay() != null ? !getDay().equals(this)  ? getDay().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "storeStartHour" + "=" + (getStoreStartHour() != null ? !getStoreStartHour().equals(this)  ? getStoreStartHour().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "storeEndHour" + "=" + (getStoreEndHour() != null ? !getStoreEndHour().equals(this)  ? getStoreEndHour().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
+            "  " + "storeEndHour" + "=" + (getStoreEndHour() != null ? !getStoreEndHour().equals(this)  ? getStoreEndHour().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator");
   }
 
   @Id

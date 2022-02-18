@@ -3,10 +3,8 @@
 
 package ca.mcgill.ecse321.project321.model;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 
 // line 52 "../../../../../../model.ump"
 // line 167 "../../../../../../model.ump"
@@ -24,41 +22,33 @@ public class Product
   //------------------------
 
   //Product Attributes
-  private String productID;
+  private String productName;
   private String isAvailableOnline;
   private int price;
   private int stock;
   private PriceType priceType; 
 
-  //Product Associations
-  private TheGroceryStoreSystem theGroceryStoreSystem;
-
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Product(String aProductID, String aIsAvailableOnline, int aPrice, int aStock, TheGroceryStoreSystem aTheGroceryStoreSystem, PriceType aPriceType)
+  public Product(PriceType aPriceType, String aProductName, String aIsAvailableOnline, int aPrice, int aStock)
   {
-    productID = aProductID;
+    productName = aProductName;
     isAvailableOnline = aIsAvailableOnline;
     price = aPrice;
     stock = aStock;
     priceType = aPriceType;
-    boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
-    if (!didAddTheGroceryStoreSystem)
-    {
-      throw new RuntimeException("Unable to create product due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
   }
 
   //------------------------
   // INTERFACE
   //------------------------
 
-  public boolean setProductID(String aProductID)
+  public boolean setProductName(String aProductName)
   {
     boolean wasSet = false;
-    productID = aProductID;
+    productName = aProductName;
     wasSet = true;
     return wasSet;
   }
@@ -97,9 +87,9 @@ public class Product
   }
 
   @Id
-  public String getProductID()
+  public String getProductName()
   {
-    return productID;
+    return productName;
   }
 
   public String getIsAvailableOnline()
@@ -116,50 +106,19 @@ public class Product
   {
     return stock;
   }
-  /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.ALL})
-  public TheGroceryStoreSystem getTheGroceryStoreSystem()
-  {
-    return theGroceryStoreSystem;
-  }
-  /* Code from template association_SetOneToMany */
-  public boolean setTheGroceryStoreSystem(TheGroceryStoreSystem aTheGroceryStoreSystem)
-  {
-    boolean wasSet = false;
-    if (aTheGroceryStoreSystem == null)
-    {
-      return wasSet;
-    }
-
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
-    theGroceryStoreSystem = aTheGroceryStoreSystem;
-    if (existingTheGroceryStoreSystem != null && !existingTheGroceryStoreSystem.equals(aTheGroceryStoreSystem))
-    {
-      existingTheGroceryStoreSystem.removeProduct(this);
-    }
-    theGroceryStoreSystem.addProduct(this);
-    wasSet = true;
-    return wasSet;
-  }
 
   public void delete()
   {
-    TheGroceryStoreSystem placeholderTheGroceryStoreSystem = theGroceryStoreSystem;
-    this.theGroceryStoreSystem = null;
-    if(placeholderTheGroceryStoreSystem != null)
-    {
-      placeholderTheGroceryStoreSystem.removeProduct(this);
-    }
+    return;
   }
 
 
   public String toString()
   {
     return super.toString() + "["+
-            "productID" + ":" + getProductID()+ "," +
+            "productName" + ":" + getProductName()+ "," +
             "isAvailableOnline" + ":" + getIsAvailableOnline()+ "," +
             "price" + ":" + getPrice()+ "," +
-            "stock" + ":" + getStock()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
+            "stock" + ":" + getStock()+ "]" + System.getProperties().getProperty("line.separator");
   }
 }

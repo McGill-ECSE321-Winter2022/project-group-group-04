@@ -6,7 +6,6 @@ import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
@@ -28,13 +27,12 @@ public class Customer extends User
   //Customer Associations
   private Address address;
   private List<Cart> carts;
-  private TheGroceryStoreSystem theGroceryStoreSystem;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Customer(String aEmail, String aName, String aPassword, String aPhone, Address aAddress, TheGroceryStoreSystem aTheGroceryStoreSystem)
+  public Customer(String aEmail, String aName, String aPassword, String aPhone, Address aAddress)
   {
     super(aEmail, aName, aPassword);
     phone = aPhone;
@@ -43,11 +41,6 @@ public class Customer extends User
       throw new RuntimeException("Unable to create Customer due to aAddress. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
     carts = new ArrayList<Cart>();
-    boolean didAddTheGroceryStoreSystem = setTheGroceryStoreSystem(aTheGroceryStoreSystem);
-    if (!didAddTheGroceryStoreSystem)
-    {
-      throw new RuntimeException("Unable to create customer due to theGroceryStoreSystem. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
   }
 
   //------------------------
@@ -107,12 +100,7 @@ public class Customer extends User
     int index = carts.indexOf(aCart);
     return index;
   }
-  /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.ALL})
-  public TheGroceryStoreSystem getTheGroceryStoreSystem()
-  {
-    return theGroceryStoreSystem;
-  }
+  
   /* Code from template association_SetUnidirectionalOne */
   public boolean setAddress(Address aNewAddress)
   {
@@ -129,11 +117,6 @@ public class Customer extends User
   public static int minimumNumberOfCarts()
   {
     return 0;
-  }
-  /* Code from template association_AddManyToOne */
-  public Cart addCart(String aCartID, Cart.ShoppingType aType, TimeSlot aTimeSlot, Order aOrder)
-  {
-    return new Cart(aCartID, aType, this, aTimeSlot, aOrder);
   }
 
   public boolean addCart(Cart aCart)
@@ -197,25 +180,6 @@ public class Customer extends User
     }
     return wasAdded;
   }
-  /* Code from template association_SetOneToMany */
-  public boolean setTheGroceryStoreSystem(TheGroceryStoreSystem aTheGroceryStoreSystem)
-  {
-    boolean wasSet = false;
-    if (aTheGroceryStoreSystem == null)
-    {
-      return wasSet;
-    }
-
-    TheGroceryStoreSystem existingTheGroceryStoreSystem = theGroceryStoreSystem;
-    theGroceryStoreSystem = aTheGroceryStoreSystem;
-    if (existingTheGroceryStoreSystem != null && !existingTheGroceryStoreSystem.equals(aTheGroceryStoreSystem))
-    {
-      existingTheGroceryStoreSystem.removeCustomer(this);
-    }
-    theGroceryStoreSystem.addCustomer(this);
-    wasSet = true;
-    return wasSet;
-  }
 
   public void delete()
   {
@@ -226,13 +190,6 @@ public class Customer extends User
       aCart.delete();
       carts.remove(aCart);
     }
-    
-    TheGroceryStoreSystem placeholderTheGroceryStoreSystem = theGroceryStoreSystem;
-    this.theGroceryStoreSystem = null;
-    if(placeholderTheGroceryStoreSystem != null)
-    {
-      placeholderTheGroceryStoreSystem.removeCustomer(this);
-    }
     super.delete();
   }
 
@@ -241,7 +198,6 @@ public class Customer extends User
   {
     return super.toString() + "["+
             "phone" + ":" + getPhone()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "address = "+(getAddress()!=null?Integer.toHexString(System.identityHashCode(getAddress())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "theGroceryStoreSystem = "+(getTheGroceryStoreSystem()!=null?Integer.toHexString(System.identityHashCode(getTheGroceryStoreSystem())):"null");
+            "  " + "address = "+(getAddress()!=null?Integer.toHexString(System.identityHashCode(getAddress())):"null") + System.getProperties().getProperty("line.separator");
   }
 }
