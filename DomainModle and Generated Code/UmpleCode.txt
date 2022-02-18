@@ -29,7 +29,6 @@ class Employee
 
 class Cart
 {
-  cartID;
   enum ShoppingType {Delivery, Pickup};
   ShoppingType type;
   * -<@> 1 Customer;
@@ -40,7 +39,6 @@ class Cart
 
 class Order
 {
-  orderID;
   Boolean completed;
   Date orderDate;
   Integer total;
@@ -51,7 +49,7 @@ class Product
 {
   enum PriceType {PER_UNIT, PER_KILOS}
   PriceType priceType;
-  productID;
+  productName;
   isAvailableOnline;
   Integer price;
   Integer stock;
@@ -60,13 +58,11 @@ class Product
 class CartItem
 {
   Integer quantity;
-  cartItemID;
   * -> 1 Product;
 }
 
 class TimeSlot
 {
-  timeslotID;
   Time startTime;
   Time endTime;
   Date date;
@@ -84,7 +80,6 @@ class Day
 
 class Shift
 {
-  shiftID;
   Time startHour;
   Time endHour;
   Date date;
@@ -100,6 +95,13 @@ class Address
   Integer unit;
 }
 
+class InStoreBill
+{
+  * -> * CartItem;
+  Integer total;
+  Date purchaseDate; 
+}
+
 class TheGroceryStoreSystem
 {
   1 <@>- 1 StoreOwner;
@@ -110,7 +112,7 @@ class TheGroceryStoreSystem
   1 <@>- * Shift;
   1 <@>- 7 Day;
   1 <@>- 1 Address;
+  1 <@>- * InStoreBill;
   telephone;
   email;
-  grocerystoreID;
 }
