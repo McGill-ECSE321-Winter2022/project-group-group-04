@@ -12,4 +12,5 @@ This repository holds the source code for the Grocery System
 | Karim  | Insert Hours Here  | Insert tasks Here |
 | Thomas  | Insert Hours Herel  | Insert tasks Here |
 | Youjin  | Insert Hours Here  | Insert tasks Here |
-
+### Deliverable One Report
+* [Report](https://github.com/McGill-ECSE321-Winter2022/project-group-group-04/wiki)
