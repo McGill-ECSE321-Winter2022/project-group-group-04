@@ -49,6 +49,8 @@ public class TimeSlot
     }
   }
 
+  public TimeSlot() {}
+
   //------------------------
   // INTERFACE
   //------------------------

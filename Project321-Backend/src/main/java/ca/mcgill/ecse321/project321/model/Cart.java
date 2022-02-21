@@ -59,6 +59,8 @@ public class Cart
     order = null;
   }
 
+  public Cart() {}
+
   //------------------------
   // INTERFACE
   //------------------------

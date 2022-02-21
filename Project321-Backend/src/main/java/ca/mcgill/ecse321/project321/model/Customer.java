@@ -6,7 +6,6 @@ import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
@@ -43,6 +42,11 @@ public class Customer extends User
     carts = new ArrayList<Cart>();
   }
 
+  public Customer() {
+    super();
+    carts = new ArrayList<Cart>();
+  }
+
   //------------------------
   // INTERFACE
   //------------------------
@@ -72,11 +76,11 @@ public class Customer extends User
     return aCart;
   }
 
-  public void setCarts(Cart cart) {
-    return;
+  public void setCarts(List<Cart> carts) {
+    this.carts = new ArrayList<Cart>(carts);
   }
 
-  @OneToMany(cascade = {CascadeType.ALL})
+  @Transient
   public List<Cart> getCarts()
   {
     List<Cart> newCarts = Collections.unmodifiableList(carts);

@@ -9,10 +9,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 // line 60 "../../../../../../model.ump"
 // line 172 "../../../../../../model.ump"
 @Entity
+@Table(name = "_cart_items_")
 public class CartItem
 {
 
@@ -39,6 +41,8 @@ public class CartItem
       throw new RuntimeException("Unable to create CartItem due to aProduct. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
+
+  public CartItem() {}
 
   //------------------------
   // INTERFACE
@@ -67,7 +71,7 @@ public class CartItem
     return quantity;
   }
   /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.ALL})
+  @ManyToOne(cascade = {CascadeType.MERGE})
   public Product getProduct()
   {
     return product;

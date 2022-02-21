@@ -24,6 +24,8 @@ public class StoreOwner extends User
     super(aEmail, aName, aPassword);
   }
 
+  public StoreOwner() {}
+
   //------------------------
   // INTERFACE
   //------------------------

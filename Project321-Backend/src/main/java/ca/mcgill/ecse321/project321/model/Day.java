@@ -39,6 +39,8 @@ public class Day
     storeEndHour = aStoreEndHour;
   }
 
+  public Day() {}
+
   //------------------------
   // INTERFACE
   //------------------------
@@ -127,7 +129,32 @@ public class Day
   }
 
   // Unused setter: only to please hibernate
-  public void setID(Integer id) {
-    return;
+  public boolean setID(Integer id) {
+    switch(id) {
+      case 1:
+          setDay(WeekDays.Monday);
+          break;
+      case 2:
+          setDay(WeekDays.Tuesday);
+          break;
+      case 3:
+          setDay(WeekDays.Wednesday);
+          break;
+      case 4:
+          setDay(WeekDays.Thursday);
+          break;
+      case 5:
+          setDay(WeekDays.Friday);
+          break;
+      case 6:
+          setDay(WeekDays.Saturday);
+          break;
+      case 7:
+          setDay(WeekDays.Sunday);
+          break;
+      default:
+          return false;
+    }
+    return true;
   }
 }

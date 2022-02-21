@@ -8,9 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Time;
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.Month;
 import java.util.List;
 
 import ca.mcgill.ecse321.project321.model.Address;
@@ -110,7 +108,6 @@ public class TestProject321Persistence {
 
 	@Test
     public void testPersistAndLoadCartItem() {
-		long id = 321;
 		int quantity = 1;
 		
 		String productName = "Apple";
@@ -119,9 +116,10 @@ public class TestProject321Persistence {
 		int stock = 100;
 		PriceType priceType = PriceType.PER_UNIT;
 		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
+		productRepository.save(product);
+		product = productRepository.findByProductName(productName);
 		
 		CartItem cartItem = new CartItem(quantity, product);
-		assertTrue(cartItem.setId(id));
 		cartItemRepository.save(cartItem);
 		
 		cartItem=null;
@@ -129,7 +127,6 @@ public class TestProject321Persistence {
 		List<CartItem> cartItemlist = cartItemRepository.findByProductAndQuantity(product, quantity);
 		cartItem = cartItemlist.get(0);
 		assertNotNull(cartItem);
-		assertEquals(cartItem.getId(),id);
 		assertEquals(cartItem.getQuantity(),quantity);
 		
 		assertEquals(cartItem.getProduct().getProductName(),productName);

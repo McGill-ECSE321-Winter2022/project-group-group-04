@@ -51,6 +51,8 @@ public class Order
     cart = aCart;
   }
 
+  public Order() {}
+
   //------------------------
   // INTERFACE
   //------------------------

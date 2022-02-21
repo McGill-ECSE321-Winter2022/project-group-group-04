@@ -34,6 +34,8 @@ public class Address
     unit = aUnit;
   }
 
+  public Address() {}
+
   //------------------------
   // INTERFACE
   //------------------------
@@ -107,7 +109,7 @@ public class Address
     return unit + " " + street + ", " + town + ", " + postalCode;
   }
 
-  // Unused setter: only to please hibernate
+  // Unused setter: only to please hibernate since we cant set unit, street, etc... from a single string
   public void setID(String id) {
     return;
   }

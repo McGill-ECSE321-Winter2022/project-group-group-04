@@ -4,11 +4,15 @@
 package ca.mcgill.ecse321.project321.model;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 // line 52 "../../../../../../model.ump"
 // line 167 "../../../../../../model.ump"
 @Entity
+@Table(name = "_products_")
 public class Product
 {
 
@@ -22,6 +26,7 @@ public class Product
   //------------------------
 
   //Product Attributes
+  private long id;
   private String productName;
   private String isAvailableOnline;
   private int price;
@@ -40,6 +45,8 @@ public class Product
     stock = aStock;
     priceType = aPriceType;
   }
+
+  public Product() {}
 
   //------------------------
   // INTERFACE
@@ -86,7 +93,6 @@ public class Product
     return true;
   }
 
-  @Id
   public String getProductName()
   {
     return productName;
@@ -112,7 +118,6 @@ public class Product
     return;
   }
 
-
   public String toString()
   {
     return super.toString() + "["+
@@ -120,5 +125,16 @@ public class Product
             "isAvailableOnline" + ":" + getIsAvailableOnline()+ "," +
             "price" + ":" + getPrice()+ "," +
             "stock" + ":" + getStock()+ "]" + System.getProperties().getProperty("line.separator");
+  }
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public long getId() {
+    return id;
+  }
+
+  public boolean setId(long id) {
+    this.id = id;
+    return true;
   }
 }

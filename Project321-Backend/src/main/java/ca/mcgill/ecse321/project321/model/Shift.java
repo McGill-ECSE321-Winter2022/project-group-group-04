@@ -52,6 +52,8 @@ public class Shift
     }
   }
 
+  public Shift() {}
+
   //------------------------
   // INTERFACE
   //------------------------

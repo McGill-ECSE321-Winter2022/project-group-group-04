@@ -34,6 +34,8 @@ public class Employee extends User
     status = aStatus;
   }
 
+  public Employee() {}
+
   //------------------------
   // INTERFACE
   //------------------------

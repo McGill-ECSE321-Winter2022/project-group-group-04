@@ -82,6 +82,8 @@ public class TheGroceryStoreSystem
     inStoreBills = new ArrayList<InStoreBill>();
   }
 
+  public TheGroceryStoreSystem() {}
+
   //------------------------
   // INTERFACE
   //------------------------
