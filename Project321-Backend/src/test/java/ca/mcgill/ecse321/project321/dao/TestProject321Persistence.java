@@ -8,7 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.sql.Date;
 import java.util.List;
 
 import ca.mcgill.ecse321.project321.model.Address;
@@ -79,8 +81,9 @@ public class TestProject321Persistence {
 		// Then we can clear the other tables
 	}
 
-	@Test
-    public void testPersistAndLoadAddress() {
+	//Read and Write test for Address Class 
+	@Test 
+    public void testPersistAndLoadAddress() { 
 		  String town = "TestTown";
 		  String street = "TestStreet";
 		  String postalCode = "TestPostalCode";
@@ -93,16 +96,73 @@ public class TestProject321Persistence {
 		  
 		  List<Address> addresslist = addressRepository.findByStreet(street);
 		  address = addresslist.get(0);
-		  assertNotNull(address);
+		  //Write test for Object
+		  assertNotNull(address, "Address is not being written");
+		  //Read and Write test(s) for attributes, and in turn Read test for Address Object as it is collected from addressRepository
 		  assertEquals(address.getTown(),town);
 		  assertEquals(address.getStreet(),street);
 		  assertEquals(address.getPostalCode(),postalCode);
 		  assertEquals(address.getUnit(),unit);
+
 		
 	}
 	
+//Read and Write test for Cart Class
 	@Test
     public void testPersistAndLoadCart() {
+		
+		  String email = "customer@mail.com";
+		  String name = "TestCustomer";
+		  String password = "Testpassword";
+		  String phone = "000-1111";	  
+		  String town = "TestTown";
+		  String street = "TestStreet";
+		  String postalCode = "TestPostalCode";
+		  int unit = 321;
+		  Address address = new Address(town,street,postalCode,unit);
+		  
+		Customer testCustomer =  new Customer(email, name, password, phone, address);
+				
+		Time testStartTime = java.sql.Time.valueOf(LocalTime.now());
+		Time testEndTime = java.sql.Time.valueOf(LocalTime.now().plusHours(2));
+		Date testDate = java.sql.Date.valueOf(LocalDate.now());
+		int testMaxOrderPerSlot = 10;
+		
+		WeekDays weekDay = WeekDays.Monday;
+		Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
+		Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));
+		
+		Day testDay = new Day(weekDay, storeStartHour, storeEndHour);	
+		TimeSlot testTimeSlot = new TimeSlot(testStartTime, testEndTime, testDate,testMaxOrderPerSlot, testDay);	
+		Cart testCart = new Cart(ShoppingType.Delivery, testCustomer, testTimeSlot);
+		
+
+		int quantity = 1;
+		String productName = "Apple";
+		String isAvailableOnline = "Yes";
+		int price = 3;
+		int stock = 100;
+		PriceType priceType = PriceType.PER_UNIT;
+		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
+		productRepository.save(product);
+		CartItem cartItem = new CartItem(quantity, product);
+		testCart.addCartItem(cartItem);
+		cartItemRepository.save(cartItem);
+		
+		
+		customerRepository.save(testCustomer); 
+		dayRepository.save(testDay);
+//		timeslotRepository.save(testTimeSlot);
+		cartRepository.save(testCart);
+		
+		testCart = null;
+		
+		List<Cart> listOfCarts = cartRepository.findByTimeSlot(testTimeSlot);
+		testCart = listOfCarts.get(0);	
+		//Write test for Object 
+		assertNotNull(testCart, "its not being written");
+		
+		
 		
 	}
 
