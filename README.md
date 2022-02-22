@@ -10,7 +10,7 @@ This repository holds the source code for the Grocery System
 | Jed  | Insert Hours Here  | Insert tasks Here |
 | John  | Insert Hours Here  | Insert tasks Here |
 | Karim  | Insert Hours Here  | Insert tasks Here |
-| Thomas  | 7 hours  | Use Case Diagram |
+| Thomas  | 7 hours  | Use Case Diagram/Design Decisions |
 | Youjin  | Insert Hours Here  | Insert tasks Here |
 ### Deliverable One Report
 * [Report](https://github.com/McGill-ECSE321-Winter2022/project-group-group-04/wiki)
