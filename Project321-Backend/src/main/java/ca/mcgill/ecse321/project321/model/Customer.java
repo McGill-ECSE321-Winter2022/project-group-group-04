@@ -6,6 +6,7 @@ import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
@@ -64,7 +65,8 @@ public class Customer extends User
     return phone;
   }
   /* Code from template association_GetOne */
-  @OneToOne(cascade = {CascadeType.ALL})
+  @OneToOne(cascade = {CascadeType.MERGE})
+  @JoinColumn(name = "address_id")
   public Address getAddress()
   {
     return address;

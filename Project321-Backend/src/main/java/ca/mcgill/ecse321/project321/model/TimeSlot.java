@@ -5,12 +5,14 @@ package ca.mcgill.ecse321.project321.model;
 import java.sql.Time;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import java.sql.Date;
 
@@ -25,13 +27,16 @@ public class TimeSlot
   //------------------------
 
   //TimeSlot Attributes
+  @Transient
   private long id;
   private Time startTime;
   private Time endTime;
+  @Transient
   private Date date;
   private int maxOrderPerSlot;
 
   //TimeSlot Associations
+  @Transient
   private Day day;
 
   //------------------------
@@ -63,6 +68,7 @@ public class TimeSlot
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "timeslot_id")
   public long getId() {
     return id;
   }
@@ -99,28 +105,32 @@ public class TimeSlot
     return wasSet;
   }
 
+  @Column(name = "start_time")
   public Time getStartTime()
   {
     return startTime;
   }
 
+  @Column(name = "end_time")
   public Time getEndTime()
   {
     return endTime;
   }
 
+  @Column(name = "timeslot_date")
   public Date getDate()
   {
     return date;
   }
 
+  @Column(name = "max_order_per_slot")
   public int getMaxOrderPerSlot()
   {
     return maxOrderPerSlot;
   }
   /* Code from template association_GetOne */
   @ManyToOne()
-  @JoinColumn(name = "_day_id_")
+  @JoinColumn(name = "day_id")
   public Day getDay()
   {
     return day;

@@ -5,13 +5,16 @@ package ca.mcgill.ecse321.project321.model;
 import java.util.*;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 // line 32 "../../../../../../model.ump"
 // line 154 "../../../../../../model.ump"\
@@ -30,6 +33,7 @@ public class Cart
   //------------------------
 
   //Cart Attributes
+  @Transient
   private long id;
   private ShoppingType type;
 
@@ -80,10 +84,12 @@ public class Cart
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "cart_id")
   public long getId() {
     return id;
   }
 
+  @Column(name = "cart_type")
   public ShoppingType getType()
   {
     return type;
@@ -101,7 +107,8 @@ public class Cart
     return aCartItem;
   }
 
-  @OneToMany(cascade = {CascadeType.MERGE})
+  @OneToMany(cascade = {CascadeType.ALL})
+  @Column(name = "cart_items_cart")
   public List<CartItem> getCartItems()
   {
     List<CartItem> newCartItems = Collections.unmodifiableList(cartItems);
@@ -131,12 +138,14 @@ public class Cart
   }
   /* Code from template association_GetOne */
   @ManyToOne(cascade = {CascadeType.MERGE})
+  @JoinColumn(name = "timeslot_id")
   public TimeSlot getTimeSlot()
   {
     return timeSlot;
   }
   /* Code from template association_GetOne */
   @OneToOne(cascade = {CascadeType.ALL})
+  @JoinColumn(name = "order_id")
   public Order getOrder()
   {
     return order;

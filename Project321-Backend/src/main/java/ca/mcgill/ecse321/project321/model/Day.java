@@ -6,11 +6,15 @@ import java.sql.Time;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 // line 77 "../../../../../../model.ump"
 // line 184 "../../../../../../model.ump"
 @Entity
+@Table(name = "days")
 public class Day
 {
 
@@ -25,6 +29,7 @@ public class Day
   //------------------------
 
   //Day Attributes
+  private long id;
   private WeekDays day;
   private Time storeStartHour;
   private Time storeEndHour;
@@ -70,16 +75,19 @@ public class Day
     return wasSet;
   }
 
+  @Column(name = "day")
   public WeekDays getDay()
   {
     return day;
   }
 
+  @Column(name = "start_hour")
   public Time getStoreStartHour()
   {
     return storeStartHour;
   }
 
+  @Column(name = "end_hour")
   public Time getStoreEndHour()
   {
     return storeEndHour;
@@ -98,65 +106,15 @@ public class Day
   }
 
   @Id
-  @Column(name = "_day_id_")
-  public Integer getID() {
-    WeekDays day = getDay();
-    int id = 0;
-    switch(day) {
-      case Monday:
-          id = 1;
-          break;
-      case Tuesday:
-          id = 2;
-          break;
-      case Wednesday:
-          id = 3;
-          break;
-      case Thursday:
-          id = 4;
-          break;
-      case Friday:
-          id = 5;
-          break;
-      case Saturday:
-          id = 6;
-          break;
-      case Sunday:
-          id = 7;
-          break;
-      default:
-          break;
-    }
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "day_id")
+  public long getID() {
     return id;
   }
 
   // Unused setter: only to please hibernate
-  public boolean setID(Integer id) {
-    switch(id) {
-      case 1:
-          setDay(WeekDays.Monday);
-          break;
-      case 2:
-          setDay(WeekDays.Tuesday);
-          break;
-      case 3:
-          setDay(WeekDays.Wednesday);
-          break;
-      case 4:
-          setDay(WeekDays.Thursday);
-          break;
-      case 5:
-          setDay(WeekDays.Friday);
-          break;
-      case 6:
-          setDay(WeekDays.Saturday);
-          break;
-      case 7:
-          setDay(WeekDays.Sunday);
-          break;
-      default:
-          return false;
-    }
+  public boolean setID(long id) {
+    this.id = id;
     return true;
   }
 }

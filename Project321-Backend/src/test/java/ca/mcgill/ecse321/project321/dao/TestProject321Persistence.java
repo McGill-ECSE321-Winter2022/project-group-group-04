@@ -72,8 +72,6 @@ public class TestProject321Persistence {
 	public void clearDatabase() {
 		// First, we clear registrations to avoid exceptions due to inconsistencies
 		storeOwnerRepository.deleteAll();
-		employeeRepository.deleteAll();
-        customerRepository.deleteAll();
 		orderRepository.deleteAll();
         shiftRepository.deleteAll();
         cartRepository.deleteAll();
@@ -82,6 +80,8 @@ public class TestProject321Persistence {
         productRepository.deleteAll();
         timeslotRepository.deleteAll();
         dayRepository.deleteAll();
+		employeeRepository.deleteAll();
+        customerRepository.deleteAll();
         addressRepository.deleteAll();
 		tGSRepository.deleteAll();
 		// Then we can clear the other tables
@@ -128,7 +128,6 @@ public class TestProject321Persistence {
 		  Address address = new Address(town,street,postalCode,unit);
 		  
 		Customer testCustomer =  new Customer(email, name, password, phone, address);
-		customerRepository.save(testCustomer); 
 				
 		Time testStartTime = java.sql.Time.valueOf(LocalTime.now());
 		Time testEndTime = java.sql.Time.valueOf(LocalTime.now().plusHours(2));
@@ -140,10 +139,11 @@ public class TestProject321Persistence {
 		Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));
 		
 		Day testDay = new Day(weekDay, storeStartHour, storeEndHour);
-		dayRepository.save(testDay);	
-		TimeSlot testTimeSlot = new TimeSlot(testStartTime, testEndTime, testDate,testMaxOrderPerSlot, testDay);
-		timeslotRepository.save(testTimeSlot);	
+		TimeSlot testTimeSlot = new TimeSlot(testStartTime, testEndTime, testDate,testMaxOrderPerSlot, testDay);	
 		Cart testCart = new Cart(ShoppingType.Delivery, testCustomer, testTimeSlot);
+		customerRepository.save(testCustomer); 
+		dayRepository.save(testDay);
+		timeslotRepository.save(testTimeSlot);
 		cartRepository.save(testCart);
 		
 

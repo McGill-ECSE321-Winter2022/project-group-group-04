@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
@@ -240,6 +241,7 @@ public class TheGroceryStoreSystem
   }
 
   @OneToMany(cascade={CascadeType.ALL})
+  @JoinColumn(name = "timeslot_id")
   public List<TimeSlot> getTimeSlots()
   {
     List<TimeSlot> newTimeSlots = Collections.unmodifiableList(timeSlots);
