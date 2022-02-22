@@ -7,7 +7,7 @@ This repository holds the source code for the Grocery System
 | Members  | Hours | Tasks |
 | ------------- | ------------- | ------------- |
 | Cedric  | Insert Hours Here  | Insert tasks Here |
-| Jed  | Insert Hours Here  | Insert tasks Here |
+| Jed  | 8 Hours| Design Decisions/Build System and Continuous integration |
 | John  | Insert Hours Here  | Insert tasks Here |
 | Karim  | Insert Hours Here  | Insert tasks Here |
 | Thomas  | 7 hours  | Use Case Diagram/Design Decisions |
