@@ -11,6 +11,7 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import ca.mcgill.ecse321.project321.model.Address;
@@ -87,7 +88,7 @@ public class TestProject321Persistence {
 		// Then we can clear the other tables
 	}
 
-	//Read and Write test for Address Class 
+//Read and Write test for Address Class 
 	@Test 
     public void testPersistAndLoadAddress() { 
 		  String town = "TestTown";
@@ -102,9 +103,9 @@ public class TestProject321Persistence {
 		  
 		  List<Address> addresslist = addressRepository.findByStreet(street);
 		  address = addresslist.get(0);
-		  //Write test for Object
+//Write test for Object
 		  assertNotNull(address, "Address is not being written");
-		  //Read and Write test(s) for attributes, and in turn Read test for Address Object as it is collected from addressRepository
+//Read and Write test(s) for attributes, and in turn Read test for Address Object as it is collected from addressRepository
 		  assertEquals(address.getTown(),town);
 		  assertEquals(address.getStreet(),street);
 		  assertEquals(address.getPostalCode(),postalCode);
@@ -276,14 +277,79 @@ public class TestProject321Persistence {
 		  assertEquals(employee.getStatus(), employeeStatus);
 		  
 	}
+
+//Read and Write test for InStoreBill Class
 	@Test
     public void testPersistAndLoadInStoreBill() {
 		
+		int testTotal = 100;
+		Date testDate = java.sql.Date.valueOf(LocalDate.now());
+		InStoreBill testBill = new InStoreBill(testTotal, testDate);
+		
+		inStoreBillRepository.save(testBill);
+		
+		testBill = null;
+		List<InStoreBill> tempList = inStoreBillRepository.findByPurchaseDate(testDate);
+		testBill = tempList.get(0);
+//Write test for Class	
+		assertNotNull(testBill);
+//Read and Write tests for attributes, in turn Read test for InStoreBill Object
+		assertEquals(testBill.getTotal(), testTotal);
+		assertEquals(testBill.getPurchaseDate(), testDate);
+//Write test for attribute
+		testBill.setTotal(200);
+		assertEquals(testBill.getTotal(), 200); 
+		
+//Write and Read test for association
+		int quantity = 1;
+		String productName = "Apple";
+		String isAvailableOnline = "Yes";
+		int price = 3;
+		int stock = 100;
+		PriceType priceType = PriceType.PER_UNIT;
+		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
+		productRepository.save(product);
+		CartItem cartItem = new CartItem(quantity, product);
+		ArrayList<CartItem> cartItemList = new ArrayList<CartItem>();
+		cartItemList.add(cartItem);
+		cartItemRepository.save(cartItem);
+		
+		testBill.setCartItems(cartItemList);
+		
+		assertTrue(testBill.hasCartItems());
+		assertEquals(testBill.getCartItem(0), cartItem);
+
 	}
-	
+
+//Read and Write Test Case(s) for Order Class
 	@Test
     public void testPersistAndLoadOrder() {
-		
+		 String email = "customer@mail.com";
+		  String name = "TestCustomer";
+		  String password = "Testpassword";
+		  String phone = "000-1111";	  
+		  String town = "TestTown";
+		  String street = "TestStreet";
+		  String postalCode = "TestPostalCode";
+		  int unit = 321;
+		  Address address = new Address(town,street,postalCode,unit); 
+		  Customer customer = new Customer(email, name, password, phone, address);
+		  customerRepository.save(customer);
+		  
+		  WeekDays weekDay = WeekDays.Monday;
+			Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
+			Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));	
+			Day day = new Day(weekDay, storeStartHour, storeEndHour);
+		  
+		 TimeSlot testSlot = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(12, 00)), 
+				 java.sql.Time.valueOf(LocalTime.of(14, 00)), java.sql.Date.valueOf(LocalDate.now()), 100, day);
+		 
+		 Cart testCart = new Cart(ShoppingType.Delivery, customer, testSlot);
+		 
+		Order testOrder = new Order(false, java.sql.Date.valueOf(LocalDate.now()), 500,  "CreditCard", testCart);
+		 orderRepository.save(testOrder);
+		  
+		  
 	}
 	
 	@Test
