@@ -87,7 +87,7 @@ public class InStoreBill
   }
 
   public boolean setCartItems(List<CartItem> cartItem) {
-    this.cartItems = new ArrayList<CartItem>(cartItem);
+    this.cartItems = cartItem;
     return true;
   }
 
@@ -118,10 +118,21 @@ public class InStoreBill
   public boolean addCartItem(CartItem aCartItem)
   {
     boolean wasAdded = false;
-    if (cartItems.contains(aCartItem)) { return false; }
+    if(cartItems != null) {
+    	  
+    if (cartItems.contains(aCartItem)) {
+    	return wasAdded;
+     }
     cartItems.add(aCartItem);
     wasAdded = true;
+    }else {
+    	ArrayList<CartItem> tempList = new ArrayList<CartItem>(); 
+    	tempList.add(aCartItem);
+    	this.setCartItems(tempList);
+    	
+    }
     return wasAdded;
+    
   }
 
   public boolean removeCartItem(CartItem aCartItem)
