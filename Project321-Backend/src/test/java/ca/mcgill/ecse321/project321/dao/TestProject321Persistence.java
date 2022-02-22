@@ -29,6 +29,7 @@ import ca.mcgill.ecse321.project321.model.Day.WeekDays;
 import ca.mcgill.ecse321.project321.model.Employee;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
+import ca.mcgill.ecse321.project321.model.Shift;
 import ca.mcgill.ecse321.project321.model.InStoreBill;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -117,56 +118,32 @@ public class TestProject321Persistence {
 //Read and Write test for Cart Class
 	@Test
     public void testPersistAndLoadCart() {
-		
 		  String email = "customer@mail.com";
 		  String name = "TestCustomer";
 		  String password = "Testpassword";
-		  String phone = "000-1111";	  
+		  String phone = "000-1111";
 		  String town = "TestTown";
 		  String street = "TestStreet";
 		  String postalCode = "TestPostalCode";
 		  int unit = 321;
-		  Address address = new Address(town,street,postalCode,unit);
+		  Address address = new Address(town,street,postalCode,unit);	  
+		  Customer customer = new Customer(email, name, password, phone, address);
+		  customerRepository.save(customer);
 		  
-		Customer testCustomer =  new Customer(email, name, password, phone, address);
-				
-		Time testStartTime = java.sql.Time.valueOf(LocalTime.now());
-		Time testEndTime = java.sql.Time.valueOf(LocalTime.now().plusHours(2));
-		Date testDate = java.sql.Date.valueOf(LocalDate.now());
-		int testMaxOrderPerSlot = 10;
-		
-		WeekDays weekDay = WeekDays.Monday;
-		Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
-		Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));
-		
-		Day testDay = new Day(weekDay, storeStartHour, storeEndHour);
-		TimeSlot testTimeSlot = new TimeSlot(testStartTime, testEndTime, testDate,testMaxOrderPerSlot, testDay);	
-		Cart testCart = new Cart(ShoppingType.Delivery, testCustomer, testTimeSlot);
-		customerRepository.save(testCustomer); 
-		dayRepository.save(testDay);
-		timeslotRepository.save(testTimeSlot);
-		cartRepository.save(testCart);
-		
+		  WeekDays weekDay = WeekDays.Monday;
+		  Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
+		  Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(00, 35));
+		  Day day = new Day(weekDay, storeStartHour, storeEndHour);
+		  dayRepository.save(day);
+		  
+		  TimeSlot testSlot = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(12, 35)),
+				  java.sql.Time.valueOf(LocalTime.of(13, 35)), java.sql.Date.valueOf(LocalDate.now()), 20, dayRepository.findByDay(weekDay));
+		  timeslotRepository.save(testSlot);
+		  
+		  Cart testCart = new Cart(ShoppingType.Delivery, customer, testSlot);
+		  
+		  cartRepository.save(testCart);
 
-		int quantity = 1;
-		String productName = "Apple";
-		String isAvailableOnline = "Yes";
-		int price = 3;
-		int stock = 100;
-		PriceType priceType = PriceType.PER_UNIT;
-		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
-		productRepository.save(product);
-		CartItem cartItem = new CartItem(quantity, product);
-		testCart.addCartItem(cartItem);
-		cartItemRepository.save(cartItem);
-		
-		testCart = null;
-		
-		List<Cart> listOfCarts = cartRepository.findByTimeSlot(testTimeSlot);
-		testCart = listOfCarts.get(0);	
-		//Write test for Object 
-		assertNotNull(testCart, "its not being written");
-		
 		
 		
 	}
@@ -378,7 +355,23 @@ public class TestProject321Persistence {
 
 	@Test
     public void testPersistAndLoadShift() {
-		
+		  String email = "employee@mail.com";
+		  String name = "TestEmployee";
+		  String password = "Testpassword";
+		  EmployeeStatus employeeStatus = EmployeeStatus.Active;	  
+		  Employee employee = new Employee(email, name, password, employeeStatus);	  
+		  employeeRepository.save(employee);
+		  
+		  WeekDays weekDay = WeekDays.Monday;
+		  Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
+		  Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));
+		  Day day = new Day(weekDay, storeStartHour, storeEndHour);
+//		  dayRepository.save(day);
+		  
+		  Shift testShift = new Shift(java.sql.Time.valueOf(LocalTime.of(11, 35)),
+				  java.sql.Time.valueOf(LocalTime.of(15, 35)), java.sql.Date.valueOf(LocalDate.now()),
+						  day, employee);
+		  shiftRepository.save(testShift);
 		
 	}
 	
@@ -404,8 +397,15 @@ public class TestProject321Persistence {
 
 	@Test
     public void testPersistAndLoadTimeSlot() {
+		 	WeekDays weekDay = WeekDays.Monday;
+			Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
+			Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));	
+			Day day = new Day(weekDay, storeStartHour, storeEndHour);
 		
-		
+			  
+			 TimeSlot testSlot = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(12, 00)), 
+					 java.sql.Time.valueOf(LocalTime.of(14, 00)), java.sql.Date.valueOf(LocalDate.now()), 100, day);
+			 timeslotRepository.save(testSlot); 
 	}
 
 
