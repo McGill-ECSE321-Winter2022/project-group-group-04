@@ -89,7 +89,7 @@ public class Cart
     return type;
   }
   /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.ALL})
+  @ManyToOne(cascade = {CascadeType.MERGE})
   public Customer getCustomer()
   {
     return customer;
@@ -101,15 +101,15 @@ public class Cart
     return aCartItem;
   }
 
-  @OneToMany(cascade = {CascadeType.ALL})
+  @OneToMany(cascade = {CascadeType.MERGE})
   public List<CartItem> getCartItems()
   {
     List<CartItem> newCartItems = Collections.unmodifiableList(cartItems);
     return newCartItems;
   }
 
-  public void setCartItems(CartItem cartItem) {
-    return;
+  public void setCartItems(List<CartItem> cartItem) {
+    this.cartItems = new ArrayList<CartItem>(cartItem);
   }
 
   public int numberOfCartItems()
@@ -130,7 +130,7 @@ public class Cart
     return index;
   }
   /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.ALL})
+  @ManyToOne(cascade = {CascadeType.MERGE})
   public TimeSlot getTimeSlot()
   {
     return timeSlot;

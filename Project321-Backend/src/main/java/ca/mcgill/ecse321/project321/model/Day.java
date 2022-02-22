@@ -4,6 +4,7 @@
 package ca.mcgill.ecse321.project321.model;
 import java.sql.Time;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -97,6 +98,7 @@ public class Day
   }
 
   @Id
+  @Column(name = "_day_id_")
   public Integer getID() {
     WeekDays day = getDay();
     int id = 0;

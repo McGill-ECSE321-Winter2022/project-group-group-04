@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import java.sql.Date;
@@ -118,7 +119,8 @@ public class TimeSlot
     return maxOrderPerSlot;
   }
   /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.ALL})
+  @ManyToOne()
+  @JoinColumn(name = "_day_id_")
   public Day getDay()
   {
     return day;

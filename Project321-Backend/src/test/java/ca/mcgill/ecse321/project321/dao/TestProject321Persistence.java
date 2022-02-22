@@ -28,6 +28,7 @@ import ca.mcgill.ecse321.project321.model.Day.WeekDays;
 import ca.mcgill.ecse321.project321.model.Employee;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
+import ca.mcgill.ecse321.project321.model.InStoreBill;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -42,8 +43,8 @@ public class TestProject321Persistence {
 	// private UserRepository userRepository;
 	@Autowired
 	private TimeslotRepository timeslotRepository;
-	// @Autowired
-	// private TheGroceryStoreSystemRepository tGSRepository;
+	@Autowired
+	private TheGroceryStoreSystemRepository tGSRepository;
     @Autowired
     private StoreOwnerRepository storeOwnerRepository;
     @Autowired
@@ -64,20 +65,25 @@ public class TestProject321Persistence {
     private CartRepository cartRepository;
     @Autowired
     private AddressRepository addressRepository;
+	@Autowired
+	private InStoreBillRepository inStoreBillRepository;
 
 	@AfterEach
 	public void clearDatabase() {
 		// First, we clear registrations to avoid exceptions due to inconsistencies
+		storeOwnerRepository.deleteAll();
+		employeeRepository.deleteAll();
+        customerRepository.deleteAll();
 		orderRepository.deleteAll();
         shiftRepository.deleteAll();
         cartRepository.deleteAll();
         cartItemRepository.deleteAll();
+		inStoreBillRepository.deleteAll();
         productRepository.deleteAll();
         timeslotRepository.deleteAll();
         dayRepository.deleteAll();
-        employeeRepository.deleteAll();
-        customerRepository.deleteAll();
         addressRepository.deleteAll();
+		tGSRepository.deleteAll();
 		// Then we can clear the other tables
 	}
 
@@ -122,6 +128,7 @@ public class TestProject321Persistence {
 		  Address address = new Address(town,street,postalCode,unit);
 		  
 		Customer testCustomer =  new Customer(email, name, password, phone, address);
+		customerRepository.save(testCustomer); 
 				
 		Time testStartTime = java.sql.Time.valueOf(LocalTime.now());
 		Time testEndTime = java.sql.Time.valueOf(LocalTime.now().plusHours(2));
@@ -132,9 +139,12 @@ public class TestProject321Persistence {
 		Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
 		Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));
 		
-		Day testDay = new Day(weekDay, storeStartHour, storeEndHour);	
-		TimeSlot testTimeSlot = new TimeSlot(testStartTime, testEndTime, testDate,testMaxOrderPerSlot, testDay);	
+		Day testDay = new Day(weekDay, storeStartHour, storeEndHour);
+		dayRepository.save(testDay);	
+		TimeSlot testTimeSlot = new TimeSlot(testStartTime, testEndTime, testDate,testMaxOrderPerSlot, testDay);
+		timeslotRepository.save(testTimeSlot);	
 		Cart testCart = new Cart(ShoppingType.Delivery, testCustomer, testTimeSlot);
+		cartRepository.save(testCart);
 		
 
 		int quantity = 1;
@@ -148,12 +158,6 @@ public class TestProject321Persistence {
 		CartItem cartItem = new CartItem(quantity, product);
 		testCart.addCartItem(cartItem);
 		cartItemRepository.save(cartItem);
-		
-		
-		customerRepository.save(testCustomer); 
-		dayRepository.save(testDay);
-//		timeslotRepository.save(testTimeSlot);
-		cartRepository.save(testCart);
 		
 		testCart = null;
 		
@@ -177,7 +181,6 @@ public class TestProject321Persistence {
 		PriceType priceType = PriceType.PER_UNIT;
 		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
 		productRepository.save(product);
-		product = productRepository.findByProductName(productName);
 		
 		CartItem cartItem = new CartItem(quantity, product);
 		cartItemRepository.save(cartItem);

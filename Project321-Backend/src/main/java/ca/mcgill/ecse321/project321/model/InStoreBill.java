@@ -86,7 +86,8 @@ public class InStoreBill
     return newCartItems;
   }
 
-  public boolean setCartItems(CartItem cartItem) {
+  public boolean setCartItems(List<CartItem> cartItem) {
+    this.cartItems = new ArrayList<CartItem>(cartItem);
     return true;
   }
 

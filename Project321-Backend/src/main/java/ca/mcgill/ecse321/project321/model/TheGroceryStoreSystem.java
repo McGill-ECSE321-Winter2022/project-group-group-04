@@ -130,7 +130,9 @@ public class TheGroceryStoreSystem
     Employee aEmployee = employees.get(index);
     return aEmployee;
   }
-  public boolean setEmployees(Employee employee) {
+
+  public boolean setEmployees(List<Employee> employees) {
+    this.employees = new ArrayList<Employee>(employees);
     return true;
   }
 
@@ -172,7 +174,8 @@ public class TheGroceryStoreSystem
     return newCustomers;
   }
 
-  public boolean setCustomers(Customer customer) {
+  public boolean setCustomers(List<Customer> customers) {
+    this.customers = new ArrayList<Customer>(customers);
     return true;
   }
 
@@ -207,7 +210,8 @@ public class TheGroceryStoreSystem
     return newProducts;
   }
 
-  public boolean setProducts(Product product) {
+  public boolean setProducts(List<Product> products) {
+    this.products = new ArrayList<Product>(products);
     return true;
   }
 
@@ -242,7 +246,8 @@ public class TheGroceryStoreSystem
     return newTimeSlots;
   }
 
-  public boolean setTimeSlots(TimeSlot timeSlot) {
+  public boolean setTimeSlots(List<TimeSlot> timeSlots) {
+    this.timeSlots = new ArrayList<TimeSlot>(timeSlots);
     return true;
   }
 
@@ -277,7 +282,8 @@ public class TheGroceryStoreSystem
     return newShifts;
   }
 
-  public boolean setShifts(Shift shift) {
+  public boolean setShifts(List<Shift> shift) {
+    this.shifts = new ArrayList<Shift>(shifts);
     return true;
   }
 
@@ -312,7 +318,8 @@ public class TheGroceryStoreSystem
     return newDaies;
   }
 
-  public boolean setDaies(Day day) {
+  public boolean setDaies(List<Day> days) {
+    this.daies = new ArrayList<Day>(days);
     return true;
   }
 
@@ -342,6 +349,7 @@ public class TheGroceryStoreSystem
   }
 
   public boolean setAddress(Address address) {
+    this.address = address;
     return true;
   }
 
@@ -359,7 +367,8 @@ public class TheGroceryStoreSystem
     return newInStoreBills;
   }
 
-  public boolean setInStoreBills(InStoreBill inStoreBill) {
+  public boolean setInStoreBills(List<InStoreBill> inStoreBill) {
+    this.inStoreBills = new ArrayList<InStoreBill>(inStoreBill);
     return true;
   }
 
