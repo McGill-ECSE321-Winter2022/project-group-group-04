@@ -35,6 +35,7 @@ import ca.mcgill.ecse321.project321.model.InStoreBill;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -90,11 +91,6 @@ public class TestProject321Persistence {
 		// Then we can clear the other tables
 	}
 
-	@Test
-	public void StartOver() {
-		clearDatabase();
-	}
-
 //Read and Write test for Address Class 
 	@Test 
     public void testPersistAndLoadAddress() { 
@@ -112,13 +108,23 @@ public class TestProject321Persistence {
 		
 //Write test for Object
 		  assertNotNull(address, "Address is not being written");
-//Read and Write test(s) for attributes, and in turn Read test for Address Object as it is collected from addressRepository
 		  assertEquals(address.getTown(),town);
 		  assertEquals(address.getStreet(),street);
 		  assertEquals(address.getPostalCode(),postalCode);
 		  assertEquals(address.getUnit(),unit);
 
-		
+// Check for change in attribute persisting
+		String newTown = "TestTown2";
+		address.setTown(newTown);
+		addressRepository.save(address);
+
+		address = null;
+
+		address = addressRepository.findByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalCode);
+		assertNull(address);
+		address = addressRepository.findByUnitAndStreetAndTownAndPostalCode(unit, street, newTown, postalCode);
+		assertNotNull(address);
+		assertEquals(address.getTown(), newTown);
 	}
 
 	@Test
@@ -134,6 +140,7 @@ public class TestProject321Persistence {
 		productRepository.save(product);
 		product = null;
 		
+// Test for object persistence
 		product = productRepository.findByProductName(productName);
 		assertNotNull(product);
 		assertEquals(product.getProductName(),productName);
@@ -141,7 +148,16 @@ public class TestProject321Persistence {
 		assertEquals(product.getPrice(),price);
 		assertEquals(product.getStock(),stock);
 		assertEquals(product.getPriceType(),priceType);
-		
+
+// Test for attribute persistence
+		int newStock = 80;
+		product.setStock(newStock);
+		productRepository.save(product);
+		product = null;
+
+		product = productRepository.findByProductName(productName);
+		assertNotNull(product);
+		assertEquals(product.getStock(), newStock);
 	}
 
 	@Test
@@ -156,12 +172,23 @@ public class TestProject321Persistence {
 
 			 testSlot = null;
 
+// Test for object persistence
 			 testSlot = timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime);
 			 assertNotNull(testSlot);
 			 assertEquals(testSlot.getStartTime(), startTime);
 			 assertEquals(testSlot.getEndTime(), endTime);
 			 assertEquals(testSlot.getDate(), date);
 			 assertEquals(testSlot.getMaxOrderPerSlot(), maxOrderForSlot);
+
+// Test for attribute persistence
+			 int newMaxOrderForSlot = 80;
+			 testSlot.setMaxOrderPerSlot(newMaxOrderForSlot);
+			 timeslotRepository.save(testSlot);
+			 testSlot = null;
+			 
+			 testSlot = timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime);
+			 assertNotNull(testSlot);
+			 assertEquals(testSlot.getMaxOrderPerSlot(), newMaxOrderForSlot);
 	}
 	
 //Read and Write test for Cart Class
@@ -191,6 +218,7 @@ public class TestProject321Persistence {
 
 		  testCart = null;
 
+// Test for object persistence
 		  List<Cart> cartList = cartRepository.findByCustomer(customer);
 		  assertNotEquals(cartList.size(), 0);
 		  testCart = cartList.get(0);
@@ -199,6 +227,50 @@ public class TestProject321Persistence {
 		  assertEquals(testCart.getTimeSlot().getTimeSlotId(), testSlot.getTimeSlotId());
 		  assertEquals(testCart.getCustomer().getAddress().getAddressId(), address.getAddressId());
 		  assertEquals(testCart.getCustomer().getEmail(), customer.getEmail());
+
+// Test for attribute persistence
+		  ShoppingType newType = ShoppingType.Pickup;
+		  testCart.setType(newType);
+		  cartRepository.save(testCart);
+
+		  testCart = null;
+		  cartList = cartRepository.findByCustomer(customer);
+		  assertNotEquals(cartList.size(), 0);
+		  testCart = cartList.get(0);
+		  assertNotNull(testCart);
+		  assertEquals(testCart.getType(), newType);
+
+// Test for reference persistence
+		String email2 = "customer2@mail.com";
+		String name2 = "TestCustomer2";
+		String password2 = "Testpassword2";
+		String phone2 = "000-2222";
+		String town2 = "TestTown2";
+		String street2 = "TestStreet2";
+		String postalCode2 = "TestPostalCode2";
+		int unit2 = 3212;
+		Address address2 = new Address(town2,street2,postalCode2,unit2);	
+		addressRepository.save(address2);  
+		Customer customer2 = new Customer(email2, name2, password2, phone2, address2);
+		customerRepository.save(customer2);
+
+		TimeSlot testSlot2 = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(14, 35)),
+				java.sql.Time.valueOf(LocalTime.of(15, 35)), java.sql.Date.valueOf(LocalDate.now()), 20);
+		timeslotRepository.save(testSlot);
+
+		testCart.setCustomer(customer2);
+		testCart.setTimeSlot(testSlot2);
+		cartRepository.save(testCart);
+
+		testCart = null;
+
+		cartList = cartRepository.findByCustomer(customer);
+		assertNotEquals(cartList.size(), 0);
+		testCart = cartList.get(0);
+		assertNotNull(testCart);
+		assertEquals(testCart.getCustomer().getAddress().getAddressId(), address2.getAddressId());
+		assertEquals(testCart.getCustomer().getEmail(), customer2.getEmail());
+		assertEquals(testCart.getTimeSlot().getTimeSlotId(), testSlot2.getTimeSlotId());
 	}
 
 	@Test
@@ -217,7 +289,8 @@ public class TestProject321Persistence {
 		cartItemRepository.save(cartItem);
 		
 		cartItem=null;
-		
+
+// Test for object persistence
 		List<CartItem> cartItemlist = cartItemRepository.findByProductAndQuantity(product, quantity);
 		cartItem = cartItemlist.get(0);
 		assertNotNull(cartItem);
@@ -228,7 +301,39 @@ public class TestProject321Persistence {
 		assertEquals(cartItem.getProduct().getPrice(),price);
 		assertEquals(cartItem.getProduct().getStock(),stock);
 		assertEquals(cartItem.getProduct().getPriceType(),priceType);
+
+// Test for attribute persistence
+		int newQuantity = 3;
+		cartItem.setQuantity(newQuantity);
+		cartItemRepository.save(cartItem);
 		
+		cartItem=null;
+		cartItemlist = cartItemRepository.findByProductAndQuantity(product, quantity);
+		cartItem = cartItemlist.get(0);
+		assertNotNull(cartItem);
+		assertEquals(cartItem.getQuantity(), newQuantity);
+
+// Test for reference persistence
+		String productName2 = "Orange";
+		String isAvailableOnline2 = "No";
+		int price2 = 5;
+		int stock2 = 10;
+		PriceType priceType2 = PriceType.PER_KILOS;
+		Product product2 = new Product(priceType2, productName2, isAvailableOnline2, price2, stock2);
+		productRepository.save(product2);
+
+		cartItem.setProduct(product2);
+		cartItemRepository.save(cartItem);
+		
+		cartItem=null;
+		cartItemlist = cartItemRepository.findByProductAndQuantity(product, quantity);
+		cartItem = cartItemlist.get(0);
+		assertNotNull(cartItem);
+		assertEquals(cartItem.getProduct().getProductName(), product2.getProductName());
+		assertEquals(cartItem.getProduct().getIsAvailableOnline(), product2.getIsAvailableOnline());
+		assertEquals(cartItem.getProduct().getPrice(), product2.getPrice());
+		assertEquals(cartItem.getProduct().getStock(), product2.getStock());
+		assertEquals(cartItem.getProduct().getPriceType(), product2.getPriceType());
 	}
 	
 	@Test
@@ -252,6 +357,7 @@ public class TestProject321Persistence {
 		  
 		  customer = null;
 		  
+// Test for object persistence
 		  customer = customerRepository.findByEmail(email);
 		  assertNotNull(customer);
 		  assertEquals(customer.getPhone(),phone);
@@ -264,6 +370,29 @@ public class TestProject321Persistence {
 		  assertEquals(customer.getAddress().getPostalCode(),postalCode);
 		  assertEquals(customer.getAddress().getUnit(),unit);
 
+// Test for attribute persistence
+		  String newPhone = "000-2222";
+		  customer.setPhone(newPhone);
+		  customerRepository.save(customer);
+		  
+		  customer = null;
+		  customer = customerRepository.findByEmail(email);
+		  assertNotNull(customer);
+		  assertEquals(customer.getPhone(),newPhone);
+	
+// Test reference persistence
+		  ShoppingType type = ShoppingType.Delivery;
+		  Cart testCart = new Cart(type, customer);
+		  cartRepository.save(testCart);
+
+		  customer.addCart(testCart);
+		  customerRepository.save(customer);
+
+		  customer = null;
+		  customer = customerRepository.findByEmail(email);
+		  assertNotNull(customer);
+		  assertNotEquals(customer.getCarts().size(), 0);
+		  assertEquals(customer.getCarts().get(0).getCartId(), testCart.getCartId());
 	}
 
 	@Test
@@ -279,12 +408,22 @@ public class TestProject321Persistence {
 		  employeeRepository.save(employee);
 		  employee = null;
 		  
+// Test object persistence
 		  employee = employeeRepository.findByEmail(email);
 		  assertNotNull(employee);
 		  assertEquals(employee.getEmail(),email);
 		  assertEquals(employee.getName(),name);
 		  assertEquals(employee.getPassword(),password);
 		  assertEquals(employee.getStatus(), employeeStatus);
+
+// Test attribute persistence
+		  String newName = "TestEmployee2";
+		  employee.setName(newName);
+		  employeeRepository.save(employee);
+		  employee = null;
+		  employee = employeeRepository.findByEmail(email);
+		  assertNotNull(employee);
+		  assertEquals(employee.getName(),newName);
 		  
 	}
 
@@ -305,12 +444,38 @@ public class TestProject321Persistence {
 		
 		  testShift = null;
 
-		testShift = shiftRepository.findByDateAndEmployee(date, employee);
-		assertNotNull(testShift);
-		assertEquals(testShift.getDate(), date);
-		assertEquals(testShift.getStartHour(), startTime);
-		assertEquals(testShift.getEndHour(), endTime);
-		assertEquals(testShift.getEmployee().getEmail(), employee.getEmail());
+// Test object persistence
+		  testShift = shiftRepository.findByDateAndEmployee(date, employee);
+		  assertNotNull(testShift);
+		  assertEquals(testShift.getDate(), date);
+		  assertEquals(testShift.getStartHour(), startTime);
+		  assertEquals(testShift.getEndHour(), endTime);
+		  assertEquals(testShift.getEmployee().getEmail(), employee.getEmail());
+		
+// Test attribute persistence
+		  Time endTime2 = java.sql.Time.valueOf(LocalTime.of(19, 35));
+		  testShift.setEndHour(endTime2);
+		  shiftRepository.save(testShift);
+		
+		  testShift = null;
+		  testShift = shiftRepository.findByDateAndEmployee(date, employee);
+		  assertNotNull(testShift);
+		  assertEquals(testShift.getEndHour(), endTime2);
+
+// Test reference persistence
+		  String email2 = "employee2@mail.com";
+		  String name2 = "TestEmployee2";
+		  String password2 = "Testpassword2";
+		  EmployeeStatus employeeStatus2 = EmployeeStatus.Inactive;	  
+		  Employee employee2 = new Employee(email2, name2, password2, employeeStatus2);	  
+		  employeeRepository.save(employee2);
+
+		  testShift.setEmployee(employee2);
+		  shiftRepository.save(testShift);
+		  testShift = null;
+		  testShift = shiftRepository.findByDateAndEmployee(date, employee2);
+		  assertNotNull(testShift);
+		  assertEquals(testShift.getEmployee().getEmail(), employee2.getEmail());
 	}
 
 //Read and Write test for InStoreBill Class
@@ -388,9 +553,59 @@ public class TestProject321Persistence {
 
 		 testOrder = null;
 
+// Test for object persistence
 		 testOrder = orderRepository.findByCart(testCart);
 		 assertNotNull(testOrder);
 		 assertEquals(testOrder.getOrderDate(), date);
+		 assertEquals(testOrder.getCompleted(), comp);
+		 assertEquals(testOrder.getCart().getCartId(), testCart.getCartId());
+		 assertEquals(testOrder.getCart().getTimeSlot().getTimeSlotId(), testSlot.getTimeSlotId());
+		 assertEquals(testOrder.getTotal(), total);
+		 assertEquals(testOrder.getPayment(), payment);
+
+// Test for attribute persistence
+		 int newTotal = 400;
+		 testOrder.setTotal(newTotal);
+		 orderRepository.save(testOrder);
+
+		 testOrder = null;
+		 testOrder = orderRepository.findByCart(testCart);
+		 assertNotNull(testOrder);
+		 assertEquals(testOrder.getTotal(), newTotal);
+
+// Test for reference persistence
+		  String email2 = "customer@mail2.com";
+		  String name2 = "TestCustomer2";
+		  String password2 = "Testpassword2";
+		  String phone2 = "000-2222";	  
+		  String town2 = "TestTown2";
+		  String street2 = "TestStreet2";
+		  String postalCode2 = "TestPostalCode2";
+		  int unit2 = 3212;
+		  Address address2 = new Address(town2,street2,postalCode2,unit2); 
+		  Customer customer2 = new Customer(email2, name2, password2, phone2, address2);
+		  customerRepository.save(customer2);
+
+		  TimeSlot testSlot2 = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(15, 00)), 
+				 java.sql.Time.valueOf(LocalTime.of(16, 00)), java.sql.Date.valueOf(LocalDate.now()), 80);
+		timeslotRepository.save(testSlot);
+		 
+		 Cart testCart2 = new Cart(ShoppingType.Delivery, customer2);
+		 testCart2.setTimeSlot(testSlot2);
+		 cartRepository.save(testCart2);
+
+		 testOrder.setCart(testCart2);
+		 orderRepository.save(testOrder);
+
+		 testOrder = null;
+		 testOrder = orderRepository.findByCart(testCart);
+		 assertNotNull(testOrder);
+		 assertEquals(testOrder.getOrderDate(), date);
+		 assertEquals(testOrder.getCompleted(), comp);
+		 assertEquals(testOrder.getCart().getCartId(), testCart.getCartId());
+		 assertEquals(testOrder.getCart().getTimeSlot().getTimeSlotId(), testSlot.getTimeSlotId());
+		 assertEquals(testOrder.getTotal(), total);
+		 assertEquals(testOrder.getPayment(), payment);
 	}
 	
 	@Test
@@ -404,12 +619,22 @@ public class TestProject321Persistence {
 		  
 		  storeOwnerRepository.save(storeOwner);
 		  storeOwner = null;
-		  
+	
+// Test object persistence
 		  storeOwner = storeOwnerRepository.findByEmail(email);
 		  assertNotNull(storeOwner);
 		  assertEquals(storeOwner.getEmail(),email);
 		  assertEquals(storeOwner.getName(),name);
 		  assertEquals(storeOwner.getPassword(),password);
+	
+// Test attribute persistence
+		  String newName = "Testowner2";
+		  storeOwner.setName(newName);
+		  storeOwnerRepository.save(storeOwner);
+		  storeOwner = null;
+		  storeOwner = storeOwnerRepository.findByEmail(email);
+		  assertNotNull(storeOwner);
+		  assertEquals(storeOwner.getName(), newName);
 		  
 	}
 

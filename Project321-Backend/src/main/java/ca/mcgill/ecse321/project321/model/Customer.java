@@ -80,7 +80,6 @@ public class Customer extends User
   public List<Cart> getCarts()
   {
     List<Cart> newCarts = new ArrayList<Cart>(carts);
-    // List<Cart> newCarts = Collections.unmodifiableList(carts);
     return newCarts;
   }
 
