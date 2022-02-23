@@ -31,6 +31,7 @@ import ca.mcgill.ecse321.project321.model.Shift;
 import ca.mcgill.ecse321.project321.model.InStoreBill;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -134,10 +135,22 @@ public class TestProject321Persistence {
 
 	@Test
     public void testPersistAndLoadTimeSlot() {
-		
-			 TimeSlot testSlot = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(12, 00)), 
-					 java.sql.Time.valueOf(LocalTime.of(14, 00)), java.sql.Date.valueOf(LocalDate.now()), 100);
+			Date date = java.sql.Date.valueOf(LocalDate.now());
+			Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+			Time endTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
+			int maxOrderForSlot = 100;
+
+			 TimeSlot testSlot = new TimeSlot(startTime, endTime, date, maxOrderForSlot);
 			 timeslotRepository.save(testSlot); 
+
+			 testSlot = null;
+
+			 testSlot = timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime);
+			 assertNotNull(testSlot);
+			 assertEquals(testSlot.getStartTime(), startTime);
+			 assertEquals(testSlot.getEndTime(), endTime);
+			 assertEquals(testSlot.getDate(), date);
+			 assertEquals(testSlot.getMaxOrderPerSlot(), maxOrderForSlot);
 	}
 	
 //Read and Write test for Cart Class
@@ -160,9 +173,21 @@ public class TestProject321Persistence {
 				  java.sql.Time.valueOf(LocalTime.of(13, 35)), java.sql.Date.valueOf(LocalDate.now()), 20);
 		  timeslotRepository.save(testSlot);
 		  
-		  Cart testCart = new Cart(ShoppingType.Delivery, customer);
-		  
+		  ShoppingType type = ShoppingType.Delivery;
+		  Cart testCart = new Cart(type, customer);
+		  testCart.setTimeSlot(testSlot);
 		  cartRepository.save(testCart);
+
+		  testCart = null;
+
+		  List<Cart> cartList = cartRepository.findByCustomer(customer);
+		  assertNotEquals(cartList.size(), 0);
+		  testCart = cartList.get(0);
+		  assertNotNull(testCart);
+		  assertEquals(testCart.getType(), type);
+		  assertEquals(testCart.getTimeSlot(), testSlot);
+		  assertEquals(testCart.getCustomer().getAddress(), address);
+		  assertEquals(testCart.getCustomer(), customer);
 	}
 
 	@Test
@@ -334,8 +359,6 @@ public class TestProject321Persistence {
 		 
 		Order testOrder = new Order(false, java.sql.Date.valueOf(LocalDate.now()), 500,  "CreditCard", testCart);
 		 orderRepository.save(testOrder);
-		  
-		  
 	}
 	
 	@Test
@@ -360,7 +383,7 @@ public class TestProject321Persistence {
 
 	@Test
 	public void testPersistAndLoadStore() {
-		
+
 	}
 
 }
