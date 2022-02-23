@@ -1,6 +1,8 @@
 package ca.mcgill.ecse321.project321.dao;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +68,8 @@ public class TestProject321Persistence {
     private AddressRepository addressRepository;
 	@Autowired
 	private InStoreBillRepository inStoreBillRepository;
+	@Autowired
+	private UserRepository userRepository;
 
 	@AfterEach
 	public void clearDatabase() {
@@ -77,10 +81,12 @@ public class TestProject321Persistence {
         cartItemRepository.deleteAll();
 		inStoreBillRepository.deleteAll();
         productRepository.deleteAll();
-        timeslotRepository.deleteAll();
 		employeeRepository.deleteAll();
-        customerRepository.deleteAll();
+		customerRepository.deleteAll();
+		userRepository.deleteAll();
+		timeslotRepository.deleteAll();
         addressRepository.deleteAll();
+		
 		// Then we can clear the other tables
 	}
 
@@ -185,9 +191,9 @@ public class TestProject321Persistence {
 		  testCart = cartList.get(0);
 		  assertNotNull(testCart);
 		  assertEquals(testCart.getType(), type);
-		  assertEquals(testCart.getTimeSlot(), testSlot);
-		  assertEquals(testCart.getCustomer().getAddress(), address);
-		  assertEquals(testCart.getCustomer(), customer);
+		  assertEquals(testCart.getTimeSlot().getTimeSlotId(), testSlot.getTimeSlotId());
+		  assertEquals(testCart.getCustomer().getAddress().getAddressId(), address.getAddressId());
+		  assertEquals(testCart.getCustomer().getEmail(), customer.getEmail());
 	}
 
 	@Test

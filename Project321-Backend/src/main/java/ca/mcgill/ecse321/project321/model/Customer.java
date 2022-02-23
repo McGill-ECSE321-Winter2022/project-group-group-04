@@ -6,6 +6,7 @@ import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
@@ -75,10 +76,11 @@ public class Customer extends User
     return aCart;
   }
 
-  @OneToMany(cascade = CascadeType.ALL)
+  @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
   public List<Cart> getCarts()
   {
     List<Cart> newCarts = new ArrayList<Cart>(carts);
+    // List<Cart> newCarts = Collections.unmodifiableList(carts);
     return newCarts;
   }
 
