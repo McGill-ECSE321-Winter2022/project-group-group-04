@@ -112,7 +112,7 @@ public class Cart
   }
 
   public boolean setCartItems(List<CartItem> cartItems) {
-    this.cartItems = new ArrayList<CartItem>(cartItems);
+    this.cartItems = cartItems;
     return true;
   }
 
