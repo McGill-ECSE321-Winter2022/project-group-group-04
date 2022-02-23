@@ -6,8 +6,7 @@ This repository holds the source code for the Grocery System
 ### Hours
 | Members  | Hours | Tasks |
 | ------------- | ------------- | ------------- |
-| Cedric  | Insert Hours Here  | Insert tasks Here |
-<<<<<<< HEAD
+| Cedric  | 10 Hours  | Persistence layer / Testing and Debugging |
 | Jed  | 8 Hours| Design Decisions/Build System and Continuous integration |
 | John  | 8 Hours | Initial Domain Model/Project Management |
 | Karim  | 9 Hours | Design Decisions/Presistence Layer Testing & Debugging |
