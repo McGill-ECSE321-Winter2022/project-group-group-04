@@ -6,13 +6,11 @@ import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 
 // line 12 "../../../../../../model.ump"
-// line 120 "../../../../../../model.ump"
-// line 139 "../../../../../../model.ump"
+// line 123 "../../../../../../model.ump"
 @Entity
 public class Customer extends User
 {
@@ -45,7 +43,6 @@ public class Customer extends User
 
   public Customer() {
     super();
-    carts = new ArrayList<Cart>();
   }
 
   //------------------------
@@ -65,8 +62,7 @@ public class Customer extends User
     return phone;
   }
   /* Code from template association_GetOne */
-  @OneToOne(cascade = {CascadeType.MERGE})
-  @JoinColumn(name = "address_id")
+  @OneToOne(cascade = CascadeType.ALL)
   public Address getAddress()
   {
     return address;
@@ -78,15 +74,16 @@ public class Customer extends User
     return aCart;
   }
 
-  public void setCarts(List<Cart> carts) {
-    this.carts = new ArrayList<Cart>(carts);
-  }
-
-  @Transient
+  @OneToMany(cascade = {CascadeType.ALL})
   public List<Cart> getCarts()
   {
     List<Cart> newCarts = Collections.unmodifiableList(carts);
     return newCarts;
+  }
+
+  public boolean setCarts(List<Cart> carts) {
+    this.carts = new ArrayList<Cart>(carts);
+    return true;
   }
 
   public int numberOfCarts()
@@ -106,7 +103,6 @@ public class Customer extends User
     int index = carts.indexOf(aCart);
     return index;
   }
-  
   /* Code from template association_SetUnidirectionalOne */
   public boolean setAddress(Address aNewAddress)
   {
@@ -119,10 +115,14 @@ public class Customer extends User
     return wasSet;
   }
   /* Code from template association_MinimumNumberOfMethod */
-  @Transient
   public static int minimumNumberOfCarts()
   {
     return 0;
+  }
+  /* Code from template association_AddManyToOne */
+  public Cart addCart(Cart.ShoppingType aType)
+  {
+    return new Cart(aType, this);
   }
 
   public boolean addCart(Cart aCart)
@@ -196,6 +196,7 @@ public class Customer extends User
       aCart.delete();
       carts.remove(aCart);
     }
+    
     super.delete();
   }
 
@@ -204,6 +205,6 @@ public class Customer extends User
   {
     return super.toString() + "["+
             "phone" + ":" + getPhone()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "address = "+(getAddress()!=null?Integer.toHexString(System.identityHashCode(getAddress())):"null") + System.getProperties().getProperty("line.separator");
+            "  " + "address = "+(getAddress()!=null?Integer.toHexString(System.identityHashCode(getAddress())):"null");
   }
 }

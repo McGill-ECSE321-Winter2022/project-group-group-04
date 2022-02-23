@@ -12,8 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
-// line 99 "../../../../../../model.ump"
-// line 207 "../../../../../../model.ump"
+// line 95 "../../../../../../model.ump"
+// line 180 "../../../../../../model.ump"
 @Entity
 public class InStoreBill
 {
@@ -25,7 +25,7 @@ public class InStoreBill
   //InStoreBill Attributes
   private int total;
   private Date purchaseDate;
-  private long id;
+  private int inStoreBillId;
 
   //InStoreBill Associations
   private List<CartItem> cartItems;
@@ -38,6 +38,7 @@ public class InStoreBill
   {
     total = aTotal;
     purchaseDate = aPurchaseDate;
+    inStoreBillId = 0;
     cartItems = new ArrayList<CartItem>();
   }
 
@@ -63,6 +64,14 @@ public class InStoreBill
     return wasSet;
   }
 
+  public boolean setInStoreBillId(int aInStoreBillId)
+  {
+    boolean wasSet = false;
+    inStoreBillId = aInStoreBillId;
+    wasSet = true;
+    return wasSet;
+  }
+
   public int getTotal()
   {
     return total;
@@ -72,6 +81,13 @@ public class InStoreBill
   {
     return purchaseDate;
   }
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public int getInStoreBillId()
+  {
+    return inStoreBillId;
+  }
   /* Code from template association_GetMany */
   public CartItem getCartItem(int index)
   {
@@ -79,15 +95,15 @@ public class InStoreBill
     return aCartItem;
   }
 
-  @OneToMany(cascade = {CascadeType.ALL})
+  @OneToMany(cascade = CascadeType.ALL)
   public List<CartItem> getCartItems()
   {
     List<CartItem> newCartItems = Collections.unmodifiableList(cartItems);
     return newCartItems;
   }
 
-  public boolean setCartItems(List<CartItem> cartItem) {
-    this.cartItems = cartItem;
+  public boolean setCartItems(List<CartItem> cartItems) {
+    this.cartItems = new ArrayList<CartItem>(cartItems);
     return true;
   }
 
@@ -108,31 +124,32 @@ public class InStoreBill
     int index = cartItems.indexOf(aCartItem);
     return index;
   }
-  
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfCartItems()
   {
     return 0;
   }
-  /* Code from template association_AddUnidirectionalMany */
+  /* Code from template association_AddManyToOptionalOne */
   public boolean addCartItem(CartItem aCartItem)
   {
     boolean wasAdded = false;
-    if(cartItems != null) {
-    	  
-    if (cartItems.contains(aCartItem)) {
-    	return wasAdded;
-     }
-    cartItems.add(aCartItem);
-    wasAdded = true;
-    }else {
-    	ArrayList<CartItem> tempList = new ArrayList<CartItem>(); 
-    	tempList.add(aCartItem);
-    	this.setCartItems(tempList);
-    	
+    if (cartItems.contains(aCartItem)) { return false; }
+    InStoreBill existingInStoreBill = aCartItem.getInStoreBill();
+    if (existingInStoreBill == null)
+    {
+      aCartItem.setInStoreBill(this);
     }
+    else if (!this.equals(existingInStoreBill))
+    {
+      existingInStoreBill.removeCartItem(aCartItem);
+      addCartItem(aCartItem);
+    }
+    else
+    {
+      cartItems.add(aCartItem);
+    }
+    wasAdded = true;
     return wasAdded;
-    
   }
 
   public boolean removeCartItem(CartItem aCartItem)
@@ -141,6 +158,7 @@ public class InStoreBill
     if (cartItems.contains(aCartItem))
     {
       cartItems.remove(aCartItem);
+      aCartItem.setInStoreBill(null);
       wasRemoved = true;
     }
     return wasRemoved;
@@ -179,24 +197,22 @@ public class InStoreBill
   }
 
   public void delete()
-  {}
+  {
+    while (cartItems.size() > 0)
+    {
+      CartItem aCartItem = cartItems.get(cartItems.size() - 1);
+      aCartItem.delete();
+      cartItems.remove(aCartItem);
+    }
+    
+  }
 
 
   public String toString()
   {
     return super.toString() + "["+
-            "total" + ":" + getTotal()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "purchaseDate" + "=" + (getPurchaseDate() != null ? !getPurchaseDate().equals(this)  ? getPurchaseDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator");
-  }
-
-  public boolean setId(long id) {
-    this.id = id;
-    return true;
-  }
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  public long getId() {
-    return id;
+            "total" + ":" + getTotal()+ "," +
+            "inStoreBillId" + ":" + getInStoreBillId()+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "purchaseDate" + "=" + (getPurchaseDate() != null ? !getPurchaseDate().equals(this)  ? getPurchaseDate().toString().replaceAll("  ","    ") : "this" : "null");
   }
 }

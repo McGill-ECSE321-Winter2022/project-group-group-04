@@ -5,7 +5,6 @@ package ca.mcgill.ecse321.project321.model;
 import java.util.*;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,10 +13,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 
-// line 32 "../../../../../../model.ump"
-// line 154 "../../../../../../model.ump"\
+// line 31 "../../../../../../model.ump"
+// line 139 "../../../../../../model.ump"
 @Entity
 public class Cart
 {
@@ -33,9 +31,8 @@ public class Cart
   //------------------------
 
   //Cart Attributes
-  @Transient
-  private long id;
   private ShoppingType type;
+  private int cartId;
 
   //Cart Associations
   private Customer customer;
@@ -47,20 +44,16 @@ public class Cart
   // CONSTRUCTOR
   //------------------------
 
-  public Cart(ShoppingType aType, Customer aCustomer, TimeSlot aTimeSlot)
+  public Cart(ShoppingType aType, Customer aCustomer)
   {
     type = aType;
+    cartId = 0;
     boolean didAddCustomer = setCustomer(aCustomer);
     if (!didAddCustomer)
     {
       throw new RuntimeException("Unable to create cart due to customer. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
     cartItems = new ArrayList<CartItem>();
-    if (!setTimeSlot(aTimeSlot))
-    {
-      throw new RuntimeException("Unable to create Cart due to aTimeSlot. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
-    order = null;
   }
 
   public Cart() {}
@@ -77,25 +70,28 @@ public class Cart
     return wasSet;
   }
 
-  public boolean setId(long id) {
-    this.id = id;
-    return true;
+  public boolean setCartId(int aCartId)
+  {
+    boolean wasSet = false;
+    cartId = aCartId;
+    wasSet = true;
+    return wasSet;
   }
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "cart_id")
-  public long getId() {
-    return id;
-  }
-
-  @Column(name = "cart_type")
   public ShoppingType getType()
   {
     return type;
   }
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public int getCartId()
+  {
+    return cartId;
+  }
   /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.MERGE})
+  @ManyToOne()
+  @JoinColumn(name = "customer_email")
   public Customer getCustomer()
   {
     return customer;
@@ -107,16 +103,16 @@ public class Cart
     return aCartItem;
   }
 
-  @OneToMany(cascade = {CascadeType.ALL})
-  @Column(name = "cart_items_cart")
+  @OneToMany(cascade = CascadeType.ALL)
   public List<CartItem> getCartItems()
   {
     List<CartItem> newCartItems = Collections.unmodifiableList(cartItems);
     return newCartItems;
   }
 
-  public void setCartItems(List<CartItem> cartItem) {
-    this.cartItems = new ArrayList<CartItem>(cartItem);
+  public boolean setCartItems(List<CartItem> cartItems) {
+    this.cartItems = new ArrayList<CartItem>(cartItems);
+    return true;
   }
 
   public int numberOfCartItems()
@@ -137,25 +133,29 @@ public class Cart
     return index;
   }
   /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.MERGE})
-  @JoinColumn(name = "timeslot_id")
+  @ManyToOne(cascade = CascadeType.MERGE)
   public TimeSlot getTimeSlot()
   {
     return timeSlot;
   }
+
+  public boolean hasTimeSlot()
+  {
+    boolean has = timeSlot != null;
+    return has;
+  }
   /* Code from template association_GetOne */
-  @OneToOne(cascade = {CascadeType.ALL})
-  @JoinColumn(name = "order_id")
+  @OneToOne(cascade = CascadeType.ALL)
   public Order getOrder()
   {
     return order;
   }
 
-  // Unused setter: only to please hibernate
-  public void setOrder(Order order) {
-    return;
+  public boolean hasOrder()
+  {
+    boolean has = order != null;
+    return has;
   }
-
   /* Code from template association_SetOneToMany */
   public boolean setCustomer(Customer aCustomer)
   {
@@ -180,12 +180,25 @@ public class Cart
   {
     return 0;
   }
-  /* Code from template association_AddUnidirectionalMany */
+  /* Code from template association_AddManyToOptionalOne */
   public boolean addCartItem(CartItem aCartItem)
   {
     boolean wasAdded = false;
     if (cartItems.contains(aCartItem)) { return false; }
-    cartItems.add(aCartItem);
+    Cart existingCart = aCartItem.getCart();
+    if (existingCart == null)
+    {
+      aCartItem.setCart(this);
+    }
+    else if (!this.equals(existingCart))
+    {
+      existingCart.removeCartItem(aCartItem);
+      addCartItem(aCartItem);
+    }
+    else
+    {
+      cartItems.add(aCartItem);
+    }
     wasAdded = true;
     return wasAdded;
   }
@@ -196,6 +209,7 @@ public class Cart
     if (cartItems.contains(aCartItem))
     {
       cartItems.remove(aCartItem);
+      aCartItem.setCart(null);
       wasRemoved = true;
     }
     return wasRemoved;
@@ -232,15 +246,39 @@ public class Cart
     }
     return wasAdded;
   }
-  /* Code from template association_SetUnidirectionalOne */
+  /* Code from template association_SetUnidirectionalOptionalOne */
   public boolean setTimeSlot(TimeSlot aNewTimeSlot)
   {
     boolean wasSet = false;
-    if (aNewTimeSlot != null)
+    timeSlot = aNewTimeSlot;
+    wasSet = true;
+    return wasSet;
+  }
+  /* Code from template association_SetOptionalOneToOne */
+  public boolean setOrder(Order aNewOrder)
+  {
+    boolean wasSet = false;
+    if (order != null && !order.equals(aNewOrder) && equals(order.getCart()))
     {
-      timeSlot = aNewTimeSlot;
-      wasSet = true;
+      //Unable to setOrder, as existing order would become an orphan
+      return wasSet;
     }
+
+    order = aNewOrder;
+    Cart anOldCart = aNewOrder != null ? aNewOrder.getCart() : null;
+
+    if (!this.equals(anOldCart))
+    {
+      if (anOldCart != null)
+      {
+        anOldCart.order = null;
+      }
+      if (order != null)
+      {
+        order.setCart(this);
+      }
+    }
+    wasSet = true;
     return wasSet;
   }
 
@@ -252,13 +290,20 @@ public class Cart
     {
       placeholderCustomer.removeCart(this);
     }
-    cartItems.clear();
+    while (cartItems.size() > 0)
+    {
+      CartItem aCartItem = cartItems.get(cartItems.size() - 1);
+      aCartItem.delete();
+      cartItems.remove(aCartItem);
+    }
+    
     timeSlot = null;
     Order existingOrder = order;
     order = null;
     if (existingOrder != null)
     {
       existingOrder.delete();
+      existingOrder.setCart(null);
     }
   }
 
@@ -266,7 +311,7 @@ public class Cart
   public String toString()
   {
     return super.toString() + "["+
-            "id" + ":" + getId()+ "]" + System.getProperties().getProperty("line.separator") +
+            "cartId" + ":" + getCartId()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "type" + "=" + (getType() != null ? !getType().equals(this)  ? getType().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "customer = "+(getCustomer()!=null?Integer.toHexString(System.identityHashCode(getCustomer())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "timeSlot = "+(getTimeSlot()!=null?Integer.toHexString(System.identityHashCode(getTimeSlot())):"null") + System.getProperties().getProperty("line.separator") +

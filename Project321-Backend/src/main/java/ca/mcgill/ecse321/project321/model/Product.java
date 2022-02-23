@@ -4,34 +4,30 @@
 package ca.mcgill.ecse321.project321.model;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
 
-// line 52 "../../../../../../model.ump"
-// line 167 "../../../../../../model.ump"
+// line 51 "../../../../../../model.ump"
+// line 153 "../../../../../../model.ump"
 @Entity
-@Table(name = "_products_")
 public class Product
 {
 
   //------------------------
-  // CLASS ENUMS
+  // ENUMERATIONS
   //------------------------
-  public enum PriceType {PER_UNIT, PER_KILOS};
+
+  public enum PriceType { PER_UNIT, PER_KILOS }
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
 
   //Product Attributes
-  private long id;
+  private PriceType priceType;
   private String productName;
   private String isAvailableOnline;
   private int price;
   private int stock;
-  private PriceType priceType; 
 
   //------------------------
   // CONSTRUCTOR
@@ -39,11 +35,11 @@ public class Product
 
   public Product(PriceType aPriceType, String aProductName, String aIsAvailableOnline, int aPrice, int aStock)
   {
+    priceType = aPriceType;
     productName = aProductName;
     isAvailableOnline = aIsAvailableOnline;
     price = aPrice;
     stock = aStock;
-    priceType = aPriceType;
   }
 
   public Product() {}
@@ -51,6 +47,14 @@ public class Product
   //------------------------
   // INTERFACE
   //------------------------
+
+  public boolean setPriceType(PriceType aPriceType)
+  {
+    boolean wasSet = false;
+    priceType = aPriceType;
+    wasSet = true;
+    return wasSet;
+  }
 
   public boolean setProductName(String aProductName)
   {
@@ -84,15 +88,12 @@ public class Product
     return wasSet;
   }
 
-  public PriceType getPriceType() {
+  public PriceType getPriceType()
+  {
     return priceType;
   }
 
-  public boolean setPriceType(PriceType aPriceType) {
-    priceType = aPriceType;
-    return true;
-  }
-
+  @Id
   public String getProductName()
   {
     return productName;
@@ -114,9 +115,8 @@ public class Product
   }
 
   public void delete()
-  {
-    return;
-  }
+  {}
+
 
   public String toString()
   {
@@ -124,17 +124,7 @@ public class Product
             "productName" + ":" + getProductName()+ "," +
             "isAvailableOnline" + ":" + getIsAvailableOnline()+ "," +
             "price" + ":" + getPrice()+ "," +
-            "stock" + ":" + getStock()+ "]" + System.getProperties().getProperty("line.separator");
-  }
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  public long getId() {
-    return id;
-  }
-
-  public boolean setId(long id) {
-    this.id = id;
-    return true;
+            "stock" + ":" + getStock()+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "priceType" + "=" + (getPriceType() != null ? !getPriceType().equals(this)  ? getPriceType().toString().replaceAll("  ","    ") : "this" : "null");
   }
 }

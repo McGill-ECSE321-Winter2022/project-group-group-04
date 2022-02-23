@@ -13,10 +13,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-// line 43 "../../../../../../model.ump"
-// line 162 "../../../../../../model.ump"
+// line 42 "../../../../../../model.ump"
+// line 148 "../../../../../../model.ump"
 @Entity
-@Table(name = "_order_")
+@Table(name = "orders")
 public class Order
 {
 
@@ -25,7 +25,7 @@ public class Order
   //------------------------
 
   //Order Attributes
-  private long id;
+  private int orderId;
   private boolean completed;
   private Date orderDate;
   private int total;
@@ -40,15 +40,16 @@ public class Order
 
   public Order(boolean aCompleted, Date aOrderDate, int aTotal, String aPayment, Cart aCart)
   {
+    orderId = 0;
     completed = aCompleted;
     orderDate = aOrderDate;
     total = aTotal;
     payment = aPayment;
-    if (aCart == null || aCart.getOrder() != null)
+    boolean didAddCart = setCart(aCart);
+    if (!didAddCart)
     {
-      throw new RuntimeException("Unable to create Order due to aCart. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create order due to cart. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
-    cart = aCart;
   }
 
   public Order() {}
@@ -57,16 +58,14 @@ public class Order
   // INTERFACE
   //------------------------
 
-  public boolean setId(long id) {
-    this.id = id;
-    return true;
+  public boolean setOrderId(int aOrderId)
+  {
+    boolean wasSet = false;
+    orderId = aOrderId;
+    wasSet = true;
+    return wasSet;
   }
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  public long getId() {
-    return id;
-  }
   public boolean setCompleted(boolean aCompleted)
   {
     boolean wasSet = false;
@@ -99,6 +98,13 @@ public class Order
     return wasSet;
   }
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public int getOrderId()
+  {
+    return orderId;
+  }
+
   public boolean getCompleted()
   {
     return completed;
@@ -125,15 +131,38 @@ public class Order
     return completed;
   }
   /* Code from template association_GetOne */
-  @OneToOne(cascade = {CascadeType.ALL})
+  @OneToOne(cascade = CascadeType.MERGE)
   public Cart getCart()
   {
     return cart;
   }
+  /* Code from template association_SetOneToOptionalOne */
+  public boolean setCart(Cart aNewCart)
+  {
+    boolean wasSet = false;
+    if (aNewCart == null)
+    {
+      //Unable to setCart to null, as order must always be associated to a cart
+      return wasSet;
+    }
+    
+    Order existingOrder = aNewCart.getOrder();
+    if (existingOrder != null && !equals(existingOrder))
+    {
+      //Unable to setCart, the current cart already has a order, which would be orphaned if it were re-assigned
+      return wasSet;
+    }
+    
+    Cart anOldCart = cart;
+    cart = aNewCart;
+    cart.setOrder(this);
 
-  // Unused setter: only to please hibernate
-  public void setCart(Cart cart) {
-    return;
+    if (anOldCart != null)
+    {
+      anOldCart.setOrder(null);
+    }
+    wasSet = true;
+    return wasSet;
   }
 
   public void delete()
@@ -142,7 +171,7 @@ public class Order
     cart = null;
     if (existingCart != null)
     {
-      existingCart.delete();
+      existingCart.setOrder(null);
     }
   }
 
@@ -150,7 +179,7 @@ public class Order
   public String toString()
   {
     return super.toString() + "["+
-            "id" + ":" + getId()+ "," +
+            "orderId" + ":" + getOrderId()+ "," +
             "completed" + ":" + getCompleted()+ "," +
             "total" + ":" + getTotal()+ "," +
             "payment" + ":" + getPayment()+ "]" + System.getProperties().getProperty("line.separator") +

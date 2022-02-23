@@ -18,14 +18,12 @@ import ca.mcgill.ecse321.project321.model.Address;
 import ca.mcgill.ecse321.project321.model.Cart;
 import ca.mcgill.ecse321.project321.model.CartItem;
 import ca.mcgill.ecse321.project321.model.Customer;
-import ca.mcgill.ecse321.project321.model.Day;
 import ca.mcgill.ecse321.project321.model.Order;
 import ca.mcgill.ecse321.project321.model.Product;
 import ca.mcgill.ecse321.project321.model.StoreOwner;
-import ca.mcgill.ecse321.project321.model.TheGroceryStoreSystem;
+import ca.mcgill.ecse321.project321.model.Store;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
 import ca.mcgill.ecse321.project321.model.Cart.ShoppingType;
-import ca.mcgill.ecse321.project321.model.Day.WeekDays;
 import ca.mcgill.ecse321.project321.model.Employee;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
@@ -46,7 +44,7 @@ public class TestProject321Persistence {
 	@Autowired
 	private TimeslotRepository timeslotRepository;
 	@Autowired
-	private TheGroceryStoreSystemRepository tGSRepository;
+	private StoreRepository storeRepository;
     @Autowired
     private StoreOwnerRepository storeOwnerRepository;
     @Autowired
@@ -57,8 +55,6 @@ public class TestProject321Persistence {
     private OrderRepository orderRepository;
     @Autowired
     private EmployeeRepository employeeRepository;
-    @Autowired
-    private DayRepository dayRepository;
     @Autowired
     private CustomerRepository customerRepository;
     @Autowired
@@ -81,11 +77,9 @@ public class TestProject321Persistence {
 		inStoreBillRepository.deleteAll();
         productRepository.deleteAll();
         timeslotRepository.deleteAll();
-        dayRepository.deleteAll();
 		employeeRepository.deleteAll();
         customerRepository.deleteAll();
         addressRepository.deleteAll();
-		tGSRepository.deleteAll();
 		// Then we can clear the other tables
 	}
 
@@ -102,8 +96,8 @@ public class TestProject321Persistence {
 		  
 		  address = null;
 		  
-		  List<Address> addresslist = addressRepository.findByStreet(street);
-		  address = addresslist.get(0);
+		  address = addressRepository.findByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalCode);
+		
 //Write test for Object
 		  assertNotNull(address, "Address is not being written");
 //Read and Write test(s) for attributes, and in turn Read test for Address Object as it is collected from addressRepository
@@ -126,21 +120,16 @@ public class TestProject321Persistence {
 		  String street = "TestStreet";
 		  String postalCode = "TestPostalCode";
 		  int unit = 321;
-		  Address address = new Address(town,street,postalCode,unit);	  
+		  Address address = new Address(town,street,postalCode,unit);	
+		  addressRepository.save(address);  
 		  Customer customer = new Customer(email, name, password, phone, address);
 		  customerRepository.save(customer);
 		  
-		  WeekDays weekDay = WeekDays.Monday;
-		  Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
-		  Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(00, 35));
-		  Day day = new Day(weekDay, storeStartHour, storeEndHour);
-		  dayRepository.save(day);
-		  
 		  TimeSlot testSlot = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(12, 35)),
-				  java.sql.Time.valueOf(LocalTime.of(13, 35)), java.sql.Date.valueOf(LocalDate.now()), 20, dayRepository.findByDay(weekDay));
+				  java.sql.Time.valueOf(LocalTime.of(13, 35)), java.sql.Date.valueOf(LocalDate.now()), 20);
 		  timeslotRepository.save(testSlot);
 		  
-		  Cart testCart = new Cart(ShoppingType.Delivery, customer, testSlot);
+		  Cart testCart = new Cart(ShoppingType.Delivery, customer);
 		  
 		  cartRepository.save(testCart);
 
@@ -160,7 +149,7 @@ public class TestProject321Persistence {
 		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
 		productRepository.save(product);
 		
-		CartItem cartItem = new CartItem(quantity, product);
+		CartItem cartItem = new CartItem(3, product);
 		cartItemRepository.save(cartItem);
 		
 		cartItem=null;
@@ -211,26 +200,6 @@ public class TestProject321Persistence {
 		  assertEquals(customer.getAddress().getPostalCode(),postalCode);
 		  assertEquals(customer.getAddress().getUnit(),unit);
 
-	}
-
-	@Test
-    public void testPersistAndLoadDay() {
-		
-		WeekDays weekDay = WeekDays.Monday;
-		Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
-		Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));
-		
-		Day day = new Day(weekDay, storeStartHour, storeEndHour);
-		
-		dayRepository.save(day);
-		day=null;
-		
-		day = dayRepository.findByDay(weekDay);
-		assertNotNull(day);
-		assertEquals(day.getDay(), weekDay);
-		assertEquals(day.getStoreStartHour(), storeStartHour);
-		assertEquals(day.getStoreEndHour(), storeEndHour);
-		
 	}
 
 	@Test
@@ -313,15 +282,12 @@ public class TestProject321Persistence {
 		  Customer customer = new Customer(email, name, password, phone, address);
 		  customerRepository.save(customer);
 		  
-		  WeekDays weekDay = WeekDays.Monday;
-			Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
-			Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));	
-			Day day = new Day(weekDay, storeStartHour, storeEndHour);
-		  
 		 TimeSlot testSlot = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(12, 00)), 
-				 java.sql.Time.valueOf(LocalTime.of(14, 00)), java.sql.Date.valueOf(LocalDate.now()), 100, day);
+				 java.sql.Time.valueOf(LocalTime.of(14, 00)), java.sql.Date.valueOf(LocalDate.now()), 100);
+		timeslotRepository.save(testSlot);
 		 
-		 Cart testCart = new Cart(ShoppingType.Delivery, customer, testSlot);
+		 Cart testCart = new Cart(ShoppingType.Delivery, customer);
+		 cartRepository.save(testCart);
 		 
 		Order testOrder = new Order(false, java.sql.Date.valueOf(LocalDate.now()), 500,  "CreditCard", testCart);
 		 orderRepository.save(testOrder);
@@ -362,15 +328,8 @@ public class TestProject321Persistence {
 		  Employee employee = new Employee(email, name, password, employeeStatus);	  
 		  employeeRepository.save(employee);
 		  
-		  WeekDays weekDay = WeekDays.Monday;
-		  Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
-		  Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));
-		  Day day = new Day(weekDay, storeStartHour, storeEndHour);
-//		  dayRepository.save(day);
-		  
 		  Shift testShift = new Shift(java.sql.Time.valueOf(LocalTime.of(11, 35)),
-				  java.sql.Time.valueOf(LocalTime.of(15, 35)), java.sql.Date.valueOf(LocalDate.now()),
-						  day, employee);
+				  java.sql.Time.valueOf(LocalTime.of(15, 35)), java.sql.Date.valueOf(LocalDate.now()), employee);
 		  shiftRepository.save(testShift);
 		
 	}
@@ -397,14 +356,9 @@ public class TestProject321Persistence {
 
 	@Test
     public void testPersistAndLoadTimeSlot() {
-		 	WeekDays weekDay = WeekDays.Monday;
-			Time storeStartHour = java.sql.Time.valueOf(LocalTime.of(11, 35));
-			Time storeEndHour = java.sql.Time.valueOf(LocalTime.of(12, 35));	
-			Day day = new Day(weekDay, storeStartHour, storeEndHour);
 		
-			  
 			 TimeSlot testSlot = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(12, 00)), 
-					 java.sql.Time.valueOf(LocalTime.of(14, 00)), java.sql.Date.valueOf(LocalDate.now()), 100, day);
+					 java.sql.Time.valueOf(LocalTime.of(14, 00)), java.sql.Date.valueOf(LocalDate.now()), 100);
 			 timeslotRepository.save(testSlot); 
 	}
 

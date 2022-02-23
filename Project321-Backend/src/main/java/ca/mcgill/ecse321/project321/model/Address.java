@@ -4,10 +4,12 @@
 package ca.mcgill.ecse321.project321.model;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-// line 94 "../../../../../../model.ump"
-// line 194 "../../../../../../model.ump"
+// line 86 "../../../../../../model.ump"
+// line 175 "../../../../../../model.ump"
 @Entity
 public class Address
 {
@@ -21,6 +23,7 @@ public class Address
   private String street;
   private String postalCode;
   private int unit;
+  private int addressId;
 
   //------------------------
   // CONSTRUCTOR
@@ -32,6 +35,7 @@ public class Address
     street = aStreet;
     postalCode = aPostalCode;
     unit = aUnit;
+    addressId = 0;
   }
 
   public Address() {}
@@ -72,6 +76,14 @@ public class Address
     return wasSet;
   }
 
+  public boolean setAddressId(int aAddressId)
+  {
+    boolean wasSet = false;
+    addressId = aAddressId;
+    wasSet = true;
+    return wasSet;
+  }
+
   public String getTown()
   {
     return town;
@@ -92,8 +104,16 @@ public class Address
     return unit;
   }
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public int getAddressId()
+  {
+    return addressId;
+  }
+
   public void delete()
   {}
+
 
   public String toString()
   {
@@ -101,16 +121,7 @@ public class Address
             "town" + ":" + getTown()+ "," +
             "street" + ":" + getStreet()+ "," +
             "postalCode" + ":" + getPostalCode()+ "," +
-            "unit" + ":" + getUnit()+ "]" + System.getProperties().getProperty("line.separator");
- }
-
-  @Id
-  public String getID() {
-    return unit + " " + street + ", " + town + ", " + postalCode;
-  }
-
-  // Unused setter: only to please hibernate since we cant set unit, street, etc... from a single string
-  public void setID(String id) {
-    return;
+            "unit" + ":" + getUnit()+ "," +
+            "addressId" + ":" + getAddressId()+ "]";
   }
 }

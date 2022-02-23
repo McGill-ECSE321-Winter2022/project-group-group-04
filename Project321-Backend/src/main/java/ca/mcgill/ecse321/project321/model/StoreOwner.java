@@ -6,7 +6,7 @@ package ca.mcgill.ecse321.project321.model;
 import javax.persistence.Entity;
 
 // line 19 "../../../../../../model.ump"
-// line 144 "../../../../../../model.ump"
+// line 129 "../../../../../../model.ump"
 @Entity
 public class StoreOwner extends User
 {
@@ -24,7 +24,9 @@ public class StoreOwner extends User
     super(aEmail, aName, aPassword);
   }
 
-  public StoreOwner() {}
+  public StoreOwner() {
+    super();
+  }
 
   //------------------------
   // INTERFACE
@@ -34,4 +36,5 @@ public class StoreOwner extends User
   {
     super.delete();
   }
+
 }
