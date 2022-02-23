@@ -29,6 +29,7 @@ import ca.mcgill.ecse321.project321.model.Cart.ShoppingType;
 import ca.mcgill.ecse321.project321.model.Employee;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
+import ch.qos.logback.classic.spi.STEUtil;
 import ca.mcgill.ecse321.project321.model.Shift;
 import ca.mcgill.ecse321.project321.model.InStoreBill;
 
@@ -75,7 +76,7 @@ public class TestProject321Persistence {
 	@AfterEach
 	public void clearDatabase() {
 		// First, we clear registrations to avoid exceptions due to inconsistencies
-		storeOwnerRepository.deleteAll();
+		storeRepository.deleteAll();
 		orderRepository.deleteAll();
         shiftRepository.deleteAll();
         cartRepository.deleteAll();
@@ -87,6 +88,7 @@ public class TestProject321Persistence {
 		userRepository.deleteAll();
 		timeslotRepository.deleteAll();
         addressRepository.deleteAll();
+		storeOwnerRepository.deleteAll();
 		
 		// Then we can clear the other tables
 	}
@@ -640,7 +642,65 @@ public class TestProject321Persistence {
 
 	@Test
 	public void testPersistAndLoadStore() {
+		String telephone = "000-1111";
+  		String email = "store@mail.com";
+  		Time openingHour = java.sql.Time.valueOf(LocalTime.of(9, 00));
+  		Time closingHour = java.sql.Time.valueOf(LocalTime.of(21, 00));
+		
+		String ownerEmail = "owner@mail.com";
+		String ownerName = "Testowner";
+		String ownerPassword = "Testpassword";
+		  
+		StoreOwner storeOwner = new StoreOwner(ownerEmail, ownerName, ownerPassword);
+		storeOwnerRepository.save(storeOwner);
 
+		String town = "TestTown2";
+		String street = "TestStreet2";
+		String postalCode = "TestPostalCode2";
+		int unit = 321;
+		Address address = new Address(town,street,postalCode,unit);
+		addressRepository.save(address);
+
+		Store store = new Store(telephone, email, openingHour, closingHour, storeOwner, address);
+		storeRepository.save(store);
+
+		store = null;
+
+// Test object persistence
+		store = storeRepository.findByAddress(address);
+		assertNotNull(store);
+		assertEquals(store.getTelephone(), telephone);
+		assertEquals(store.getEmail(), email);
+		assertEquals(store.getOpeningHour(), openingHour);
+		assertEquals(store.getClosingHour(), closingHour);
+		assertEquals(store.getAddress().getAddressId(), address.getAddressId());
+		assertEquals(store.getStoreOwner().getEmail(), storeOwner.getEmail());
+
+// Test attribute persistence
+		String newEmail = "store@mail.com";
+		store.setEmail(newEmail);
+		storeRepository.save(store);
+
+		store = null;
+		store = storeRepository.findByAddress(address);
+		assertNotNull(store);
+		assertEquals(store.getEmail(), newEmail);
+
+// Test reference persistence 
+		String owner2Email = "owner@mail.com";
+		String owner2Name = "Testowner";
+		String owner2Password = "Testpassword";
+  
+		StoreOwner storeOwner2 = new StoreOwner(owner2Email, owner2Name, owner2Password);
+		storeOwnerRepository.save(storeOwner2);
+
+		store.setStoreOwner(storeOwner2);
+		storeRepository.save(store);
+
+		store = null;
+		store = storeRepository.findByAddress(address);
+		assertNotNull(store);
+		assertEquals(store.getStoreOwner().getEmail(), storeOwner2.getEmail());
 	}
 
 }
