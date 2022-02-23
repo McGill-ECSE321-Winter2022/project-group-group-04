@@ -90,6 +90,11 @@ public class TestProject321Persistence {
 		// Then we can clear the other tables
 	}
 
+	@Test
+	public void StartOver() {
+		clearDatabase();
+	}
+
 //Read and Write test for Address Class 
 	@Test 
     public void testPersistAndLoadAddress() { 
@@ -262,21 +267,6 @@ public class TestProject321Persistence {
 	}
 
 	@Test
-    public void testPersistAndLoadShift() {
-		  String email = "employee@mail.com";
-		  String name = "TestEmployee";
-		  String password = "Testpassword";
-		  EmployeeStatus employeeStatus = EmployeeStatus.Active;	  
-		  Employee employee = new Employee(email, name, password, employeeStatus);	  
-		  employeeRepository.save(employee);
-		  
-		  Shift testShift = new Shift(java.sql.Time.valueOf(LocalTime.of(11, 35)),
-				  java.sql.Time.valueOf(LocalTime.of(15, 35)), java.sql.Date.valueOf(LocalDate.now()), employee);
-		  shiftRepository.save(testShift);
-		
-	}
-
-	@Test
     public void testPersistAndLoadEmployee() {
 		  
 		  String email = "employee@mail.com";
@@ -296,6 +286,31 @@ public class TestProject321Persistence {
 		  assertEquals(employee.getPassword(),password);
 		  assertEquals(employee.getStatus(), employeeStatus);
 		  
+	}
+
+	@Test
+    public void testPersistAndLoadShift() {
+		  String email = "employee@mail.com";
+		  String name = "TestEmployee";
+		  String password = "Testpassword";
+		  EmployeeStatus employeeStatus = EmployeeStatus.Active;	  
+		  Employee employee = new Employee(email, name, password, employeeStatus);	  
+		  employeeRepository.save(employee);
+		  
+		  Date date = java.sql.Date.valueOf(LocalDate.now());
+		  Time startTime = java.sql.Time.valueOf(LocalTime.of(11, 35));
+		  Time endTime = java.sql.Time.valueOf(LocalTime.of(15, 35));
+		  Shift testShift = new Shift(startTime, endTime, date, employee);
+		  shiftRepository.save(testShift);
+		
+		  testShift = null;
+
+		testShift = shiftRepository.findByDateAndEmployee(date, employee);
+		assertNotNull(testShift);
+		assertEquals(testShift.getDate(), date);
+		assertEquals(testShift.getStartHour(), startTime);
+		assertEquals(testShift.getEndHour(), endTime);
+		assertEquals(testShift.getEmployee().getEmail(), employee.getEmail());
 	}
 
 //Read and Write test for InStoreBill Class
@@ -361,10 +376,21 @@ public class TestProject321Persistence {
 		timeslotRepository.save(testSlot);
 		 
 		 Cart testCart = new Cart(ShoppingType.Delivery, customer);
+		 testCart.setTimeSlot(testSlot);
 		 cartRepository.save(testCart);
 		 
-		Order testOrder = new Order(false, java.sql.Date.valueOf(LocalDate.now()), 500,  "CreditCard", testCart);
+		 boolean comp = false;
+		 Date date = java.sql.Date.valueOf(LocalDate.now());
+		 int total = 500;
+		 String payment = "CreditCard";
+		Order testOrder = new Order(comp, date, total,  payment, testCart);
 		 orderRepository.save(testOrder);
+
+		 testOrder = null;
+
+		 testOrder = orderRepository.findByCart(testCart);
+		 assertNotNull(testOrder);
+		 assertEquals(testOrder.getOrderDate(), date);
 	}
 	
 	@Test
