@@ -6,6 +6,7 @@ import java.util.*;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -92,7 +93,7 @@ public class Cart
     return cartId;
   }
   /* Code from template association_GetOne */
-  @ManyToOne()
+  @ManyToOne(cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
   public Customer getCustomer()
   {
     return customer;
@@ -107,7 +108,7 @@ public class Cart
   @OneToMany(cascade = CascadeType.ALL)
   public List<CartItem> getCartItems()
   {
-    List<CartItem> newCartItems = Collections.unmodifiableList(cartItems);
+    List<CartItem> newCartItems = new ArrayList<CartItem>(cartItems);
     return newCartItems;
   }
 

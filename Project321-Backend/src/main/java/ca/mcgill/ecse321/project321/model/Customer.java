@@ -76,7 +76,7 @@ public class Customer extends User
     return aCart;
   }
 
-  @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+  @OneToMany(cascade = {CascadeType.ALL})
   public List<Cart> getCarts()
   {
     List<Cart> newCarts = new ArrayList<Cart>(carts);

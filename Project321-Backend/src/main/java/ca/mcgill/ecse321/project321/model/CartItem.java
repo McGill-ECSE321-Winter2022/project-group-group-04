@@ -5,9 +5,11 @@ package ca.mcgill.ecse321.project321.model;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 // line 61 "../../../../../../model.ump"
@@ -83,7 +85,8 @@ public class CartItem
     return product;
   }
   /* Code from template association_GetOne */
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne()
+  @JoinColumn(name = "cart_id")
   public Cart getCart()
   {
     return cart;
