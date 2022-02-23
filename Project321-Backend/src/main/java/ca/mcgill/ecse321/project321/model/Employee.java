@@ -6,7 +6,7 @@ package ca.mcgill.ecse321.project321.model;
 import javax.persistence.Entity;
 
 // line 24 "../../../../../../model.ump"
-// line 138 "../../../../../../model.ump"
+// line 134 "../../../../../../model.ump"
 @Entity
 public class Employee extends User
 {
@@ -34,6 +34,8 @@ public class Employee extends User
     status = aStatus;
   }
 
+  public Employee() {}
+
   //------------------------
   // INTERFACE
   //------------------------
@@ -60,6 +62,6 @@ public class Employee extends User
   public String toString()
   {
     return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "status" + "=" + (getStatus() != null ? !getStatus().equals(this)  ? getStatus().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator");
+            "  " + "status" + "=" + (getStatus() != null ? !getStatus().equals(this)  ? getStatus().toString().replaceAll("  ","    ") : "this" : "null");
   }
 }

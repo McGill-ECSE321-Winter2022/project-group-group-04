@@ -4,17 +4,15 @@
 package ca.mcgill.ecse321.project321.model;
 import java.sql.Time;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 
 import java.sql.Date;
 
-// line 67 "../../../../../../model.ump"
-// line 178 "../../../../../../model.ump"
+// line 68 "../../../../../../model.ump"
+// line 164 "../../../../../../model.ump"
 @Entity
 public class TimeSlot
 {
@@ -24,45 +22,31 @@ public class TimeSlot
   //------------------------
 
   //TimeSlot Attributes
-  private long id;
+
   private Time startTime;
   private Time endTime;
   private Date date;
   private int maxOrderPerSlot;
-
-  //TimeSlot Associations
-  private Day day;
+  private int timeSlotId;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public TimeSlot(Time aStartTime, Time aEndTime, Date aDate, int aMaxOrderPerSlot, Day aDay)
+  public TimeSlot(Time aStartTime, Time aEndTime, Date aDate, int aMaxOrderPerSlot)
   {
     startTime = aStartTime;
     endTime = aEndTime;
     date = aDate;
     maxOrderPerSlot = aMaxOrderPerSlot;
-    if (!setDay(aDay))
-    {
-      throw new RuntimeException("Unable to create TimeSlot due to aDay. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
+    timeSlotId = 0;
   }
+
+  public TimeSlot() {}
 
   //------------------------
   // INTERFACE
   //------------------------
-
-  public boolean setId(long id) {
-    this.id = id;
-    return true;
-  }
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  public long getId() {
-    return id;
-  }
 
   public boolean setStartTime(Time aStartTime)
   {
@@ -96,6 +80,14 @@ public class TimeSlot
     return wasSet;
   }
 
+  public boolean setTimeSlotId(int aTimeSlotId)
+  {
+    boolean wasSet = false;
+    timeSlotId = aTimeSlotId;
+    wasSet = true;
+    return wasSet;
+  }
+
   public Time getStartTime()
   {
     return startTime;
@@ -115,40 +107,26 @@ public class TimeSlot
   {
     return maxOrderPerSlot;
   }
-  /* Code from template association_GetOne */
-  @ManyToOne(cascade = {CascadeType.ALL})
-  public Day getDay()
+
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  public int getTimeSlotId()
   {
-    return day;
+    return timeSlotId;
   }
-  
-  /* Code from template association_SetUnidirectionalOne */
-  public boolean setDay(Day aNewDay)
-  {
-    boolean wasSet = false;
-    if (aNewDay != null)
-    {
-      day = aNewDay;
-      wasSet = true;
-    }
-    return wasSet;
-  }
-  
 
   public void delete()
-  {
-    day = null;
-  }
+  {}
 
 
   public String toString()
   {
     return super.toString() + "["+
-            "id" + ":" + getId()+ "," +
-            "maxOrderPerSlot" + ":" + getMaxOrderPerSlot()+ "]" + System.getProperties().getProperty("line.separator") +
+            "maxOrderPerSlot" + ":" + getMaxOrderPerSlot()+ "," +
+            "timeSlotId" + ":" + getTimeSlotId()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "startTime" + "=" + (getStartTime() != null ? !getStartTime().equals(this)  ? getStartTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "endTime" + "=" + (getEndTime() != null ? !getEndTime().equals(this)  ? getEndTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "date" + "=" + (getDate() != null ? !getDate().equals(this)  ? getDate().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "day = "+(getDay()!=null?Integer.toHexString(System.identityHashCode(getDay())):"null") + System.getProperties().getProperty("line.separator");
+            "  " + "date" + "=" + (getDate() != null ? !getDate().equals(this)  ? getDate().toString().replaceAll("  ","    ") : "this" : "null");
   }
 }

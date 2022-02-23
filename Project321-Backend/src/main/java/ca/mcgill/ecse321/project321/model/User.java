@@ -10,10 +10,10 @@ import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 
 // line 4 "../../../../../../model.ump"
-// line 134 "../../../../../../model.ump"
+// line 118 "../../../../../../model.ump"
 @Entity
-@Table(name = "_users_")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Table(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User
 {
 
@@ -36,6 +36,8 @@ public abstract class User
     name = aName;
     password = aPassword;
   }
+
+  public User() {}
 
   //------------------------
   // INTERFACE
