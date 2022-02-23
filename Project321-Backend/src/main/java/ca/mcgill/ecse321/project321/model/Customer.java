@@ -43,6 +43,7 @@ public class Customer extends User
 
   public Customer() {
     super();
+    carts = new ArrayList<Cart>();
   }
 
   //------------------------
@@ -74,10 +75,10 @@ public class Customer extends User
     return aCart;
   }
 
-  @OneToMany(cascade = {CascadeType.ALL})
+  @OneToMany(cascade = CascadeType.ALL)
   public List<Cart> getCarts()
   {
-    List<Cart> newCarts = Collections.unmodifiableList(carts);
+    List<Cart> newCarts = new ArrayList<Cart>(carts);
     return newCarts;
   }
 

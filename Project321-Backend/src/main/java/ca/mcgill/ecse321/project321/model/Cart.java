@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -56,7 +55,9 @@ public class Cart
     cartItems = new ArrayList<CartItem>();
   }
 
-  public Cart() {}
+  public Cart() {
+    cartItems = new ArrayList<CartItem>();
+  }
 
   //------------------------
   // INTERFACE
@@ -90,8 +91,7 @@ public class Cart
     return cartId;
   }
   /* Code from template association_GetOne */
-  @ManyToOne()
-  @JoinColumn(name = "customer_email")
+  @ManyToOne(cascade = CascadeType.MERGE)
   public Customer getCustomer()
   {
     return customer;

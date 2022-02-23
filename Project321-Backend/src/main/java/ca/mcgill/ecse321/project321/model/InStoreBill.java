@@ -42,7 +42,9 @@ public class InStoreBill
     cartItems = new ArrayList<CartItem>();
   }
 
-  public InStoreBill() {}
+  public InStoreBill() {
+    cartItems = new ArrayList<CartItem>();
+  }
 
   //------------------------
   // INTERFACE

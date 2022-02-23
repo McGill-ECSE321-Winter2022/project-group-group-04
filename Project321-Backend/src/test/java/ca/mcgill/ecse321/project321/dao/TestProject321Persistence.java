@@ -108,6 +108,37 @@ public class TestProject321Persistence {
 
 		
 	}
+
+	@Test
+    public void testPersistAndLoadProduct() {
+		
+		String productName = "Apple";
+		String isAvailableOnline = "Yes";
+		int price = 3;
+		int stock = 100;
+		PriceType priceType = PriceType.PER_UNIT;
+		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
+  
+		productRepository.save(product);
+		product = null;
+		
+		product = productRepository.findByProductName(productName);
+		assertNotNull(product);
+		assertEquals(product.getProductName(),productName);
+		assertEquals(product.getIsAvailableOnline(),isAvailableOnline);
+		assertEquals(product.getPrice(),price);
+		assertEquals(product.getStock(),stock);
+		assertEquals(product.getPriceType(),priceType);
+		
+	}
+
+	@Test
+    public void testPersistAndLoadTimeSlot() {
+		
+			 TimeSlot testSlot = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(12, 00)), 
+					 java.sql.Time.valueOf(LocalTime.of(14, 00)), java.sql.Date.valueOf(LocalDate.now()), 100);
+			 timeslotRepository.save(testSlot); 
+	}
 	
 //Read and Write test for Cart Class
 	@Test
@@ -132,9 +163,6 @@ public class TestProject321Persistence {
 		  Cart testCart = new Cart(ShoppingType.Delivery, customer);
 		  
 		  cartRepository.save(testCart);
-
-		
-		
 	}
 
 	@Test
@@ -149,7 +177,7 @@ public class TestProject321Persistence {
 		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
 		productRepository.save(product);
 		
-		CartItem cartItem = new CartItem(3, product);
+		CartItem cartItem = new CartItem(quantity, product);
 		cartItemRepository.save(cartItem);
 		
 		cartItem=null;
@@ -200,6 +228,21 @@ public class TestProject321Persistence {
 		  assertEquals(customer.getAddress().getPostalCode(),postalCode);
 		  assertEquals(customer.getAddress().getUnit(),unit);
 
+	}
+
+	@Test
+    public void testPersistAndLoadShift() {
+		  String email = "employee@mail.com";
+		  String name = "TestEmployee";
+		  String password = "Testpassword";
+		  EmployeeStatus employeeStatus = EmployeeStatus.Active;	  
+		  Employee employee = new Employee(email, name, password, employeeStatus);	  
+		  employeeRepository.save(employee);
+		  
+		  Shift testShift = new Shift(java.sql.Time.valueOf(LocalTime.of(11, 35)),
+				  java.sql.Time.valueOf(LocalTime.of(15, 35)), java.sql.Date.valueOf(LocalDate.now()), employee);
+		  shiftRepository.save(testShift);
+		
 	}
 
 	@Test
@@ -296,45 +339,6 @@ public class TestProject321Persistence {
 	}
 	
 	@Test
-    public void testPersistAndLoadProduct() {
-		
-		String productName = "Apple";
-		String isAvailableOnline = "Yes";
-		int price = 3;
-		int stock = 100;
-		PriceType priceType = PriceType.PER_UNIT;
-		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
-  
-		productRepository.save(product);
-		product = null;
-		
-		product = productRepository.findByProductName(productName);
-		assertNotNull(product);
-		assertEquals(product.getProductName(),productName);
-		assertEquals(product.getIsAvailableOnline(),isAvailableOnline);
-		assertEquals(product.getPrice(),price);
-		assertEquals(product.getStock(),stock);
-		assertEquals(product.getPriceType(),priceType);
-		
-	}
-	
-
-	@Test
-    public void testPersistAndLoadShift() {
-		  String email = "employee@mail.com";
-		  String name = "TestEmployee";
-		  String password = "Testpassword";
-		  EmployeeStatus employeeStatus = EmployeeStatus.Active;	  
-		  Employee employee = new Employee(email, name, password, employeeStatus);	  
-		  employeeRepository.save(employee);
-		  
-		  Shift testShift = new Shift(java.sql.Time.valueOf(LocalTime.of(11, 35)),
-				  java.sql.Time.valueOf(LocalTime.of(15, 35)), java.sql.Date.valueOf(LocalDate.now()), employee);
-		  shiftRepository.save(testShift);
-		
-	}
-	
-	@Test
     public void testPersistAndLoadStoreOwner() {
 		  
 		  String email = "owner@mail.com";
@@ -355,12 +359,8 @@ public class TestProject321Persistence {
 	}
 
 	@Test
-    public void testPersistAndLoadTimeSlot() {
+	public void testPersistAndLoadStore() {
 		
-			 TimeSlot testSlot = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(12, 00)), 
-					 java.sql.Time.valueOf(LocalTime.of(14, 00)), java.sql.Date.valueOf(LocalDate.now()), 100);
-			 timeslotRepository.save(testSlot); 
 	}
-
 
 }
