@@ -5,15 +5,13 @@ package ca.mcgill.ecse321.project321.model;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-// line 61 "../../../../../../model.ump"
-// line 158 "../../../../../../model.ump"
+// line 84 "../../../../../../model.ump"
+// line 202 "../../../../../../model.ump"
 @Entity
 public class CartItem
 {
@@ -44,8 +42,6 @@ public class CartItem
       throw new RuntimeException("Unable to create CartItem due to aProduct. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
-
-  public CartItem() {}
 
   //------------------------
   // INTERFACE
@@ -85,8 +81,7 @@ public class CartItem
     return product;
   }
   /* Code from template association_GetOne */
-  @ManyToOne()
-  @JoinColumn(name = "cart_id")
+  @ManyToOne(cascade = CascadeType.MERGE)
   public Cart getCart()
   {
     return cart;
@@ -98,7 +93,7 @@ public class CartItem
     return has;
   }
   /* Code from template association_GetOne */
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne(cascade = CascadeType.MERGE)
   public InStoreBill getInStoreBill()
   {
     return inStoreBill;
@@ -120,37 +115,19 @@ public class CartItem
     }
     return wasSet;
   }
-  /* Code from template association_SetOptionalOneToMany */
-  public boolean setCart(Cart aCart)
+  /* Code from template association_SetUnidirectionalOptionalOne */
+  public boolean setCart(Cart aNewCart)
   {
     boolean wasSet = false;
-    Cart existingCart = cart;
-    cart = aCart;
-    if (existingCart != null && !existingCart.equals(aCart))
-    {
-      existingCart.removeCartItem(this);
-    }
-    if (aCart != null)
-    {
-      aCart.addCartItem(this);
-    }
+    cart = aNewCart;
     wasSet = true;
     return wasSet;
   }
-  /* Code from template association_SetOptionalOneToMany */
-  public boolean setInStoreBill(InStoreBill aInStoreBill)
+  /* Code from template association_SetUnidirectionalOptionalOne */
+  public boolean setInStoreBill(InStoreBill aNewInStoreBill)
   {
     boolean wasSet = false;
-    InStoreBill existingInStoreBill = inStoreBill;
-    inStoreBill = aInStoreBill;
-    if (existingInStoreBill != null && !existingInStoreBill.equals(aInStoreBill))
-    {
-      existingInStoreBill.removeCartItem(this);
-    }
-    if (aInStoreBill != null)
-    {
-      aInStoreBill.addCartItem(this);
-    }
+    inStoreBill = aNewInStoreBill;
     wasSet = true;
     return wasSet;
   }
@@ -158,18 +135,13 @@ public class CartItem
   public void delete()
   {
     product = null;
-    if (cart != null)
-    {
-      Cart placeholderCart = cart;
-      this.cart = null;
-      placeholderCart.removeCartItem(this);
-    }
-    if (inStoreBill != null)
-    {
-      InStoreBill placeholderInStoreBill = inStoreBill;
-      this.inStoreBill = null;
-      placeholderInStoreBill.removeCartItem(this);
-    }
+    cart = null;
+    inStoreBill = null;
+  }
+
+  // line 92 "../../../../../../model.ump"
+   public  CartItem(){
+    
   }
 
 

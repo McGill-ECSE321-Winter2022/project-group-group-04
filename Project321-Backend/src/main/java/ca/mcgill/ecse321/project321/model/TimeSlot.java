@@ -11,8 +11,8 @@ import javax.persistence.Id;
 
 import java.sql.Date;
 
-// line 68 "../../../../../../model.ump"
-// line 164 "../../../../../../model.ump"
+// line 95 "../../../../../../model.ump"
+// line 177 "../../../../../../model.ump"
 @Entity
 public class TimeSlot
 {
@@ -40,8 +40,6 @@ public class TimeSlot
     maxOrderPerSlot = aMaxOrderPerSlot;
     timeSlotId = 0;
   }
-
-  public TimeSlot() {}
 
   //------------------------
   // INTERFACE
@@ -116,6 +114,11 @@ public class TimeSlot
 
   public void delete()
   {}
+
+  // line 103 "../../../../../../model.ump"
+   public  TimeSlot(){
+    
+  }
 
 
   public String toString()

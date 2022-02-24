@@ -6,6 +6,8 @@ class User
   email;
   name;
   password;
+  
+  public User() {}
 }
 
 class Customer
@@ -13,11 +15,15 @@ class Customer
   isA User;
   phone;
   * Customer -> 1 Address;
+  
+  public Customer() { super(); }
 }
 
 class StoreOwner
 {
   isA User;
+  
+  public StoreOwner() { super(); }
 }
 
 class Employee
@@ -25,24 +31,31 @@ class Employee
   isA User;
   enum EmployeeStatus {Sick, Inactive, Active}  
   EmployeeStatus status;
+  
+  public Employee() { super(); }
 }
 
 class Cart
 {
   enum ShoppingType {Delivery, Pickup};
   ShoppingType type;
-  * -<@> 1 Customer;
-  * -> * CartItem;
-  * -> 1 TimeSlot;
-  1 <@>- 0..1 Order;
+  * -> 1 Customer;
+  * -> 0..1 TimeSlot;
+  lazy Integer cartId;
+  
+  public Cart() {}
 }
 
 class Order
 {
+  lazy Integer orderId;
   Boolean completed;
   Date orderDate;
   Integer total;
   payment;
+  * -> 1 Cart;
+  
+  public Order() {}
 }
 
 class Product
@@ -53,12 +66,19 @@ class Product
   isAvailableOnline;
   Integer price;
   Integer stock;
+  
+  public Product() {}
 }
 
 class CartItem
 {
   Integer quantity;
   * -> 1 Product;
+  lazy Integer cartItemId;
+  * -> 0..1 Cart;
+  * -> 0..1 InStoreBill;
+  
+  public CartItem() {}
 }
 
 class TimeSlot
@@ -67,15 +87,9 @@ class TimeSlot
   Time endTime;
   Date date;
   Integer maxOrderPerSlot;
-  * -> 1 Day;
-}
-
-class Day
-{
-    enum WeekDays {Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday} 
-  WeekDays day;
-  Time storeStartHour;
-  Time storeEndHour;
+  lazy Integer timeSlotId;
+  
+  public TimeSlot() {}
 }
 
 class Shift
@@ -83,8 +97,10 @@ class Shift
   Time startHour;
   Time endHour;
   Date date;
-  * -> 1 Day;
   * -> 1 Employee;
+  lazy Integer shiftId;
+  
+  public Shift() {}
 }
 
 class Address
@@ -93,26 +109,29 @@ class Address
   street;
   postalCode;
   Integer unit;
+  lazy Integer addressId;
+  
+  public Address() {}
 }
 
 class InStoreBill
 {
-  * -> * CartItem;
   Integer total;
-  Date purchaseDate; 
+  Date purchaseDate;
+  lazy Integer inStoreBillId;
+  
+  public InStoreBill() {}
 }
 
-class TheGroceryStoreSystem
+class Store
 {
-  1 <@>- 1 StoreOwner;
-  1 <@>- * Employee;
-  1 <@>- * Customer;
-  1 <@>- * Product;
-  1 <@>- * TimeSlot;
-  1 <@>- * Shift;
-  1 <@>- 7 Day;
-  1 <@>- 1 Address;
-  1 <@>- * InStoreBill;
   telephone;
   email;
+  Time openingHour;
+  Time closingHour;
+  * -> 1 StoreOwner;
+  * -> 1 Address;
+  lazy Integer storeId;
+  
+  public Store() {}
 }
