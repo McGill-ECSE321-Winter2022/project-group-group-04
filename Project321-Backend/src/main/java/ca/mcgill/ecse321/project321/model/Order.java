@@ -9,12 +9,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-// line 42 "../../../../../../model.ump"
-// line 148 "../../../../../../model.ump"
+// line 60 "../../../../../../model.ump"
+// line 215 "../../../../../../model.ump"
 @Entity
 @Table(name = "orders")
 public class Order
@@ -45,14 +45,11 @@ public class Order
     orderDate = aOrderDate;
     total = aTotal;
     payment = aPayment;
-    boolean didAddCart = setCart(aCart);
-    if (!didAddCart)
+    if (!setCart(aCart))
     {
-      throw new RuntimeException("Unable to create order due to cart. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+      throw new RuntimeException("Unable to create Order due to aCart. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
   }
-
-  public Order() {}
 
   //------------------------
   // INTERFACE
@@ -130,48 +127,31 @@ public class Order
     return completed;
   }
   /* Code from template association_GetOne */
-  @OneToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(cascade = {CascadeType.MERGE})
   public Cart getCart()
   {
     return cart;
   }
-  /* Code from template association_SetOneToOptionalOne */
+  /* Code from template association_SetUnidirectionalOne */
   public boolean setCart(Cart aNewCart)
   {
     boolean wasSet = false;
-    if (aNewCart == null)
+    if (aNewCart != null)
     {
-      //Unable to setCart to null, as order must always be associated to a cart
-      return wasSet;
+      cart = aNewCart;
+      wasSet = true;
     }
-    
-    Order existingOrder = aNewCart.getOrder();
-    if (existingOrder != null && !equals(existingOrder))
-    {
-      //Unable to setCart, the current cart already has a order, which would be orphaned if it were re-assigned
-      return wasSet;
-    }
-    
-    Cart anOldCart = cart;
-    cart = aNewCart;
-    cart.setOrder(this);
-
-    if (anOldCart != null)
-    {
-      anOldCart.setOrder(null);
-    }
-    wasSet = true;
     return wasSet;
   }
 
   public void delete()
   {
-    Cart existingCart = cart;
     cart = null;
-    if (existingCart != null)
-    {
-      existingCart.setOrder(null);
-    }
+  }
+
+  // line 69 "../../../../../../model.ump"
+   public  Order(){
+    
   }
 
 

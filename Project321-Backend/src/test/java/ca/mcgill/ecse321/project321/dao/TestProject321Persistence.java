@@ -1,8 +1,6 @@
 package ca.mcgill.ecse321.project321.dao;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,6 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.List;
 
 import ca.mcgill.ecse321.project321.model.Address;
@@ -29,7 +26,6 @@ import ca.mcgill.ecse321.project321.model.Cart.ShoppingType;
 import ca.mcgill.ecse321.project321.model.Employee;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
-import ch.qos.logback.classic.spi.STEUtil;
 import ca.mcgill.ecse321.project321.model.Shift;
 import ca.mcgill.ecse321.project321.model.InStoreBill;
 
@@ -37,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @ExtendWith(SpringExtension.class)
@@ -263,7 +258,7 @@ public class TestProject321Persistence {
 
 		TimeSlot testSlot2 = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(14, 35)),
 				java.sql.Time.valueOf(LocalTime.of(15, 35)), java.sql.Date.valueOf(LocalDate.now()), 20);
-		timeslotRepository.save(testSlot);
+		timeslotRepository.save(testSlot2);
 
 		testCart.setCustomer(customer2);
 		testCart.setTimeSlot(testSlot2);
@@ -271,7 +266,7 @@ public class TestProject321Persistence {
 
 		testCart = null;
 
-		cartList = cartRepository.findByCustomer(customer);
+		cartList = cartRepository.findByCustomer(customer2);
 		assertNotEquals(cartList.size(), 0);
 		testCart = cartList.get(0);
 		assertNotNull(testCart);
@@ -315,7 +310,8 @@ public class TestProject321Persistence {
 		cartItemRepository.save(cartItem);
 		
 		cartItem=null;
-		cartItemlist = cartItemRepository.findByProductAndQuantity(product, quantity);
+		cartItemlist = cartItemRepository.findByProductAndQuantity(product, newQuantity);
+		assertNotEquals(cartItemlist.size(), 0);
 		cartItem = cartItemlist.get(0);
 		assertNotNull(cartItem);
 		assertEquals(cartItem.getQuantity(), newQuantity);
@@ -333,7 +329,8 @@ public class TestProject321Persistence {
 		cartItemRepository.save(cartItem);
 		
 		cartItem=null;
-		cartItemlist = cartItemRepository.findByProductAndQuantity(product, quantity);
+		cartItemlist = cartItemRepository.findByProductAndQuantity(product2, newQuantity);
+		assertNotEquals(cartItemlist.size(), 0);
 		cartItem = cartItemlist.get(0);
 		assertNotNull(cartItem);
 		assertEquals(cartItem.getProduct().getProductName(), product2.getProductName());
@@ -357,6 +354,7 @@ public class TestProject321Persistence {
 		  String postalCode = "TestPostalCode";
 		  int unit = 321;
 		  Address address = new Address(town,street,postalCode,unit);
+		  addressRepository.save(address);
 		  
 		  
 		  Customer customer = new Customer(email, name, password, phone, address);
@@ -376,6 +374,7 @@ public class TestProject321Persistence {
 		  assertEquals(customer.getAddress().getStreet(),street);
 		  assertEquals(customer.getAddress().getPostalCode(),postalCode);
 		  assertEquals(customer.getAddress().getUnit(),unit);
+		  assertEquals(customer.getAddress().getAddressId(),address.getAddressId());
 
 // Test for attribute persistence
 		  String newPhone = "000-2222";
@@ -388,18 +387,24 @@ public class TestProject321Persistence {
 		  assertEquals(customer.getPhone(),newPhone);
 	
 // Test reference persistence
-		  ShoppingType type = ShoppingType.Delivery;
-		  Cart testCart = new Cart(type, customer);
-		  cartRepository.save(testCart);
+		  String town2 = "TestTown2";
+		  String street2 = "TestStreet2";
+		  String postalCode2 = "TestPostalCode2";
+		  int unit2 = 3212;
+		  Address address2 = new Address(town2,street2,postalCode2,unit2);
+		  addressRepository.save(address2);
 
-		  customer.addCart(testCart);
+		  customer.setAddress(address2);
 		  customerRepository.save(customer);
-
+		  
 		  customer = null;
 		  customer = customerRepository.findByEmail(email);
 		  assertNotNull(customer);
-		  assertNotEquals(customer.getCarts().size(), 0);
-		  assertEquals(customer.getCarts().get(0).getCartId(), testCart.getCartId());
+		  assertEquals(customer.getAddress().getUnit(),address2.getUnit());
+		  assertEquals(customer.getAddress().getPostalCode(),address2.getPostalCode());
+		  assertEquals(customer.getAddress().getTown(),address2.getTown());
+		  assertEquals(customer.getAddress().getStreet(),address2.getStreet());
+		  assertEquals(customer.getAddress().getAddressId(),address2.getAddressId());
 	}
 
 	@Test
@@ -500,31 +505,20 @@ public class TestProject321Persistence {
 		testBill = tempList.get(0);
 //Write test for Class	
 		assertNotNull(testBill);
-//Read and Write tests for attributes, in turn Read test for InStoreBill Object
 		assertEquals(testBill.getTotal(), testTotal);
 		assertEquals(testBill.getPurchaseDate(), testDate);
-//Write test for attribute
-		testBill.setTotal(200);
-		assertEquals(testBill.getTotal(), 200); 
+
+// Test for attribute persistence
+		int newTotal = 200;
+		testBill.setTotal(newTotal);
+		inStoreBillRepository.save(testBill);
 		
-//Write and Read test for association
-		int quantity = 1;
-		String productName = "Apple";
-		String isAvailableOnline = "Yes";
-		int price = 3;
-		int stock = 100;
-		PriceType priceType = PriceType.PER_UNIT;
-		Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
-		productRepository.save(product);
-		CartItem cartItem = new CartItem(quantity, product);
-		ArrayList<CartItem> cartItemList = new ArrayList<CartItem>();
-		cartItemList.add(cartItem);
-		cartItemRepository.save(cartItem);
-		
-		testBill.setCartItems(cartItemList);
-		
-		assertTrue(testBill.hasCartItems());
-		assertEquals(testBill.getCartItem(0), cartItem);
+		testBill = null;
+		tempList = inStoreBillRepository.findByPurchaseDate(testDate);
+		assertNotEquals(tempList.size(), 0);
+		testBill = tempList.get(0);
+		assertNotNull(testBill);
+		assertEquals(testBill.getTotal(), newTotal);
 
 	}
 
@@ -595,7 +589,7 @@ public class TestProject321Persistence {
 
 		  TimeSlot testSlot2 = new TimeSlot(java.sql.Time.valueOf(LocalTime.of(15, 00)), 
 				 java.sql.Time.valueOf(LocalTime.of(16, 00)), java.sql.Date.valueOf(LocalDate.now()), 80);
-		timeslotRepository.save(testSlot);
+		timeslotRepository.save(testSlot2);
 		 
 		 Cart testCart2 = new Cart(ShoppingType.Delivery, customer2);
 		 testCart2.setTimeSlot(testSlot2);
@@ -605,13 +599,22 @@ public class TestProject321Persistence {
 		 orderRepository.save(testOrder);
 
 		 testOrder = null;
-		 testOrder = orderRepository.findByCart(testCart);
+		 testOrder = orderRepository.findByCart(testCart2);
 		 assertNotNull(testOrder);
 		 assertEquals(testOrder.getOrderDate(), date);
 		 assertEquals(testOrder.getCompleted(), comp);
-		 assertEquals(testOrder.getCart().getCartId(), testCart.getCartId());
-		 assertEquals(testOrder.getCart().getTimeSlot().getTimeSlotId(), testSlot.getTimeSlotId());
-		 assertEquals(testOrder.getTotal(), total);
+		 assertEquals(testOrder.getCart().getCartId(), testCart2.getCartId());
+		 assertEquals(testOrder.getCart().getType(), testCart2.getType());
+		 assertEquals(testOrder.getCart().getCustomer().getEmail(), testCart2.getCustomer().getEmail());
+		 assertEquals(testOrder.getCart().getCustomer().getName(), testCart2.getCustomer().getName());
+		 assertEquals(testOrder.getCart().getCustomer().getPassword(), testCart2.getCustomer().getPassword());
+		 assertEquals(testOrder.getCart().getCustomer().getPhone(), testCart2.getCustomer().getPhone());
+		 assertEquals(testOrder.getCart().getTimeSlot().getTimeSlotId(), testSlot2.getTimeSlotId());
+		 assertEquals(testOrder.getCart().getTimeSlot().getDate(), testSlot2.getDate());
+		 assertEquals(testOrder.getCart().getTimeSlot().getStartTime(), testSlot2.getStartTime());
+		 assertEquals(testOrder.getCart().getTimeSlot().getEndTime(), testSlot2.getEndTime());
+		 assertEquals(testOrder.getCart().getTimeSlot().getMaxOrderPerSlot(), testSlot2.getMaxOrderPerSlot());
+		 assertEquals(testOrder.getTotal(), newTotal);
 		 assertEquals(testOrder.getPayment(), payment);
 	}
 	
