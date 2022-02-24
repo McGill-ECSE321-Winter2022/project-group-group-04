@@ -22,6 +22,7 @@ public class TimeSlot
   //------------------------
 
   //TimeSlot Attributes
+
   private Time startTime;
   private Time endTime;
   private Date date;
@@ -104,6 +105,7 @@ public class TimeSlot
   {
     return maxOrderPerSlot;
   }
+
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)

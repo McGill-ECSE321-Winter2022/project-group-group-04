@@ -85,6 +85,7 @@ public class Cart
   {
     return customer;
   }
+
   /* Code from template association_GetOne */
   @ManyToOne(cascade = {CascadeType.MERGE})
   public TimeSlot getTimeSlot()

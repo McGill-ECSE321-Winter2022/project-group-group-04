@@ -35,6 +35,7 @@ public class Address
     street = aStreet;
     postalCode = aPostalCode;
     unit = aUnit;
+
     addressId = 0;
   }
 
@@ -113,7 +114,6 @@ public class Address
 
   public void delete()
   {}
-
 
   public String toString()
   {

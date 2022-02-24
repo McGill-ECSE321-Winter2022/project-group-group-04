@@ -87,6 +87,11 @@ public class TestProject321Persistence {
 		
 		// Then we can clear the other tables
 	}
+	
+	@Test
+	public void StartOver() {
+		clearDatabase();
+	}
 
 //Read and Write test for Address Class 
 	@Test 

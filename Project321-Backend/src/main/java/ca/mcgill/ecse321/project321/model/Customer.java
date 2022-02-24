@@ -59,6 +59,7 @@ public class Customer extends User
   {
     return address;
   }
+
   /* Code from template association_SetUnidirectionalOne */
   public boolean setAddress(Address aNewAddress)
   {

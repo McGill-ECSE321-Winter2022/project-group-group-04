@@ -32,6 +32,7 @@ public class InStoreBill
   {
     total = aTotal;
     purchaseDate = aPurchaseDate;
+
     inStoreBillId = 0;
   }
 
@@ -92,6 +93,7 @@ public class InStoreBill
   public String toString()
   {
     return super.toString() + "["+
+
             "total" + ":" + getTotal()+ "," +
             "inStoreBillId" + ":" + getInStoreBillId()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "purchaseDate" + "=" + (getPurchaseDate() != null ? !getPurchaseDate().equals(this)  ? getPurchaseDate().toString().replaceAll("  ","    ") : "this" : "null");

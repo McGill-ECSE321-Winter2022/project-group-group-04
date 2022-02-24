@@ -113,6 +113,7 @@ public class Shift
   {
     return employee;
   }
+
   /* Code from template association_SetUnidirectionalOne */
   public boolean setEmployee(Employee aNewEmployee)
   {

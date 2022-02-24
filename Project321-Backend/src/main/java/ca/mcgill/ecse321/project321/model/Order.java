@@ -101,7 +101,6 @@ public class Order
   {
     return orderId;
   }
-
   public boolean getCompleted()
   {
     return completed;
