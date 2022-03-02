@@ -107,9 +107,10 @@ public class GroceryStoreService {
     }
 
     @Transactional
-    public void setTimeSlot(Cart cart, TimeSlot timeSlot) {
+    public Cart setTimeSlot(Cart cart, TimeSlot timeSlot) {
         cart.setTimeSlot(timeSlot);
         cartRepository.save(cart);
+        return cart;
     }
 
     @Transactional
@@ -218,6 +219,10 @@ public class GroceryStoreService {
     /* Store Owner-related service methods ----------------------------------------------------------------------- */
 
     /* Time Slot-related service methods ------------------------------------------------------------------------- */
+    @Transactional
+    public List<TimeSlot> getAllTimeSlots() {
+        return toList(timeslotRepository.findAll());
+    }
 
     /* Helper methods -------------------------------------------------------------------------------------------- */
     private <T> List<T> toList(Iterable<T> iterable){
