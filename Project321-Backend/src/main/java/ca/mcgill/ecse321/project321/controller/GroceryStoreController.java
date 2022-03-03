@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ca.mcgill.ecse321.project321.Project321BackendApplication;
 import ca.mcgill.ecse321.project321.dao.CartItemRepository;
 import ca.mcgill.ecse321.project321.dto.AddressDTO;
 import ca.mcgill.ecse321.project321.dto.CartDTO;
@@ -20,6 +21,7 @@ import ca.mcgill.ecse321.project321.dto.EmployeeDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO.EmployeeStatusDTO;
 import ca.mcgill.ecse321.project321.dto.ProductDTO;
 import ca.mcgill.ecse321.project321.dto.TimeSlotDTO;
+import ca.mcgill.ecse321.project321.dto.UserDTO;
 import ca.mcgill.ecse321.project321.dto.CartDTO.ShoppingTypeDTO;
 import ca.mcgill.ecse321.project321.dto.ProductDTO.PriceTypeDTO;
 import ca.mcgill.ecse321.project321.dto.StoreOwnerDTO;
@@ -94,6 +96,60 @@ public class GroceryStoreController {
         Employee c = service.createEmployee(email, name, password, translateEnum(status));
         System.out.println(c.getName());
         return convertToDTO(c);
+    }
+    
+    @PostMapping(value = {"/login", "/login/"})
+    public UserDTO login(@RequestParam(name = "email")     String email, 
+                         @RequestParam(name = "password")  String password, 
+                         @RequestParam(name = "userType")  String userType)
+    throws IllegalArgumentException {
+    	switch (userType.toLowerCase()) {
+		case "owner":
+		case "storeowner":
+			StoreOwnerDTO so =convertToDTO(service.getStoreOwner(email));
+			if (so != null) {
+				if (so.getPassword().equals(password)) {
+					Project321BackendApplication.setCurrentUser(so);
+					Project321BackendApplication.setUserType("owner");
+					return so;
+				}
+				else {
+					throw new IllegalArgumentException("password do not match");
+				}
+			}
+			break;
+			
+		case "customer":
+			CustomerDTO c =convertToDTO(service.getCustomer(email));
+			if (c != null) {
+				if (c.getPassword().equals(password)) {
+					Project321BackendApplication.setCurrentUser(c);
+					Project321BackendApplication.setUserType("customer");
+					return c;
+				}
+				else {
+					throw new IllegalArgumentException("password do not match");
+				}
+			}
+			break;
+			
+		case "employee":
+			EmployeeDTO e =convertToDTO(service.getEmployee(email));
+			if (e != null) {
+				if (e.getPassword().equals(password)) {
+					Project321BackendApplication.setCurrentUser(e);
+					Project321BackendApplication.setUserType("employee");
+					return e;
+				}
+				else {
+					throw new IllegalArgumentException("password do not match");
+				}
+			}
+			break;
+		default:
+			break;
+		}
+    	return null;
     }
     
     @GetMapping(value = {"/carts", "/carts/"})
