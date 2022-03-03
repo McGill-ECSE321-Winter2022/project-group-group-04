@@ -21,13 +21,16 @@ import ca.mcgill.ecse321.project321.dao.StoreOwnerRepository;
 import ca.mcgill.ecse321.project321.dao.StoreRepository;
 import ca.mcgill.ecse321.project321.dao.TimeslotRepository;
 import ca.mcgill.ecse321.project321.dao.UserRepository;
+import ca.mcgill.ecse321.project321.dto.EmployeeDTO.EmployeeStatusDTO;
 import ca.mcgill.ecse321.project321.model.Address;
 import ca.mcgill.ecse321.project321.model.Cart;
 import ca.mcgill.ecse321.project321.model.CartItem;
 import ca.mcgill.ecse321.project321.model.Customer;
+import ca.mcgill.ecse321.project321.model.Employee;
 import ca.mcgill.ecse321.project321.model.InStoreBill;
 import ca.mcgill.ecse321.project321.model.Order;
 import ca.mcgill.ecse321.project321.model.Product;
+import ca.mcgill.ecse321.project321.model.StoreOwner;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
 
 @Service
@@ -208,6 +211,19 @@ public class GroceryStoreService {
     }
     /* Employee-related service methods -------------------------------------------------------------------------- */
 
+    @Transactional
+    public Employee createEmployee(String email, String name, String password, Employee.EmployeeStatus status) {
+        if( employeeRepository.findByEmail(email) != null ) return null; // Customer already exists
+        Employee employee = new Employee(email, name, password, status);
+        employeeRepository.save(employee);
+        return employee;
+    }
+    
+    @Transactional
+    public Employee getEmployee(String email) {
+        return employeeRepository.findByEmail(email);
+    }
+    
     /* In-Store Bill-related service methods --------------------------------------------------------------------- */
 
     /* Product-related service methods --------------------------------------------------------------------------- */
@@ -218,6 +234,21 @@ public class GroceryStoreService {
 
     /* Store Owner-related service methods ----------------------------------------------------------------------- */
 
+    @Transactional
+    public StoreOwner createStoreOwner(String email, String name, String password) {
+        if( storeOwnerRepository.findByEmail(email) != null ) return null; // Customer already exists
+        StoreOwner storeOwner = new StoreOwner(email, name, password);
+        storeOwnerRepository.save(storeOwner);
+        return storeOwner;
+    }
+    
+    @Transactional
+    public StoreOwner getStoreOwner(String email) {
+        return storeOwnerRepository.findByEmail(email);
+    }
+    
+    
+    
     /* Time Slot-related service methods ------------------------------------------------------------------------- */
     @Transactional
     public List<TimeSlot> getAllTimeSlots() {

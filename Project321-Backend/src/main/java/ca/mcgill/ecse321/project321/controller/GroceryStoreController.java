@@ -16,18 +16,24 @@ import ca.mcgill.ecse321.project321.dto.AddressDTO;
 import ca.mcgill.ecse321.project321.dto.CartDTO;
 import ca.mcgill.ecse321.project321.dto.CartItemDTO;
 import ca.mcgill.ecse321.project321.dto.CustomerDTO;
+import ca.mcgill.ecse321.project321.dto.EmployeeDTO;
+import ca.mcgill.ecse321.project321.dto.EmployeeDTO.EmployeeStatusDTO;
 import ca.mcgill.ecse321.project321.dto.ProductDTO;
 import ca.mcgill.ecse321.project321.dto.TimeSlotDTO;
 import ca.mcgill.ecse321.project321.dto.CartDTO.ShoppingTypeDTO;
 import ca.mcgill.ecse321.project321.dto.ProductDTO.PriceTypeDTO;
+import ca.mcgill.ecse321.project321.dto.StoreOwnerDTO;
 import ca.mcgill.ecse321.project321.model.Address;
 import ca.mcgill.ecse321.project321.model.Cart;
 import ca.mcgill.ecse321.project321.model.CartItem;
 import ca.mcgill.ecse321.project321.model.Customer;
+import ca.mcgill.ecse321.project321.model.Employee;
+import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
 import ca.mcgill.ecse321.project321.model.Product;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
 import ca.mcgill.ecse321.project321.model.Cart.ShoppingType;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
+import ca.mcgill.ecse321.project321.model.StoreOwner;
 import ca.mcgill.ecse321.project321.service.GroceryStoreService;
 
 @CrossOrigin(origins = "*")
@@ -55,9 +61,41 @@ public class GroceryStoreController {
                                       @RequestParam(name = "address")   AddressDTO address) 
     throws IllegalArgumentException {
         Customer c = service.createCustomer(email, name, password, phone, convertToDomainObject(address));
+        //System.out.println(c.getName());
+        return convertToDTO(c);
+    }
+    
+    @GetMapping(value = {"/storeOwners/{email}", "/storeOwners/{email}/"})
+    public StoreOwnerDTO getStoreOwnerDTO(@PathVariable("email") String email) throws IllegalArgumentException{
+        return convertToDTO(service.getStoreOwner(email));
+    }
+    
+    @PostMapping(value = {"/storeOwners", "/storeOwners/"})
+    public StoreOwnerDTO createStoreOwner(@RequestParam(name = "email")     String email, 
+                                      @RequestParam(name = "name")      String name, 
+                                      @RequestParam(name = "password")  String password) 
+    throws IllegalArgumentException {
+        StoreOwner c = service.createStoreOwner(email, name, password);
+        System.out.println(c.getName());
         return convertToDTO(c);
     }
 
+    @GetMapping(value = {"/employee/{email}", "/employee/{email}/"})
+    public EmployeeDTO getEmployee(@PathVariable("email") String email) throws IllegalArgumentException{
+        return convertToDTO(service.getEmployee(email));
+    }
+    
+    @PostMapping(value = {"/employee", "/employee/"})
+    public EmployeeDTO createEmployee(@RequestParam(name = "email")     String email, 
+                                      @RequestParam(name = "name")      String name, 
+                                      @RequestParam(name = "password")  String password,
+                                      @RequestParam(name = "status")     EmployeeStatusDTO status) 
+    throws IllegalArgumentException {
+        Employee c = service.createEmployee(email, name, password, translateEnum(status));
+        System.out.println(c.getName());
+        return convertToDTO(c);
+    }
+    
     @GetMapping(value = {"/carts", "/carts/"})
     public List<CartDTO> getAllCarts() throws IllegalArgumentException {
         return convertCartListToDTO(service.getAllCarts());
@@ -87,6 +125,18 @@ public class GroceryStoreController {
         CustomerDTO c = new CustomerDTO(customer.getEmail(), customer.getName(), customer.getPassword(), 
                                         customer.getPhone(), address);
         return c;
+    }
+    
+    private StoreOwnerDTO convertToDTO(StoreOwner storeOwner) {
+        if(storeOwner == null) throw new IllegalArgumentException("Store Owner does not exist");
+        StoreOwnerDTO so = new StoreOwnerDTO(storeOwner.getEmail(), storeOwner.getName(), storeOwner.getPassword());
+        return so;
+    }
+    
+    private EmployeeDTO convertToDTO(Employee employee) {
+        if(employee == null) throw new IllegalArgumentException("Employee does not exist");
+        EmployeeDTO e = new EmployeeDTO(employee.getEmail(), employee.getName(), employee.getPassword(), translateEnum(employee.getStatus()));
+        return e;
     }
 
     private AddressDTO convertToDTO(Address address) {
@@ -196,6 +246,32 @@ public class GroceryStoreController {
                 return ShoppingType.Delivery;
             case Pickup:
                 return ShoppingType.Pickup;
+            default:
+                return null;
+        }
+    }
+    
+    private EmployeeDTO.EmployeeStatusDTO translateEnum(Employee.EmployeeStatus status) {
+        switch(status) {
+	        case Sick:
+	            return EmployeeStatusDTO.Sick;
+	        case Inactive:
+	            return EmployeeStatusDTO.Inactive;
+	        case Active:
+	            return EmployeeStatusDTO.Active;
+	        default:
+	            return null;
+        }
+    }
+    
+    private Employee.EmployeeStatus translateEnum(EmployeeDTO.EmployeeStatusDTO type) {
+        switch(type) {
+            case Sick:
+                return EmployeeStatus.Sick;
+            case Inactive:
+                return EmployeeStatus.Inactive;
+            case Active:
+                return EmployeeStatus.Active;
             default:
                 return null;
         }

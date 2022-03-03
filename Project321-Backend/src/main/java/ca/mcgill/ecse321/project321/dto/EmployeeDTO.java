@@ -4,32 +4,33 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 public class EmployeeDTO extends UserDTO {
 	
-	public enum EmployeeStatus { 
+	public enum EmployeeStatusDTO { 
 		Sick,
 		Inactive,
 		Active 
 	}
-	private EmployeeStatus status;
+	private EmployeeStatusDTO status;
 	private List<ShiftDTO> shifts;
 	
 	public EmployeeDTO() {
 		super();
 	}
 	
-	public EmployeeDTO(String email, String name, String password, EmployeeStatus status, List<ShiftDTO> shifts) {
+	public EmployeeDTO(String email, String name, String password, EmployeeStatusDTO status, List<ShiftDTO> shifts) {
 		super(email, name, password);
 		this.status = status;
 		this.shifts = new ArrayList<ShiftDTO>(shifts);
 	}
 	
     @SuppressWarnings("unchecked")
-    public EmployeeDTO(String email, String name, String password, EmployeeStatus status) {
+    public EmployeeDTO(String email, String name, String password, EmployeeStatusDTO status) {
         this(email, name, password, status, Collections.EMPTY_LIST);
     }
     
-    public EmployeeStatus getStatus() {
+    public EmployeeStatusDTO getStatus() {
 		return this.status;
 	}
     
