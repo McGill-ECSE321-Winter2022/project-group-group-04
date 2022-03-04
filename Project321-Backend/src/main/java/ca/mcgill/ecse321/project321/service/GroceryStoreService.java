@@ -232,6 +232,11 @@ public class GroceryStoreService {
         return toList(employeeRepository.findAll());
     }
     
+    @Transactional
+    public void removeEmployee(Employee employee) {
+    	employeeRepository.delete(employee);
+    }
+    
     /* In-Store Bill-related service methods --------------------------------------------------------------------- */
 
     /* Product-related service methods --------------------------------------------------------------------------- */

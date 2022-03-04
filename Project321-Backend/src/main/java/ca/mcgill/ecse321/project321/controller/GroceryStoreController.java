@@ -169,6 +169,42 @@ public class GroceryStoreController {
         c = service.setTimeSlot(c, convertToDomainObject(timeSlot));
         return convertToDTO(c);
     }
+    /**
+     * This implements Req. 06
+     * The Grocery Store System shall allow the owner to remove or add employees on the employment list.
+     * Deleting employ does not return anything. Just outputs string "Employee deleted" upon success.
+     * @return returns the newly added employee
+     * @throws IllegalArgumentException if userType is not owner
+     */
+    @PostMapping(value = {"/addemployee", "/addemployee/"})
+    public EmployeeDTO owneraddEmployee(@RequestParam(name = "email")     String email, 
+            @RequestParam(name = "name")      String name, 
+            @RequestParam(name = "password")  String password,
+            @RequestParam(name = "status")     EmployeeStatusDTO status) throws IllegalArgumentException {
+    	if(Project321BackendApplication.getUserType().equalsIgnoreCase("owner")) {
+    		Employee e = service.createEmployee(email, name, password, translateEnum(status));
+        	return convertToDTO(e);
+    	}
+    	else {
+    		throw new IllegalArgumentException("Only owner can do this!");
+    	}
+    }
+    @PostMapping(value = {"/removeemployee", "/removeemployee/"})
+    public void ownerremoveEmployee(@RequestParam(name = "email")     String email) {
+    	if(Project321BackendApplication.getUserType().equalsIgnoreCase("owner")) {
+    		Employee e = service.getEmployee(email);
+    		service.removeEmployee(e);
+    		System.out.println("Employee deleted");
+    	}
+    	else {
+    		throw new IllegalArgumentException("Only owner can do this!");
+    	}
+    }
+    
+    @GetMapping(value = {"/employees", "/employees/"})
+    public List<EmployeeDTO> getAllEmployee() throws IllegalArgumentException{
+        return convertEmployeeListToDTO(service.getAllEmployee());
+    }
     
     /**
      * This is an implementation for Req.04
@@ -238,6 +274,14 @@ public class GroceryStoreController {
             list.add(convertToDTO(c));
         }
         return null;
+    }
+    
+    private List<EmployeeDTO> convertEmployeeListToDTO(List<Employee> employees) throws IllegalArgumentException{
+        List<EmployeeDTO> list = new ArrayList<EmployeeDTO>();
+        for(Employee e : employees) {
+            list.add(convertToDTO(e));
+        }
+        return list;
     }
 
     private List<ShiftDTO> convertShiftListToDTO(List<Shift> shifts) throws IllegalArgumentException{
