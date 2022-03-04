@@ -1,6 +1,7 @@
 package ca.mcgill.ecse321.project321.service;
 
 import java.sql.Date;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +31,10 @@ import ca.mcgill.ecse321.project321.model.Employee;
 import ca.mcgill.ecse321.project321.model.InStoreBill;
 import ca.mcgill.ecse321.project321.model.Order;
 import ca.mcgill.ecse321.project321.model.Product;
+import ca.mcgill.ecse321.project321.model.Shift;
 import ca.mcgill.ecse321.project321.model.StoreOwner;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
+import ca.mcgill.ecse321.project321.model.Product.PriceType;
 
 @Service
 public class GroceryStoreService {
@@ -224,12 +227,53 @@ public class GroceryStoreService {
         return employeeRepository.findByEmail(email);
     }
     
+    @Transactional
+    public List<Employee> getAllEmployee() {
+        return toList(employeeRepository.findAll());
+    }
+    
     /* In-Store Bill-related service methods --------------------------------------------------------------------- */
 
     /* Product-related service methods --------------------------------------------------------------------------- */
 
+    @Transactional
+    public List<Product> getAllProduct() {
+        return toList(productRepository.findAll());
+    }
+    
+    @Transactional
+    public List<Product> getProductByStockGreaterThan(int limit) {
+    	return toList(productRepository.findByStockGreaterThan(limit));
+    }
+    
+    @Transactional
+    public Product createProduct(PriceType priceType, String productName, String isAvailableOnline, int price, int stock) {
+        if(productRepository.findByProductName(productName) != null ) return null; // Customer already exists
+        Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
+        productRepository.save(product);
+        return product;
+    }
+    
     /* Shift-related service methods ----------------------------------------------------------------------------- */
 
+    @Transactional
+    public Shift createShift(Time startHour, Time endHour, Date date, Employee employee) {
+        if(shiftRepository.findByDateAndEmployee(date, employee) != null ) return null; // Customer already exists
+        Shift shift = new Shift(startHour, endHour, date, employee);
+        shiftRepository.save(shift);
+        return shift;
+    }
+    
+    @Transactional
+    public List<Shift> getShiftByEmployee(Employee employee) {
+    	return toList(shiftRepository.findByEmployee(employee));
+    }
+    
+    @Transactional
+    public List<Shift> getAllShifts() {
+    	return toList(shiftRepository.findAll());
+    }
+    
     /* Store-related service methods ----------------------------------------------------------------------------- */
 
     /* Store Owner-related service methods ----------------------------------------------------------------------- */

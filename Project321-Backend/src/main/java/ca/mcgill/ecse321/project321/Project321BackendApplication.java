@@ -34,5 +34,13 @@ private static String userType;
 	public static void setUserType(String UserType) {
 		userType = UserType;
 	}
+	
+	public static UserDTO getCurrentUser() {
+		return currentUser;
+	}
+	
+	public static String getUserType() {
+		return userType;
+	}
 
 }

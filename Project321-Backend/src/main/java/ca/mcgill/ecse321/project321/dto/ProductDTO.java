@@ -24,4 +24,24 @@ public class ProductDTO {
         this.price = price;
     }
     
+    public PriceTypeDTO getPriceType() {
+		return priceType;
+	}
+    
+    public String getProductName() {
+		return productName;
+	}
+    
+    public String getIsAvailableOnline() {
+		return isAvailableOnline;
+	}
+    
+    public Integer getStock() {
+		return stock;
+	}
+    
+    public Integer getPrice() {
+		return price;
+	}
+    
 }
