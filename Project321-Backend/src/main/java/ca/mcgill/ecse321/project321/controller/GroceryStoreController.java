@@ -171,6 +171,51 @@ public class GroceryStoreController {
         c = service.setTimeSlot(c, convertToDomainObject(timeSlot));
         return convertToDTO(c);
     }
+    
+    /**
+     * This implements Req. 06
+     * The Grocery software system shall only allow delivery and pick-up time slots to be reserved by customers if there is one 
+     * employee available to tend to the delivery or pick-up during that time slot
+     * @return returns list of timeslots that are available
+     * @throws IllegalArgumentException
+     */
+    @GetMapping(value = {"/availabletimeslots", "/availabletimeslots/"})
+    public List<TimeSlotDTO> availableTimeSlots() throws IllegalArgumentException {
+    	List<TimeSlot> tslot = service.getAllTimeSlots();
+    	if(tslot == null) {
+    		throw new IllegalArgumentException("No TimeSot exists!");
+    	}
+    	List<Shift> shifts = service.getAllShifts();
+    	if(shifts == null) {
+    		throw new IllegalArgumentException("No one on shift!");
+    	}
+    	List<TimeSlot> availableTimeSlots = new ArrayList<>();
+    	for(TimeSlot t: tslot) {
+    		for(Shift s: shifts) {
+    			if(t.getDate().equals(s.getDate()) && t.getStartTime().before(s.getEndHour()) || t.getDate().equals(s.getDate()) && t.getEndTime().after(s.getStartHour())) { ///need to clarify how shift will work in terms of hours
+    				if(!availableTimeSlots.contains(t)) {
+    					availableTimeSlots.add(t);
+    				}
+    			}
+    		}
+    	}
+    	
+    	return convertTimeSlotListToDTO(availableTimeSlots);
+    }
+    /**
+     * This implements Req. 09
+     * The Grocery software system shall keep track of all the employees who work and have worked at the grocery store with employee accounts
+     * @return returns list of empolyee, current and old
+     * @throws IllegalArgumentException if userType is not owner
+     */
+    @GetMapping(value = {"/listemployees", "/listemployees/"})
+    public List<EmployeeDTO> listEmployees() throws IllegalArgumentException{
+    	if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().equals("owner")) {
+            return convertEmployeeListToDTO(service.getAllEmployee());    		
+    	}
+    	throw new IllegalArgumentException("Only owner can do this!");
+    }
+    
     /**
      * This implements Req. 10
      * The Grocery Store System shall allow the owner to remove or add employees on the employment list.
@@ -183,7 +228,7 @@ public class GroceryStoreController {
             @RequestParam(name = "name")      String name, 
             @RequestParam(name = "password")  String password,
             @RequestParam(name = "status")     EmployeeStatusDTO status) throws IllegalArgumentException {
-    	if(Project321BackendApplication.getUserType().equalsIgnoreCase("owner")) {
+    	if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().equals("owner")) {
     		Employee e = service.createEmployee(email, name, password, translateEnum(status));
         	return convertToDTO(e);
     	}
@@ -193,7 +238,7 @@ public class GroceryStoreController {
     }
     @PostMapping(value = {"/removeemployee", "/removeemployee/"})
     public void ownerremoveEmployee(@RequestParam(name = "email")     String email) {
-    	if(Project321BackendApplication.getUserType().equalsIgnoreCase("owner")) {
+    	if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().equals("owner")) {
     		Employee e = service.getEmployee(email);
     		service.removeEmployee(e);
     		System.out.println("Employee deleted");
@@ -203,6 +248,7 @@ public class GroceryStoreController {
     	}
     }
     
+    ///Helper to check all the employees
     @GetMapping(value = {"/employees", "/employees/"})
     public List<EmployeeDTO> getAllEmployee() throws IllegalArgumentException{
         return convertEmployeeListToDTO(service.getAllEmployee());
@@ -237,7 +283,7 @@ public class GroceryStoreController {
      * This implements Req. 12
      * The Grocery Store System shall give the customer with a local address free shipping on online 
      * delivery orders and charge an extra fee for customers outside town limits
-     * @return 
+     * @return returns true if free-shipping requirements are met, false otherwise.
      * @throws IllegalArgumentException
      */
     ////Creating a local address for the grocery store temporarily 
@@ -547,7 +593,7 @@ public class GroceryStoreController {
         for(Cart c : carts) {
             list.add(convertToDTO(c));
         }
-        return null;
+        return list;
     }
 
     private CartDTO convertToDTO(Cart cart) {
@@ -561,6 +607,14 @@ public class GroceryStoreController {
         return c;
     }
 
+    private List<TimeSlotDTO> convertTimeSlotListToDTO(List<TimeSlot> timeSlots) {
+    	List<TimeSlotDTO> list = new ArrayList<TimeSlotDTO>();
+        for(TimeSlot t : timeSlots) {
+            list.add(convertToDTO(t));
+        }
+        return list;
+    }
+    
     private TimeSlotDTO convertToDTO(TimeSlot timeSlot) {
         if(timeSlot == null) throw new IllegalArgumentException("TimeSlot does not exist");
         TimeSlotDTO t = new TimeSlotDTO(timeSlot.getDate(), timeSlot.getStartTime(), 
