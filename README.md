@@ -14,3 +14,15 @@ This repository holds the source code for the Grocery System
 | Youjin  | 7 Hours | Presistence Layer Test Writing |
 ### Deliverable One Report
 * [Report](https://github.com/McGill-ECSE321-Winter2022/project-group-group-04/wiki)
+
+## Deliverable Two
+### Hours
+| Members  | Hours | Tasks |
+| ------------- | ------------- | ------------- |
+| Cedric  |  Hours  |  |
+| Jed  |  Hours|  |
+| John  |  Hours |  |
+| Karim  |  Hours |  |
+| Thomas  |  Hours  |  |
+| Youjin  |  Hours |  |
+### Deliverable Two Report
