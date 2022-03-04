@@ -172,7 +172,7 @@ public class GroceryStoreController {
         return convertToDTO(c);
     }
     /**
-     * This implements Req. 06
+     * This implements Req. 10
      * The Grocery Store System shall allow the owner to remove or add employees on the employment list.
      * Deleting employ does not return anything. Just outputs string "Employee deleted" upon success.
      * @return returns the newly added employee
@@ -206,6 +206,65 @@ public class GroceryStoreController {
     @GetMapping(value = {"/employees", "/employees/"})
     public List<EmployeeDTO> getAllEmployee() throws IllegalArgumentException{
         return convertEmployeeListToDTO(service.getAllEmployee());
+    }
+    
+    /**
+     * This implements Req. 11
+     * The Grocery Store System shall allow the employee or customer to create a 
+     * customer account with the customer’s email and physical address.
+     * All this method does is check if it is the employee making the customer account. We assume when a customer is making
+     * an account the userType will not be set
+     * @return returns the newly added customer
+     * @throws IllegalArgumentException
+     */
+    @PostMapping(value = {"/helpcustomer", "/helpcustomer/"})
+    public CustomerDTO helpCreateCustomer(@RequestParam(name = "email")     String email, 
+                                      @RequestParam(name = "name")      String name, 
+                                      @RequestParam(name = "password")  String password, 
+                                      @RequestParam(name = "phone")     String phone, 
+                                      @RequestParam(name = "address")   AddressDTO address) 
+    throws IllegalArgumentException {
+    	if(!Project321BackendApplication.getUserType().equalsIgnoreCase("owner")) {   //anyone but the owner can create a customer account for customer
+    		Customer c = service.createCustomer(email, name, password, phone, convertToDomainObject(address));
+            return convertToDTO(c);
+    	}
+    	else {
+    		throw new IllegalArgumentException("Only a customer or and employee can do this.");
+    	}
+    }
+    
+    /**
+     * This implements Req. 12
+     * The Grocery Store System shall give the customer with a local address free shipping on online 
+     * delivery orders and charge an extra fee for customers outside town limits
+     * @return 
+     * @throws IllegalArgumentException
+     */
+    ////Creating a local address for the grocery store temporarily 
+    Address localAddress = new Address("Montreal", "McgillStreet", "HHHH", 1234);
+    @GetMapping(value = {"/shipping", "/shipping/"})
+    public boolean shippingFeeChecker() throws IllegalArgumentException{
+    	boolean freeShipping = false;
+    	if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().contentEquals("customer")) {
+    		UserDTO currentUser = Project321BackendApplication.getCurrentUser();
+        	String email = currentUser.getEmail();
+        	Customer customer = service.getCustomer(email);
+        	Address customeraddress = customer.getAddress();
+        	if(customeraddress.getTown().equals(localAddress.getTown())) {
+        		freeShipping = true;
+        	}
+        	return freeShipping;
+    	}
+    	else {
+    		throw new IllegalArgumentException("Must be logged in as a customer.");
+    	}
+    }
+    ////helper method for testing things requiring customer
+    @PostMapping(value = {"/testcustomer", "/testcustomer/"})
+    public CustomerDTO createTestCustomer() {
+    	Address custAddress = new Address("Montreal", "McgillStreet", "HHHH", 1234);
+    	Customer c = service.createCustomer("bbbb", "Thomas", "789", "5149997777",custAddress);
+        return convertToDTO(c);
     }
     
     /**
@@ -388,7 +447,7 @@ public class GroceryStoreController {
         for(Customer c : customers) {
             list.add(convertToDTO(c));
         }
-        return null;
+        return list;
     }
     
     private List<EmployeeDTO> convertEmployeeListToDTO(List<Employee> employees) throws IllegalArgumentException{
