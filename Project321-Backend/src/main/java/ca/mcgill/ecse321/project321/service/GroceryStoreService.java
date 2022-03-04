@@ -113,6 +113,13 @@ public class GroceryStoreService {
     }
 
     @Transactional
+    public TimeSlot createTimeSlot(Time startTime, Time endTime, Date date, int maxOrderPerSlot) {
+    	TimeSlot ts = new TimeSlot(startTime, endTime, date, maxOrderPerSlot);
+    	timeslotRepository.save(ts);
+        return ts;
+    }
+    
+    @Transactional
     public Cart setTimeSlot(Cart cart, TimeSlot timeSlot) {
         cart.setTimeSlot(timeSlot);
         cartRepository.save(cart);
@@ -247,16 +254,29 @@ public class GroceryStoreService {
     }
     
     @Transactional
+    public Product getAllProductByName(String name) {
+        return productRepository.findByProductName(name);
+    }
+    
+    @Transactional
     public List<Product> getProductByStockGreaterThan(int limit) {
     	return toList(productRepository.findByStockGreaterThan(limit));
     }
     
     @Transactional
     public Product createProduct(PriceType priceType, String productName, String isAvailableOnline, int price, int stock) {
-        if(productRepository.findByProductName(productName) != null ) return null; // Customer already exists
+        if(productRepository.findByProductName(productName) != null ) return null; // Product already exists
         Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
         productRepository.save(product);
         return product;
+    }
+    
+    @Transactional
+    public Product deleteProduct(String productName) {
+    	Product p = productRepository.findByProductName(productName);
+        if(p == null ) return null; // Product do not exists
+        productRepository.delete(p);
+        return p;
     }
     
     /* Shift-related service methods ----------------------------------------------------------------------------- */
@@ -304,6 +324,7 @@ public class GroceryStoreService {
         return toList(timeslotRepository.findAll());
     }
 
+    
     /* Helper methods -------------------------------------------------------------------------------------------- */
     private <T> List<T> toList(Iterable<T> iterable){
 		List<T> resultList = new ArrayList<T>();

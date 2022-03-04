@@ -22,6 +22,7 @@ import ca.mcgill.ecse321.project321.dto.CartItemDTO;
 import ca.mcgill.ecse321.project321.dto.CustomerDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO.EmployeeStatusDTO;
+import ca.mcgill.ecse321.project321.dto.OrderDTO;
 import ca.mcgill.ecse321.project321.dto.ProductDTO;
 import ca.mcgill.ecse321.project321.dto.TimeSlotDTO;
 import ca.mcgill.ecse321.project321.dto.UserDTO;
@@ -35,6 +36,7 @@ import ca.mcgill.ecse321.project321.model.CartItem;
 import ca.mcgill.ecse321.project321.model.Customer;
 import ca.mcgill.ecse321.project321.model.Employee;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
+import ca.mcgill.ecse321.project321.model.Order;
 import ca.mcgill.ecse321.project321.model.Product;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
 import ca.mcgill.ecse321.project321.model.Cart.ShoppingType;
@@ -221,14 +223,127 @@ public class GroceryStoreController {
         return convertProductListDTO(service.getAllProduct());
     }
     
+    
+    /**
+     * This is an partial implementation of Req.13(1/3), covering the "create" aspect of the Req.
+     * Req.13-The Grocery Store System shall allow the owner to add or remove items from 
+     * the store inventory and set the number of that item in stock
+     * @return the created product
+     * @throws IllegalArgumentException
+     */
     @PostMapping(value = {"/products", "/products/"})
     public ProductDTO createProduct(@RequestParam(name = "type")   PriceTypeDTO type,
                               @RequestParam(name = "productName")  String productName,
                               @RequestParam(name = "Online")  String isAviliableOnline,
     						  @RequestParam(name = "price")  int price,
-    					      @RequestParam(name = "stock")  int stock){
+    					      @RequestParam(name = "stock")  int stock) throws IllegalArgumentException{
+    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
+    		throw new IllegalArgumentException("only owner is able to create products.");
+    	}
     	Product p = service.createProduct(translateEnum(type), productName, isAviliableOnline, price, stock);
         return convertToDTO(p);
+    }
+    
+    /**
+     * This is an partial implementation of Req.13(2/3), Covering the "delete" aspect of the Req.
+     * @return the deleted product
+     * @throws IllegalArgumentException
+     */
+    @PostMapping(value = {"/products/delete", "/products/delete/"})
+    public ProductDTO deletProduct(@RequestParam(name = "productName") String productName) {
+    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
+    		throw new IllegalArgumentException("only owner is able to delete products.");
+    	}
+    	Product p = service.deleteProduct(productName);
+        return convertToDTO(p);
+    }
+    
+    /**
+     * This is an partial implementation of Req.13(3/3), Covering the "set stock" aspect of the Req.
+     * @return the changed product
+     * @throws IllegalArgumentException
+     */
+    @PostMapping(value = {"/products/changestock", "/products/changestock/"})
+    public ProductDTO changeProductStock(@RequestParam(name = "productName") String productName,
+    									 @RequestParam(name = "stock") int stock){
+    	if (stock < 0) {
+    		throw new IllegalArgumentException("stock cannot be a negative value");
+    	}
+    	if (!("owner".equals(Project321BackendApplication.getUserType()) || 
+    	    "employee".equals(Project321BackendApplication.getUserType()))) {
+    		throw new IllegalArgumentException("only owner or employee is able to change product stock.");
+    	}
+    	Product p = service.getAllProductByName(productName);
+    	if (p == null) {
+    		throw new IllegalArgumentException("the product do not exsist");
+    	}
+    	service.deleteProduct(productName);
+    	Product newProduct = service.createProduct(p.getPriceType(), p.getProductName(), p.getIsAvailableOnline(), p.getPrice(),stock);
+        return convertToDTO(newProduct);
+    }
+    
+    /**
+     * This is an implementation of the Req.15. The owner is able to set onlineAvailability upon the creation of the product, 
+     * but if the owner wants to change the availability, he/she is able to do so via this method.
+     * Req.15-The Grocery Store System shall allow the owner to choose what items are available for delivery and pickup online.
+     * Note the isAviliableOnline is supposed to be a boolean but it is too risky to change this field for the entire project structure 
+     * So it will be passed in as string by "yes" or "no".
+     * @return the changed product
+     * @throws IllegalArgumentException
+     */
+    @PostMapping(value = {"/products/changeAvailability", "/products/changeAvailability/"})
+    public ProductDTO changeProductAvailability(@RequestParam(name = "productName") String productName,
+    									        @RequestParam(name = "isAviliableOnline") String isAviliableOnline){
+    	Product p = service.getAllProductByName(productName);
+    	if (p == null) {
+    		throw new IllegalArgumentException("the product do not exsist");
+    	}
+    	if (!("yes".equals(isAviliableOnline) || "no".equals(isAviliableOnline))) {
+    		throw new IllegalArgumentException("field isAviliableOnline needs to be yes or no");
+    	}
+    	service.deleteProduct(productName);
+    	Product newProduct = service.createProduct(p.getPriceType(), p.getProductName(), isAviliableOnline, p.getPrice(),p.getStock());
+        return convertToDTO(newProduct);
+    }
+    
+    /**
+     * This is an implementation of Req.14.
+     * Req.14-The Grocery Store System shall allow the owner to create a sales report containing all orders and their respective totals 
+     * @return all orders
+     * @throws IllegalArgumentException
+     */
+    @GetMapping(value = {"/orders", "/orders"})
+    public List<OrderDTO> getAllOrders() throws IllegalArgumentException {
+    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
+    		throw new IllegalArgumentException("only owner is able to view sales report.");
+    	}
+    	List<Order> list = service.getAllOrders();
+    	if (list == null) {
+    		throw new IllegalArgumentException("currently no orders in the system");
+    	}
+        return convertOrderListDTO(list);
+    }
+    
+    /**
+     * This is an enhancement to Req.14, which generated the sales total for the owner.
+     * Req.14-The Grocery Store System shall allow the owner to create a sales report containing all orders and their respective totals 
+     * @return sales total
+     * @throws IllegalArgumentException
+     */
+    @GetMapping(value = {"/orders/total", "/orders/total"})
+    public int getAllOrdersTotal() throws IllegalArgumentException {
+    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
+    		throw new IllegalArgumentException("only owner is able to view sales total.");
+    	}
+    	List<Order> list = service.getAllOrders();
+    	if (list == null) {
+    		throw new IllegalArgumentException("currently no orders in the system");
+    	}
+    	int sum = 0;
+    	for (Order o: list) {
+    		sum += o.getTotal();
+    	}
+    	return sum;
     }
     
     @GetMapping(value = {"/shifts", "/shifts/"})
@@ -300,6 +415,14 @@ public class GroceryStoreController {
         return list;
     }
     
+    private List<OrderDTO> convertOrderListDTO(List<Order> orders) throws IllegalArgumentException{
+        List<OrderDTO> list = new ArrayList<OrderDTO>();
+        for(Order o : orders) {
+            list.add(convertToDTO(o));
+        }
+        return list;
+    }
+    
     
     private CustomerDTO convertToDTO(Customer customer) {
         if(customer == null) throw new IllegalArgumentException("Customer does not exist");
@@ -333,6 +456,11 @@ public class GroceryStoreController {
         return s;
     }
     
+    private OrderDTO convertToDTO(Order order) {
+        if(order == null) throw new IllegalArgumentException("order does not exist");
+        OrderDTO o = new OrderDTO(order.getCompleted(), order.getOrderDate(), order.getTotal(), order.getPayment(), convertToDTO(order.getCart()));
+        return o;
+    }
 
     private Address convertToDomainObject(AddressDTO address) {
         List<Address> allAddresses = service.getAllAddresses();
