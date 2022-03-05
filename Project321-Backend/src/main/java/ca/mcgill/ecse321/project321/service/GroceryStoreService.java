@@ -22,6 +22,8 @@ import ca.mcgill.ecse321.project321.dao.StoreOwnerRepository;
 import ca.mcgill.ecse321.project321.dao.StoreRepository;
 import ca.mcgill.ecse321.project321.dao.TimeslotRepository;
 import ca.mcgill.ecse321.project321.dao.UserRepository;
+import ca.mcgill.ecse321.project321.dto.AddressDTO;
+import ca.mcgill.ecse321.project321.dto.StoreOwnerDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO.EmployeeStatusDTO;
 import ca.mcgill.ecse321.project321.model.Address;
 import ca.mcgill.ecse321.project321.model.Cart;
@@ -32,6 +34,7 @@ import ca.mcgill.ecse321.project321.model.InStoreBill;
 import ca.mcgill.ecse321.project321.model.Order;
 import ca.mcgill.ecse321.project321.model.Product;
 import ca.mcgill.ecse321.project321.model.Shift;
+import ca.mcgill.ecse321.project321.model.Store;
 import ca.mcgill.ecse321.project321.model.StoreOwner;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
@@ -219,6 +222,19 @@ public class GroceryStoreService {
     public List<Address> getAllAddresses() {
         return toList(addressRepository.findAll());
     }
+    
+    @Transactional
+    public Address getAddresseByUnitAndStreetAndTownAndPostalCode(int unit, String street, String town, String postalCode) {
+        return addressRepository.findByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalCode);
+    }
+        
+    @Transactional
+    public Address createAddresses(String town, String street, String postalCode, int unit) {
+    	if( addressRepository.findByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalCode) != null ) return null; // Customer already exists
+        Address a = new Address(town, street, postalCode, unit);
+        addressRepository.save(a);
+        return a;
+    }
     /* Employee-related service methods -------------------------------------------------------------------------- */
 
     @Transactional
@@ -300,6 +316,36 @@ public class GroceryStoreService {
     }
     
     /* Store-related service methods ----------------------------------------------------------------------------- */
+    
+    @Transactional
+    public Store getStore(Address address) {
+        return storeRepository.findByAddress(address);
+    }
+    
+    @Transactional
+    public List<Store> getAllStore() {
+        return toList(storeRepository.findAll());
+    }
+    
+    @Transactional
+    public Store deleteStore(Store s) {
+        storeRepository.delete(s);
+        return s;
+    }
+    
+    @Transactional
+    public Store createStore(String telephone, String email, Time openingHour, Time closingHour, StoreOwner storeOwner, Address address) {
+    	if (storeRepository.findByAddress(address) != null) return null;
+    	Store store = new Store(telephone, email, openingHour, closingHour, storeOwner, address);
+    	storeRepository.save(store);
+        return store;
+    }
+    
+    @Transactional
+    public Store createStore(Store store) {
+    	storeRepository.save(store);
+        return store;
+    }
 
     /* Store Owner-related service methods ----------------------------------------------------------------------- */
 

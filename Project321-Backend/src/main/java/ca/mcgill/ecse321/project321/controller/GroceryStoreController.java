@@ -29,6 +29,7 @@ import ca.mcgill.ecse321.project321.dto.UserDTO;
 import ca.mcgill.ecse321.project321.dto.CartDTO.ShoppingTypeDTO;
 import ca.mcgill.ecse321.project321.dto.ProductDTO.PriceTypeDTO;
 import ca.mcgill.ecse321.project321.dto.ShiftDTO;
+import ca.mcgill.ecse321.project321.dto.StoreDTO;
 import ca.mcgill.ecse321.project321.dto.StoreOwnerDTO;
 import ca.mcgill.ecse321.project321.model.Address;
 import ca.mcgill.ecse321.project321.model.Cart;
@@ -42,6 +43,7 @@ import ca.mcgill.ecse321.project321.model.TimeSlot;
 import ca.mcgill.ecse321.project321.model.Cart.ShoppingType;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
 import ca.mcgill.ecse321.project321.model.Shift;
+import ca.mcgill.ecse321.project321.model.Store;
 import ca.mcgill.ecse321.project321.model.StoreOwner;
 import ca.mcgill.ecse321.project321.service.GroceryStoreService;
 
@@ -430,7 +432,7 @@ public class GroceryStoreController {
     }
     
     /**
-     * This is an enhancement to Req.14, which generated the sales total for the owner.
+     * This is an enhancement to Req.14, which generates the sales total for the owner.
      * Req.14-The Grocery Store System shall allow the owner to create a sales report containing all orders and their respective totals 
      * @return sales total
      * @throws IllegalArgumentException
@@ -477,7 +479,7 @@ public class GroceryStoreController {
                               @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date date,
                               @RequestParam(name = "employeeEmail")  String email) 
                               throws IllegalArgumentException {
-    	if (!Project321BackendApplication.getUserType().equals("owner")) {
+    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
     		throw new IllegalArgumentException("only owner is able to creat a shift.");
     	}
     	Shift shift = service.createShift(new Time(startHour.getTime()), new Time(endHour.getTime()), new java.sql.Date(date.getTime()), service.getEmployee(email));
@@ -486,7 +488,97 @@ public class GroceryStoreController {
     	}
         return convertToDTO(shift);
     }
-
+    
+    @GetMapping(value = {"/address", "/address/"})
+    public List<AddressDTO> getAllAddress() throws IllegalArgumentException {
+    	List<Address> list = service.getAllAddresses();
+    	if  (list == null) {
+    		throw new IllegalArgumentException("There are currently no addresses in the system");
+    	}
+        return convertAddressListDTO(list);
+    }
+    
+    @PostMapping(value = {"/address", "/address/"})
+    public AddressDTO createAddress(@RequestParam(name = "town")     String town, 
+                                      @RequestParam(name = "street")      String street, 
+                                      @RequestParam(name = "postalcode")  String postalcode,
+                                      @RequestParam(name = "unit")     int unit) 
+    throws IllegalArgumentException {
+    	Address a = service.createAddresses(town, street, postalcode, unit);
+        return convertToDTO(a);
+    }
+    
+    @PostMapping(value = {"/store", "/store/"})
+    public StoreDTO createStore(@RequestParam(name = "telephone")     String telephone, 
+                                      @RequestParam(name = "email")      String email, 
+                                      @RequestParam(name = "openingHour")  @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date startHour,
+                                      @RequestParam(name = "closingHour")  @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date endHour,
+                                      @RequestParam(name = "town")     String town, 
+                                      @RequestParam(name = "street")      String street, 
+                                      @RequestParam(name = "postalcode")  String postalcode,
+                                      @RequestParam(name = "unit")     int unit)
+    throws IllegalArgumentException {
+    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
+    		throw new IllegalArgumentException("only owner is able to creat a store.");
+    	}
+    	Address address = service.getAddresseByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalcode);
+    	AddressDTO addressDto;
+    	if (address == null) {
+    		addressDto = createAddress(town, street, postalcode, unit);
+    	} else {
+    		addressDto = convertToDTO(address);
+    	}
+    	Store s = service.createStore(telephone, email, new Time(startHour.getTime()), new Time(endHour.getTime()),
+    			                      convertToDomainObject((StoreOwnerDTO)Project321BackendApplication.getCurrentUser()), convertToDomainObject(addressDto));
+    	if (s == null) {
+    		throw new IllegalArgumentException("there is a store at the location already.");
+    	}
+        return convertToDTO(s);
+    }
+    /**
+     * This is an implementation of the Req.07
+     * Req.07-The Grocery software system shall allow the owner to modify the opening date and opening hours for each day of the week
+     * @return the modified store
+     * @throws IllegalArgumentException
+     */
+    @PostMapping(value = {"/store/changeHours", "/changeHours/"})
+    public StoreDTO changeStoreHours(@RequestParam(name = "openingHour")  @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date startHour,
+                                      @RequestParam(name = "closingHour")  @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date endHour,
+                                      @RequestParam(name = "town")     String town, 
+                                      @RequestParam(name = "street")      String street, 
+                                      @RequestParam(name = "postalcode")  String postalcode,
+                                      @RequestParam(name = "unit")     int unit)
+    throws IllegalArgumentException {
+    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
+    		throw new IllegalArgumentException("only owner is able to change store hours.");
+    	}
+    	Address address = service.getAddresseByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalcode);
+    	AddressDTO addressDto;
+    	if (address == null) {
+    		addressDto = createAddress(town, street, postalcode, unit);
+    	} else {
+    		addressDto = convertToDTO(address);
+    	}
+    	Store s = service.getStore(address);
+    	if (s == null) {
+    		throw new IllegalArgumentException("there is no store at the location");
+    	}
+    	service.deleteStore(s);
+    	s.setOpeningHour(new Time(startHour.getTime()));
+    	s.setClosingHour(new Time(endHour.getTime()));
+    	service.createStore(s);
+        return convertToDTO(s);
+    }
+    
+    @GetMapping(value = {"/store", "/store/"})
+    public List<StoreDTO> getAllStores() throws IllegalArgumentException {
+    	List<Store> list = service.getAllStore();
+    	if  (list == null) {
+    		throw new IllegalArgumentException("There are currently no any store in the system");
+    	}
+        return convertStoreListDTO(list);
+    }
+    
     /* Helper methods ---------------------------------------------------------------------------------------------------- */
     private List<CustomerDTO> convertCustomerListToDTO(List<Customer> customers) throws IllegalArgumentException{
         List<CustomerDTO> list = new ArrayList<CustomerDTO>();
@@ -524,6 +616,22 @@ public class GroceryStoreController {
         List<OrderDTO> list = new ArrayList<OrderDTO>();
         for(Order o : orders) {
             list.add(convertToDTO(o));
+        }
+        return list;
+    }
+    
+    private List<AddressDTO> convertAddressListDTO(List<Address> address) throws IllegalArgumentException{
+        List<AddressDTO> list = new ArrayList<AddressDTO>();
+        for(Address a : address) {
+            list.add(convertToDTO(a));
+        }
+        return list;
+    }
+    
+    private List<StoreDTO> convertStoreListDTO(List<Store> stores) throws IllegalArgumentException{
+        List<StoreDTO> list = new ArrayList<StoreDTO>();
+        for(Store s : stores) {
+            list.add(convertToDTO(s));
         }
         return list;
     }
@@ -566,6 +674,15 @@ public class GroceryStoreController {
         OrderDTO o = new OrderDTO(order.getCompleted(), order.getOrderDate(), order.getTotal(), order.getPayment(), convertToDTO(order.getCart()));
         return o;
     }
+    
+    
+    private StoreDTO convertToDTO(Store store) {
+        if(store == null) throw new IllegalArgumentException("store does not exist");
+        StoreDTO s = new StoreDTO(store.getTelephone(), store.getEmail(), store.getOpeningHour(), 
+        		                  store.getClosingHour(),convertToDTO(store.getStoreOwner()) ,convertToDTO(store.getAddress()));
+        return s;
+    }
+    
 
     private Address convertToDomainObject(AddressDTO address) {
         List<Address> allAddresses = service.getAllAddresses();
@@ -586,6 +703,11 @@ public class GroceryStoreController {
             }
         }
         return null;
+    }
+    
+    private StoreOwner convertToDomainObject(StoreOwnerDTO ownerDto) {
+        StoreOwner owner = service.getStoreOwner(ownerDto.getEmail());
+        return owner;
     }
 
     private List<CartDTO> convertCartListToDTO(List<Cart> carts) throws IllegalArgumentException{
