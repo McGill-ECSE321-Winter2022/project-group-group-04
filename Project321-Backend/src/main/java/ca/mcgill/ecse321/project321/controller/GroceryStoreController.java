@@ -878,7 +878,7 @@ public class GroceryStoreController {
     
     private InStoreBillDTO convertToDTO(InStoreBill bill) {
         if(bill == null) throw new IllegalArgumentException("store does not exist");
-        InStoreBillDTO isb = new InStoreBillDTO(bill.getTotal(), bill.getPurchaseDate());
+        InStoreBillDTO isb = new InStoreBillDTO(bill.getTotal(), bill.getPurchaseDate(), bill.getPaymentCode());
         return isb;
     }
     
