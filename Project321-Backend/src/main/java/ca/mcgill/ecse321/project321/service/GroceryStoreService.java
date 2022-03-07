@@ -277,6 +277,18 @@ public class GroceryStoreService {
     }
     
     /* In-Store Bill-related service methods --------------------------------------------------------------------- */
+    
+    @Transactional
+    public InStoreBill createInStoreBill(int total, Date purchaseDate) {
+    	InStoreBill inStoreBill = new InStoreBill(total, purchaseDate);
+        inStoreBillRepository.save(inStoreBill);
+        return inStoreBill;
+    }
+    
+    @Transactional
+    public List<InStoreBill> getAllInStoreBill() {
+    	return toList(inStoreBillRepository.findAll());
+    }
 
     /* Product-related service methods --------------------------------------------------------------------------- */
 

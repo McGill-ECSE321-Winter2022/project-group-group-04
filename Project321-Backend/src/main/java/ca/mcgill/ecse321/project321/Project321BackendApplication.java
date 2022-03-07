@@ -12,6 +12,7 @@ import ca.mcgill.ecse321.project321.dto.CartDTO;
 import ca.mcgill.ecse321.project321.dto.StoreDTO;
 import ca.mcgill.ecse321.project321.dto.StoreOwnerDTO;
 import ca.mcgill.ecse321.project321.dto.UserDTO;
+import ca.mcgill.ecse321.project321.model.Store;
 import ca.mcgill.ecse321.project321.controller.GroceryStoreController;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +33,7 @@ public class Project321BackendApplication {
 	//Request Map
 	@RequestMapping("/")
   	public String greeting(){
-		store = controller.getStore();
+/*		StoreDTO store = controller.getStore();
 		if(store == null) {
 			StoreOwnerDTO storeOwner = controller.getStoreOwner();
 			if(storeOwner == null) {
@@ -49,6 +50,7 @@ public class Project321BackendApplication {
 			store = controller.createStore("514-111-1111", "store@mail.com", startTime, endTime,"town", "street", "XXXXXX", 0, 0);
 			cart = null;
 		}
+		*/
 		if (currentUser != null) {
 	    	return "Hello world! Current user email is " + currentUser.getEmail() + ". And the user type is " + userType;
 		} else {
