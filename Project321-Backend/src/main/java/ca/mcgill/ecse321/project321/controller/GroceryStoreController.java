@@ -22,6 +22,7 @@ import ca.mcgill.ecse321.project321.dto.CartDTO;
 import ca.mcgill.ecse321.project321.dto.CartItemDTO;
 import ca.mcgill.ecse321.project321.dto.CustomerDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO;
+import ca.mcgill.ecse321.project321.dto.InStoreBillDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO.EmployeeStatusDTO;
 import ca.mcgill.ecse321.project321.dto.OrderDTO;
 import ca.mcgill.ecse321.project321.dto.ProductDTO;
@@ -37,6 +38,7 @@ import ca.mcgill.ecse321.project321.model.Cart;
 import ca.mcgill.ecse321.project321.model.CartItem;
 import ca.mcgill.ecse321.project321.model.Customer;
 import ca.mcgill.ecse321.project321.model.Employee;
+import ca.mcgill.ecse321.project321.model.InStoreBill;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
 import ca.mcgill.ecse321.project321.model.Order;
 import ca.mcgill.ecse321.project321.model.Product;
@@ -86,7 +88,10 @@ public class GroceryStoreController {
     public StoreOwnerDTO createStoreOwner(@RequestParam(name = "email")     String email, 
                                           @RequestParam(name = "name")      String name, 
                                           @RequestParam(name = "password")  String password) 
-    throws IllegalArgumentException {
+    throws IllegalArgumentException, IllegalAccessException {
+        if(service.getStoreOwner() != null) {
+            throw new IllegalAccessException("A store owner already exits! Cannot create another");
+        }
         StoreOwner c = service.createStoreOwner(email, name, password);
         System.out.println(c.getName());
         return convertToDTO(c);
@@ -180,7 +185,9 @@ public class GroceryStoreController {
             Time creationTime = java.sql.Time.valueOf(LocalTime.now());
             Customer customer = service.getCustomer(customerEmail);
             Cart c = service.createCart(translateEnum(type), customer, creationDate, creationTime);
-            return convertToDTO(c);
+            CartDTO cart = convertToDTO(c);
+            Project321BackendApplication.setCart(cart); // Set current cart in session
+            return cart;
         }
         else {
             throw new IllegalArgumentException("Must be logged in as a customer.");
@@ -386,7 +393,7 @@ public class GroceryStoreController {
      * @throws IllegalArgumentException
      */
     @PostMapping(value = {"/products/delete", "/products/delete/"})
-    public ProductDTO deletProduct(@RequestParam(name = "productName") String productName) {
+    public ProductDTO deleteProduct(@RequestParam(name = "productName") String productName) {
     	if (!"owner".equals(Project321BackendApplication.getUserType())) {
     		throw new IllegalArgumentException("only owner is able to delete products.");
     	}
@@ -409,7 +416,7 @@ public class GroceryStoreController {
     	    "employee".equals(Project321BackendApplication.getUserType()))) {
     		throw new IllegalArgumentException("only owner or employee is able to change product stock.");
     	}
-    	Product p = service.getAllProductByName(productName);
+    	Product p = service.getProductByName(productName);
     	if (p == null) {
     		throw new IllegalArgumentException("the product do not exsist");
     	}
@@ -430,7 +437,7 @@ public class GroceryStoreController {
     @PostMapping(value = {"/products/changeAvailability", "/products/changeAvailability/"})
     public ProductDTO changeProductAvailability(@RequestParam(name = "productName") String productName,
     									        @RequestParam(name = "isAviliableOnline") String isAviliableOnline){
-    	Product p = service.getAllProductByName(productName);
+    	Product p = service.getProductByName(productName);
     	if (p == null) {
     		throw new IllegalArgumentException("the product do not exsist");
     	}
@@ -482,8 +489,8 @@ public class GroceryStoreController {
     	return sum;
     }
 
-    @GetMapping(value = {"/checkout", "/checkout/"})
-    public int checkout() throws IllegalAccessException, IllegalArgumentException{
+    @GetMapping(value = {"/cart/checkout", "/cart/checkout/"})
+    public int checkoutCart() throws IllegalAccessException, IllegalArgumentException{
         int totalPrice = 0;
         if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().contentEquals("customer")) {
             CartDTO localCart = Project321BackendApplication.getCart();
@@ -506,8 +513,8 @@ public class GroceryStoreController {
         }
     }
 
-    @PostMapping(value = {"/pay", "/pay/"})
-    public boolean pay(@RequestParam(name = "paymentcode") String paymentCode) 
+    @PostMapping(value = {"/cart/pay", "/cart/pay/"})
+    public boolean payCart(@RequestParam(name = "paymentcode") String paymentCode) 
                        throws IllegalAccessException{
         if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().contentEquals("customer")) {
             CartDTO localCart = Project321BackendApplication.getCart();
@@ -516,6 +523,7 @@ public class GroceryStoreController {
             }
             Order order = service.getOrderByCart(convertToDomainObject(localCart));
             service.setPayment(order, paymentCode);
+            Project321BackendApplication.setCart(null); // Reset the cart to null since we are done handling the latest cart
             return true;     
         }
         else {
@@ -595,6 +603,9 @@ public class GroceryStoreController {
                                       @RequestParam(name = "unit")     int unit, 
                                       @RequestParam(name = "outoftownfee") int outOfTownFee)
     throws IllegalArgumentException, IllegalStateException{
+        if(service.getStore() != null) {
+            throw new IllegalStateException("A store already exits! Cannot create another");
+        }
     	Address address = service.getAddresseByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalcode);
         StoreOwner owner = service.getStoreOwner();
         if(owner == null) {
@@ -657,6 +668,110 @@ public class GroceryStoreController {
         return convertToDTO(store);
     }
     
+    @PostMapping(value = {"/cart/item", "/cart/item/"})
+    public CartItemDTO addItemToCart(@RequestParam(name = "productname") String productName,
+                                     @RequestParam(name = "quantity") Integer quantity) 
+                                     throws IllegalAccessException, IllegalArgumentException {
+        CartDTO localCart = Project321BackendApplication.getCart();
+        if(localCart == null) {
+            throw new IllegalAccessException("No cart to add item to!");
+        }
+        Product product = service.getProductByName(productName);
+        if(product == null) {
+            throw new IllegalArgumentException("Failed to find the product with the following name: " + productName);
+        }
+        if(quantity < 1) {
+            throw new IllegalArgumentException("Invalid quantity: must be above or equal to one, received " + quantity);
+        } else if(quantity > product.getStock()) {
+            throw new IllegalArgumentException("Invalid quantity: quantity demanded higher than available stock");
+        }
+        Cart cart = convertToDomainObject(localCart);
+        if(cart == null) {
+            throw new IllegalAccessException("Failed to find current cart in database!");
+        }
+        CartItem item = service.createCartItem(quantity, product, cart);
+        List<CartItemDTO> itemList = localCart.getCartItems();
+        CartItemDTO localItem = convertToDTO(item, localCart);
+        itemList.add(localItem);
+        localCart.setCartItems(itemList);
+        Project321BackendApplication.setCart(localCart);
+        product.setStock(product.getStock() - quantity);
+        
+        return localItem;
+    }
+
+    @PostMapping(value = {"/instorebill", "/instorebill/"})
+    public InStoreBillDTO createInStoreBill() throws IllegalAccessException{
+        if(Project321BackendApplication.getUserType() != null && 
+            (Project321BackendApplication.getUserType().contentEquals("employee") || Project321BackendApplication.getUserType().contentEquals("storeowner"))) {
+            Date purchaseDate = java.sql.Date.valueOf(LocalDate.now());
+            InStoreBillDTO bill = new InStoreBillDTO(0, purchaseDate, null);
+            Project321BackendApplication.setBill(bill);
+            return bill;
+        } else {
+            throw new IllegalAccessException("Cannot create an in-store bill! You need to have employee or store owner clearance");
+        }
+    }
+
+    @PostMapping(value = {"/instorebill/item", "/instorebill/item/"})
+    public CartItemDTO addItemToBill(@RequestParam(name = "productname") String productName,
+                                     @RequestParam(name = "quantity") Integer quantity) 
+                                     throws IllegalAccessException, IllegalArgumentException {
+        if(Project321BackendApplication.getUserType() != null && 
+            (Project321BackendApplication.getUserType().contentEquals("employee") || Project321BackendApplication.getUserType().contentEquals("storeowner"))) {
+            InStoreBillDTO localBill = Project321BackendApplication.getBill();
+            if(localBill == null) {
+                throw new IllegalAccessException("No bill to add item to");
+            }
+            Product product = service.getProductByName(productName);
+            if(product == null) {
+                throw new IllegalArgumentException("Failed to find the product with the following name: " + productName);
+            }
+            if(quantity < 1) {
+                throw new IllegalArgumentException("Invalid quantity: must be above or equal to one, received " + quantity);
+            }
+            CartItemDTO localItem = new CartItemDTO(localBill, quantity, convertToDTO(product));
+            List<CartItemDTO> items = localBill.getCartItems();
+            items.add(localItem);
+            localBill.setCartItems(items);
+            Project321BackendApplication.setBill(localBill);
+            return localItem;
+        } else {
+            throw new IllegalAccessException("Cannot add item to in-store bill! You need to have employee or store owner clearance");
+        }
+    }
+
+    @PostMapping(value = {"/instorebill/pay", "/instorebill/pay/"})
+    public InStoreBillDTO payInStoreBill(@RequestParam(name = "paymentcode") String paymentCode) 
+                                        throws IllegalAccessException {
+        if(Project321BackendApplication.getUserType() != null && 
+            (Project321BackendApplication.getUserType().contentEquals("employee") || Project321BackendApplication.getUserType().contentEquals("storeowner"))) {
+            InStoreBillDTO localBill = Project321BackendApplication.getBill();
+            if(localBill == null) {
+                throw new IllegalAccessException("No in-store bill to pay for!");
+            }
+            InStoreBill bill = service.createInStoreBill(localBill.getTotal(), localBill.getPurchaseDate(), paymentCode);
+            int total = 0;
+            List<CartItemDTO> localItems = localBill.getCartItems();
+            List<CartItem> items = new ArrayList<CartItem>();
+            for(CartItemDTO i : localItems) {
+                total += i.getQuantity() * i.getProduct().getPrice();
+                Product p = service.getProductByName(i.getProduct().getProductName());
+                if(p == null) {
+                    throw new IllegalStateException("Cannot seem to find product named " + i.getProduct().getProductName() 
+                                                    + " in database anymore...");
+                }
+                p = service.setProductStock(i.getProduct().getProductName(), i.getQuantity());
+                CartItem c = service.createCartItem(i.getQuantity(), p, bill);
+                items.add(c);
+            }
+            service.setInStoreBillTotal(total, bill);
+            return null;
+        } else {
+            throw new IllegalAccessException("Cannot add item to in-store bill! You need to have employee or store owner clearance");
+        }
+    }
+
     /* Helper methods ---------------------------------------------------------------------------------------------------- */
     private List<CustomerDTO> convertCustomerListToDTO(List<Customer> customers) throws IllegalArgumentException{
         List<CustomerDTO> list = new ArrayList<CustomerDTO>();

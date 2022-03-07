@@ -277,6 +277,24 @@ public class GroceryStoreService {
     }
     
     /* In-Store Bill-related service methods --------------------------------------------------------------------- */
+    @Transactional
+    public InStoreBill createInStoreBill(int total, Date purchaseDate, String paymentCode) {
+        InStoreBill bill = new InStoreBill(total, purchaseDate, paymentCode);
+        inStoreBillRepository.save(bill);
+        return bill;
+    }
+
+    @Transactional
+    public InStoreBill setInStoreBillTotal(int total, InStoreBill inStoreBill) {
+        inStoreBill.setTotal(total);
+        inStoreBillRepository.save(inStoreBill);
+        return inStoreBill;
+    }
+
+    @Transactional
+    public List<InStoreBill> getAllInStoreBills() {
+        return toList(inStoreBillRepository.findAll());
+    }
 
     /* Product-related service methods --------------------------------------------------------------------------- */
 
@@ -286,7 +304,7 @@ public class GroceryStoreService {
     }
     
     @Transactional
-    public Product getAllProductByName(String name) {
+    public Product getProductByName(String name) {
         return productRepository.findByProductName(name);
     }
     
@@ -310,7 +328,16 @@ public class GroceryStoreService {
         productRepository.delete(p);
         return p;
     }
-    
+
+    @Transactional
+    public Product setProductStock(String productName, int stock) {
+        Product p = productRepository.findByProductName(productName);
+        if(p == null ) return null;
+        p.setStock(stock);
+        productRepository.save(p);
+        return p;
+    }
+
     /* Shift-related service methods ----------------------------------------------------------------------------- */
 
     @Transactional

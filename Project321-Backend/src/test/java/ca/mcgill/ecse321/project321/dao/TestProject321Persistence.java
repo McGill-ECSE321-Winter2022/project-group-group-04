@@ -493,7 +493,8 @@ public class TestProject321Persistence {
 		
 		int testTotal = 100;
 		Date testDate = java.sql.Date.valueOf(LocalDate.now());
-		InStoreBill testBill = new InStoreBill(testTotal, testDate);
+		String paymentCode = null;
+		InStoreBill testBill = new InStoreBill(testTotal, testDate, paymentCode);
 		
 		inStoreBillRepository.save(testBill);
 		

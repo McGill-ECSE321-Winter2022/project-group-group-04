@@ -120,6 +120,7 @@ class InStoreBill
 {
   Integer total;
   Date purchaseDate;
+  paymentCode;
   lazy Integer inStoreBillId;
   
   public InStoreBill() {}

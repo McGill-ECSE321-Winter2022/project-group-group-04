@@ -23,15 +23,17 @@ public class InStoreBill
   private int total;
   private Date purchaseDate;
   private int inStoreBillId;
+  private String paymentCode;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public InStoreBill(int aTotal, Date aPurchaseDate)
+  public InStoreBill(int aTotal, Date aPurchaseDate, String aPaymentCode)
   {
     total = aTotal;
     purchaseDate = aPurchaseDate;
+    paymentCode = aPaymentCode;
 
     inStoreBillId = 0;
   }
@@ -64,6 +66,14 @@ public class InStoreBill
     return wasSet;
   }
 
+  public boolean setPaymentCode(String aPaymentCode)
+  {
+    boolean wasSet = false;
+    paymentCode = aPaymentCode;
+    wasSet = true;
+    return wasSet;
+  }
+
   public int getTotal()
   {
     return total;
@@ -79,6 +89,11 @@ public class InStoreBill
   public int getInStoreBillId()
   {
     return inStoreBillId;
+  }
+
+  public String getPaymentCode()
+  {
+    return paymentCode;
   }
 
   public void delete()
