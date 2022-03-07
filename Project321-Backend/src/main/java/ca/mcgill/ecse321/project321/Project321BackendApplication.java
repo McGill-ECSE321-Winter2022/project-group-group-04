@@ -2,14 +2,9 @@ package ca.mcgill.ecse321.project321;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.sql.Time;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Date;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +12,6 @@ import ca.mcgill.ecse321.project321.dto.CartDTO;
 import ca.mcgill.ecse321.project321.dto.StoreDTO;
 import ca.mcgill.ecse321.project321.dto.StoreOwnerDTO;
 import ca.mcgill.ecse321.project321.dto.UserDTO;
-import ca.mcgill.ecse321.project321.model.User;
 import ca.mcgill.ecse321.project321.controller.GroceryStoreController;
 
 import org.springframework.web.bind.annotation.RequestMapping;

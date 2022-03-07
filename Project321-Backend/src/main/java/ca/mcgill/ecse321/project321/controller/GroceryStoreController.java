@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.mcgill.ecse321.project321.Project321BackendApplication;
-import ca.mcgill.ecse321.project321.dao.CartItemRepository;
 import ca.mcgill.ecse321.project321.dto.AddressDTO;
 import ca.mcgill.ecse321.project321.dto.CartDTO;
 import ca.mcgill.ecse321.project321.dto.CartItemDTO;
