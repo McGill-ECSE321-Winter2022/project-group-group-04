@@ -13,6 +13,7 @@ import ca.mcgill.ecse321.project321.dto.InStoreBillDTO;
 import ca.mcgill.ecse321.project321.dto.StoreDTO;
 import ca.mcgill.ecse321.project321.dto.StoreOwnerDTO;
 import ca.mcgill.ecse321.project321.dto.UserDTO;
+import ca.mcgill.ecse321.project321.model.Store;
 import ca.mcgill.ecse321.project321.controller.GroceryStoreController;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,7 @@ public class Project321BackendApplication {
   	public String greeting(){
 		cart = null;
 		bill = null;
+
 		if (currentUser != null) {
 	    	return "Hello world! Current user email is " + currentUser.getEmail() + ". And the user type is " + userType;
 		} else {

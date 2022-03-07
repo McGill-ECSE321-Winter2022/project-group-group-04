@@ -24,6 +24,7 @@ import ca.mcgill.ecse321.project321.dto.CustomerDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO;
 import ca.mcgill.ecse321.project321.dto.InStoreBillDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO.EmployeeStatusDTO;
+import ca.mcgill.ecse321.project321.dto.InStoreBillDTO;
 import ca.mcgill.ecse321.project321.dto.OrderDTO;
 import ca.mcgill.ecse321.project321.dto.ProductDTO;
 import ca.mcgill.ecse321.project321.dto.TimeSlotDTO;
@@ -40,6 +41,7 @@ import ca.mcgill.ecse321.project321.model.Customer;
 import ca.mcgill.ecse321.project321.model.Employee;
 import ca.mcgill.ecse321.project321.model.InStoreBill;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
+import ca.mcgill.ecse321.project321.model.InStoreBill;
 import ca.mcgill.ecse321.project321.model.Order;
 import ca.mcgill.ecse321.project321.model.Product;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
@@ -108,16 +110,6 @@ public class GroceryStoreController {
     @GetMapping(value = {"/employee/{email}", "/employee/{email}/"})
     public EmployeeDTO getEmployee(@PathVariable("email") String email) throws IllegalArgumentException{
         return convertToDTO(service.getEmployee(email));
-    }
-    
-    @PostMapping(value = {"/employee", "/employee/"})
-    public EmployeeDTO createEmployee(@RequestParam(name = "email")     String email, 
-                                      @RequestParam(name = "name")      String name, 
-                                      @RequestParam(name = "password")  String password,
-                                      @RequestParam(name = "status")     EmployeeStatusDTO status) 
-    throws IllegalArgumentException {
-        Employee c = service.createEmployee(email, name, password, translateEnum(status));
-        return convertToDTO(c);
     }
     
     @PostMapping(value = {"/login", "/login/"})
@@ -263,7 +255,7 @@ public class GroceryStoreController {
      * @return returns the newly added employee
      * @throws IllegalArgumentException if userType is not owner
      */
-    @PostMapping(value = {"/addemployee", "/addemployee/"})
+    @PostMapping(value = {"/employee", "/employee/"})
     public EmployeeDTO owneraddEmployee(@RequestParam(name = "email")     String email, 
             @RequestParam(name = "name")      String name, 
             @RequestParam(name = "password")  String password,
@@ -297,7 +289,7 @@ public class GroceryStoreController {
     /**
      * This implements Req. 11
      * The Grocery Store System shall allow the employee or customer to create a 
-     * customer account with the customer�s email and physical address.
+     * customer account with the customer email and physical address.
      * All this method does is check if it is the employee making the customer account. We assume when a customer is making
      * an account the userType will not be set
      * @return returns the newly added customer
@@ -626,7 +618,7 @@ public class GroceryStoreController {
     }
     /**
      * This is an implementation of the Req.07
-     * Req.07-The Grocery software system shall allow the owner to modify the opening date and opening hours for each day of the week
+     * Req.07-The Grocery software system shall allow the owner to modify the opening date and opening hours.
      * @return the modified store
      * @throws IllegalArgumentException
      */
@@ -829,6 +821,13 @@ public class GroceryStoreController {
         return list;
     }
     
+    private List<InStoreBillDTO> convertInStoreBillListToDTO(List<InStoreBill> bills) throws IllegalArgumentException{
+        List<InStoreBillDTO> list = new ArrayList<InStoreBillDTO>();
+        for(InStoreBill isb : bills) {
+            list.add(convertToDTO(isb));
+        }
+        return list;
+    }
     
     private CustomerDTO convertToDTO(Customer customer) {
         if(customer == null) throw new IllegalArgumentException("Customer does not exist");
@@ -875,6 +874,12 @@ public class GroceryStoreController {
         		                  store.getClosingHour(), convertToDTO(store.getStoreOwner()), convertToDTO(store.getAddress()),
                                   store.getOutOfTownFee());
         return s;
+    }
+    
+    private InStoreBillDTO convertToDTO(InStoreBill bill) {
+        if(bill == null) throw new IllegalArgumentException("store does not exist");
+        InStoreBillDTO isb = new InStoreBillDTO(bill.getTotal(), bill.getPurchaseDate());
+        return isb;
     }
     
 
