@@ -10,16 +10,18 @@ public class StoreDTO {
 	  private Time closingHour;
 	  private StoreOwnerDTO storeOwner;
 	  private AddressDTO address;
+	  private int outOfTownFee;
 	  
 	  public StoreDTO() {}
 	  
-	  public StoreDTO(String telephone, String email, Time openingHour, Time closingHour, StoreOwnerDTO storeOwner, AddressDTO address) {
+	  public StoreDTO(String telephone, String email, Time openingHour, Time closingHour, StoreOwnerDTO storeOwner, AddressDTO address, int outOfTownFee) {
 		  this.telephone = telephone;
 		  this.email = email;
 		  this.openingHour = openingHour;
 		  this.closingHour = closingHour;
 		  this.storeOwner = storeOwner;
 		  this.address = address;
+		  this.outOfTownFee = outOfTownFee;
 	  }
 	  
 	  public String getTelephone() {
@@ -44,6 +46,10 @@ public class StoreDTO {
 	  
 	  public AddressDTO getAddress() {
 		return address;
+	  }
+
+	  public int getOutOfTownFee() {
+		  return outOfTownFee;
 	  }
 	  
 }

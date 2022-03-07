@@ -213,17 +213,18 @@ public class TestProject321Persistence {
 				  java.sql.Time.valueOf(LocalTime.of(13, 35)), java.sql.Date.valueOf(LocalDate.now()), 20);
 		  timeslotRepository.save(testSlot);
 		  
+
 		  ShoppingType type = ShoppingType.Delivery;
-		  Cart testCart = new Cart(type, customer);
+		  Date creationDate = java.sql.Date.valueOf(LocalDate.now());
+		  Time creationTime = java.sql.Time.valueOf(LocalTime.now());
+		  Cart testCart = new Cart(type, customer, creationDate, creationTime);
 		  testCart.setTimeSlot(testSlot);
 		  cartRepository.save(testCart);
 
 		  testCart = null;
 
 // Test for object persistence
-		  List<Cart> cartList = cartRepository.findByCustomer(customer);
-		  assertNotEquals(cartList.size(), 0);
-		  testCart = cartList.get(0);
+		  testCart = cartRepository.findByCustomerAndCreationDateAndCreationTime(customer, creationDate, creationTime);
 		  assertNotNull(testCart);
 		  assertEquals(testCart.getType(), type);
 		  assertEquals(testCart.getTimeSlot().getTimeSlotId(), testSlot.getTimeSlotId());
@@ -236,9 +237,7 @@ public class TestProject321Persistence {
 		  cartRepository.save(testCart);
 
 		  testCart = null;
-		  cartList = cartRepository.findByCustomer(customer);
-		  assertNotEquals(cartList.size(), 0);
-		  testCart = cartList.get(0);
+		  testCart = cartRepository.findByCustomerAndCreationDateAndCreationTime(customer, creationDate, creationTime);
 		  assertNotNull(testCart);
 		  assertEquals(testCart.getType(), newType);
 
@@ -266,9 +265,7 @@ public class TestProject321Persistence {
 
 		testCart = null;
 
-		cartList = cartRepository.findByCustomer(customer2);
-		assertNotEquals(cartList.size(), 0);
-		testCart = cartList.get(0);
+		testCart = cartRepository.findByCustomerAndCreationDateAndCreationTime(customer2, creationDate, creationTime);
 		assertNotNull(testCart);
 		assertEquals(testCart.getCustomer().getAddress().getAddressId(), address2.getAddressId());
 		assertEquals(testCart.getCustomer().getEmail(), customer2.getEmail());
@@ -541,7 +538,9 @@ public class TestProject321Persistence {
 				 java.sql.Time.valueOf(LocalTime.of(14, 00)), java.sql.Date.valueOf(LocalDate.now()), 100);
 		timeslotRepository.save(testSlot);
 		 
-		 Cart testCart = new Cart(ShoppingType.Delivery, customer);
+		 Date creationDate = java.sql.Date.valueOf(LocalDate.of(2022, 12, 31));
+		 Time creationTime = java.sql.Time.valueOf(LocalTime.of(13, 00));
+		 Cart testCart = new Cart(ShoppingType.Delivery, customer, creationDate, creationTime);
 		 testCart.setTimeSlot(testSlot);
 		 cartRepository.save(testCart);
 		 
@@ -591,7 +590,9 @@ public class TestProject321Persistence {
 				 java.sql.Time.valueOf(LocalTime.of(16, 00)), java.sql.Date.valueOf(LocalDate.now()), 80);
 		timeslotRepository.save(testSlot2);
 		 
-		 Cart testCart2 = new Cart(ShoppingType.Delivery, customer2);
+		 Date creationDate2 = java.sql.Date.valueOf(LocalDate.of(2022, 12, 31));
+		 Time creationTime2 = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		 Cart testCart2 = new Cart(ShoppingType.Delivery, customer2, creationDate2, creationTime2);
 		 testCart2.setTimeSlot(testSlot2);
 		 cartRepository.save(testCart2);
 
@@ -605,6 +606,8 @@ public class TestProject321Persistence {
 		 assertEquals(testOrder.getCompleted(), comp);
 		 assertEquals(testOrder.getCart().getCartId(), testCart2.getCartId());
 		 assertEquals(testOrder.getCart().getType(), testCart2.getType());
+		 assertEquals(testOrder.getCart().getCreationDate(), testCart2.getCreationDate());
+		 assertEquals(testOrder.getCart().getCreationTime(), testCart2.getCreationTime());
 		 assertEquals(testOrder.getCart().getCustomer().getEmail(), testCart2.getCustomer().getEmail());
 		 assertEquals(testOrder.getCart().getCustomer().getName(), testCart2.getCustomer().getName());
 		 assertEquals(testOrder.getCart().getCustomer().getPassword(), testCart2.getCustomer().getPassword());
@@ -654,6 +657,7 @@ public class TestProject321Persistence {
   		String email = "store@mail.com";
   		Time openingHour = java.sql.Time.valueOf(LocalTime.of(9, 00));
   		Time closingHour = java.sql.Time.valueOf(LocalTime.of(21, 00));
+		int outOfTownFee = 10;
 		
 		String ownerEmail = "owner@mail.com";
 		String ownerName = "Testowner";
@@ -669,7 +673,7 @@ public class TestProject321Persistence {
 		Address address = new Address(town,street,postalCode,unit);
 		addressRepository.save(address);
 
-		Store store = new Store(telephone, email, openingHour, closingHour, storeOwner, address);
+		Store store = new Store(telephone, email, openingHour, closingHour, storeOwner, address, outOfTownFee);
 		storeRepository.save(store);
 
 		store = null;
@@ -681,6 +685,7 @@ public class TestProject321Persistence {
 		assertEquals(store.getEmail(), email);
 		assertEquals(store.getOpeningHour(), openingHour);
 		assertEquals(store.getClosingHour(), closingHour);
+		assertEquals(store.getOutOfTownFee(), outOfTownFee);
 		assertEquals(store.getAddress().getAddressId(), address.getAddressId());
 		assertEquals(store.getStoreOwner().getEmail(), storeOwner.getEmail());
 

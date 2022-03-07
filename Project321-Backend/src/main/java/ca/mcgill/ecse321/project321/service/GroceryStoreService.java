@@ -93,14 +93,14 @@ public class GroceryStoreService {
 
     /* Cart-related service methods ------------------------------------------------------------------------------ */
     @Transactional
-    public Cart createCart(Cart.ShoppingType type, Customer customer) {
-        Cart cart = new Cart(type, customer);
+    public Cart createCart(Cart.ShoppingType type, Customer customer, Date creationDate, Time creationTime) {
+        Cart cart = new Cart(type, customer, creationDate, creationTime);
         return cart;
     }
 
     @Transactional
-    public Cart createCart(Cart.ShoppingType type, Customer customer, TimeSlot timeSlot) {
-        Cart cart = new Cart(type, customer);
+    public Cart createCart(Cart.ShoppingType type, Customer customer, Date creationDate, Time creationTime, TimeSlot timeSlot) {
+        Cart cart = new Cart(type, customer, creationDate, creationTime);
         cart.setTimeSlot(timeSlot);
         return cart;
     }
@@ -108,6 +108,11 @@ public class GroceryStoreService {
     @Transactional
     public List<Cart> getCartsByCustomer(Customer customer) {
         return cartRepository.findByCustomer(customer);
+    }
+
+    @Transactional
+    public Cart getCartByCustomerAndDateAndTime(Customer customer, Date date, Time time) {
+        return cartRepository.findByCustomerAndCreationDateAndCreationTime(customer, date, time);
     }
 
     @Transactional
@@ -168,6 +173,20 @@ public class GroceryStoreService {
     @Transactional
     public List<Order> getAllOrders() {
         return toList(orderRepository.findAll());
+    }
+
+    @Transactional
+    public boolean setPayment(Order order, String payment) {
+        order.setPayment(payment);
+        orderRepository.save(order);
+        return true;
+    }
+
+    @Transactional
+    public boolean setCompleted(Order order) {
+        order.setCompleted(true);
+        orderRepository.save(order);
+        return true;
     }
 
     /* Cart Item-related service methods ------------------------------------------------------------------------- */
@@ -318,13 +337,13 @@ public class GroceryStoreService {
     /* Store-related service methods ----------------------------------------------------------------------------- */
     
     @Transactional
-    public Store getStore(Address address) {
-        return storeRepository.findByAddress(address);
-    }
-    
-    @Transactional
-    public List<Store> getAllStore() {
-        return toList(storeRepository.findAll());
+    public Store getStore() {
+        List<Store> storeList = toList(storeRepository.findAll());
+        if(storeList.size() == 0) {
+            return null;
+        } else {
+            return storeList.get(0);
+        }
     }
     
     @Transactional
@@ -334,9 +353,10 @@ public class GroceryStoreService {
     }
     
     @Transactional
-    public Store createStore(String telephone, String email, Time openingHour, Time closingHour, StoreOwner storeOwner, Address address) {
+    public Store createStore(String telephone, String email, Time openingHour, 
+                             Time closingHour, StoreOwner storeOwner, Address address, int outOfTownFee) {
     	if (storeRepository.findByAddress(address) != null) return null;
-    	Store store = new Store(telephone, email, openingHour, closingHour, storeOwner, address);
+    	Store store = new Store(telephone, email, openingHour, closingHour, storeOwner, address, outOfTownFee);
     	storeRepository.save(store);
         return store;
     }
@@ -347,22 +367,47 @@ public class GroceryStoreService {
         return store;
     }
 
+    @Transactional
+    public Store setOwner(Store store, StoreOwner storeOwner) {
+        store.setStoreOwner(storeOwner);
+        storeRepository.save(store);
+        return store;
+    }
+
     /* Store Owner-related service methods ----------------------------------------------------------------------- */
 
     @Transactional
     public StoreOwner createStoreOwner(String email, String name, String password) {
-        if( storeOwnerRepository.findByEmail(email) != null ) return null; // Customer already exists
+        if( storeOwnerRepository.findByEmail(email) != null ) return null; 
         StoreOwner storeOwner = new StoreOwner(email, name, password);
         storeOwnerRepository.save(storeOwner);
         return storeOwner;
     }
     
     @Transactional
-    public StoreOwner getStoreOwner(String email) {
-        return storeOwnerRepository.findByEmail(email);
+    public StoreOwner getStoreOwner() {
+        List<StoreOwner> list = toList(storeOwnerRepository.findAll());
+        if(list.size() == 0) {
+            return null;
+        } else {
+            return list.get(0);
+        }
     }
     
-    
+    @Transactional
+    public StoreOwner setStoreOwnerInfo(String email, String name, String password) {
+        List<StoreOwner> list = toList(storeOwnerRepository.findAll());
+        if(list.size() == 0) {
+            return null;
+        } else {
+            StoreOwner owner = list.get(0);
+            owner.setEmail(email);
+            owner.setName(name);
+            owner.setPassword(password);
+            storeOwnerRepository.save(owner);
+            return owner;
+        }
+    }
     
     /* Time Slot-related service methods ------------------------------------------------------------------------- */
     @Transactional
@@ -370,6 +415,49 @@ public class GroceryStoreService {
         return toList(timeslotRepository.findAll());
     }
 
+    @Transactional
+    public TimeSlot getTimeSlot(Date date, Time startTime, Time endTime) {
+        return timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime);
+    }
+
+    @Transactional
+    public List<TimeSlot> getTimeSlotsBetween(Time lowerThreshold, Time upperThreshold) {
+        List<TimeSlot> extendedList = timeslotRepository.findByStartTimeBetween(lowerThreshold, upperThreshold);
+        extendedList.addAll(timeslotRepository.findByEndTimeBetween(lowerThreshold, upperThreshold));
+        List<TimeSlot> finalList = new ArrayList<TimeSlot>();
+        for(TimeSlot t1 : extendedList) {
+            boolean contains = false;
+            for(TimeSlot t2: finalList) {
+                if(t1.getDate().equals(t2.getDate()) && t1.getStartTime().equals(t2.getStartTime()) && 
+                    t1.getEndTime().equals(t2.getEndTime())) {
+                    contains = true;
+                    break;
+                }
+            }
+            if(!contains) {
+                contains = false;
+                finalList.add(t1);
+            }
+        }
+        return null;
+    }
+
+    @Transactional
+    public boolean incrementMaxOrderPerslot(TimeSlot timeSlot) {
+        timeSlot.setMaxOrderPerSlot(timeSlot.getMaxOrderPerSlot() + 1);
+        timeslotRepository.save(timeSlot);
+        return true;
+    }
+
+    @Transactional
+    public boolean decrementMaxOrderPerslot(TimeSlot timeSlot) {
+        int maxOrderPerSlot = timeSlot.getMaxOrderPerSlot();
+        if(maxOrderPerSlot > 0) {
+            timeSlot.setMaxOrderPerSlot(maxOrderPerSlot - 1);
+            timeslotRepository.save(timeSlot);
+        }
+        return true;
+    }
     
     /* Helper methods -------------------------------------------------------------------------------------------- */
     private <T> List<T> toList(Iterable<T> iterable){

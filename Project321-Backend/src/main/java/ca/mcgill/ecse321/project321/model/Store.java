@@ -27,6 +27,7 @@ public class Store
   private Time openingHour;
   private Time closingHour;
   private int storeId;
+  private int outOfTownFee;
 
   //Store Associations
   private StoreOwner storeOwner;
@@ -36,13 +37,14 @@ public class Store
   // CONSTRUCTOR
   //------------------------
 
-  public Store(String aTelephone, String aEmail, Time aOpeningHour, Time aClosingHour, StoreOwner aStoreOwner, Address aAddress)
+  public Store(String aTelephone, String aEmail, Time aOpeningHour, Time aClosingHour, StoreOwner aStoreOwner, Address aAddress, int aOutOfTownFee)
   {
     telephone = aTelephone;
     email = aEmail;
     openingHour = aOpeningHour;
     closingHour = aClosingHour;
     storeId = 0;
+    outOfTownFee = aOutOfTownFee;
     if (!setStoreOwner(aStoreOwner))
     {
       throw new RuntimeException("Unable to create Store due to aStoreOwner. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
@@ -99,6 +101,13 @@ public class Store
     return wasSet;
   }
 
+  public boolean setOutOfTownFee(int aOutOfTownFee) {
+    boolean wasSet = false;
+    outOfTownFee = aOutOfTownFee;
+    wasSet = true;
+    return wasSet;
+  }
+
   public String getTelephone()
   {
     return telephone;
@@ -117,6 +126,10 @@ public class Store
   public Time getClosingHour()
   {
     return closingHour;
+  }
+
+  public int getOutOfTownFee() {
+    return outOfTownFee;
   }
 
   @Id

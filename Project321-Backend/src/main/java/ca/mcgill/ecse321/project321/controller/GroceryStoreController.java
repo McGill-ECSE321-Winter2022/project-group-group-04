@@ -2,6 +2,8 @@ package ca.mcgill.ecse321.project321.controller;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,18 +78,26 @@ public class GroceryStoreController {
         return convertToDTO(c);
     }
     
-    @GetMapping(value = {"/storeOwners/{email}", "/storeOwners/{email}/"})
-    public StoreOwnerDTO getStoreOwnerDTO(@PathVariable("email") String email) throws IllegalArgumentException{
-        return convertToDTO(service.getStoreOwner(email));
+    @GetMapping(value = {"/storeOwners", "/storeOwners/"})
+    public StoreOwnerDTO getStoreOwner() throws IllegalArgumentException{
+        return convertToDTO(service.getStoreOwner());
     }
     
     @PostMapping(value = {"/storeOwners", "/storeOwners/"})
     public StoreOwnerDTO createStoreOwner(@RequestParam(name = "email")     String email, 
-                                      @RequestParam(name = "name")      String name, 
-                                      @RequestParam(name = "password")  String password) 
+                                          @RequestParam(name = "name")      String name, 
+                                          @RequestParam(name = "password")  String password) 
     throws IllegalArgumentException {
         StoreOwner c = service.createStoreOwner(email, name, password);
         System.out.println(c.getName());
+        return convertToDTO(c);
+    }
+
+    @PostMapping(value = {"/storeOwners/info", "/storeOwners/info/"})
+    public StoreOwnerDTO setStoreOwnerInfo(@RequestParam(name = "email")     String email, 
+                                           @RequestParam(name = "name")      String name, 
+                                           @RequestParam(name = "password")  String password){
+        StoreOwner c = service.setStoreOwnerInfo(email, name, password);
         return convertToDTO(c);
     }
 
@@ -114,18 +124,15 @@ public class GroceryStoreController {
     	switch (userType.toLowerCase()) {
 		case "owner":
 		case "storeowner":
-			StoreOwnerDTO so =convertToDTO(service.getStoreOwner(email));
-			if (so != null) {
-				if (so.getPassword().equals(password)) {
-					Project321BackendApplication.setCurrentUser(so);
-					Project321BackendApplication.setUserType("owner");
-					return so;
-				}
-				else {
-					throw new IllegalArgumentException("password do not match");
-				}
+			StoreOwnerDTO so =convertToDTO(service.getStoreOwner());
+			if (so.getPassword().equals(password)) {
+				Project321BackendApplication.setCurrentUser(so);
+				Project321BackendApplication.setUserType("owner");
+				return so;
 			}
-			break;
+			else {
+				throw new IllegalArgumentException("password do not match");
+			}
 			
 		case "customer":
 			CustomerDTO c =convertToDTO(service.getCustomer(email));
@@ -167,15 +174,43 @@ public class GroceryStoreController {
 
     @PostMapping(value = {"/carts", "/carts/"})
     public CartDTO createCart(@RequestParam(name = "type")      ShoppingTypeDTO type,
-                              @RequestParam(name = "customer")  CustomerDTO customer,
-                              @RequestParam(name = "timeSlot")  TimeSlotDTO timeSlot) {
-        Cart c = service.createCart(translateEnum(type), convertToDomainObject(customer));
-        c = service.setTimeSlot(c, convertToDomainObject(timeSlot));
-        return convertToDTO(c);
+                              @RequestParam(name = "customeremail")  String customerEmail) {
+
+        if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().contentEquals("customer")) {
+            Date creationDate = java.sql.Date.valueOf(LocalDate.now());
+            Time creationTime = java.sql.Time.valueOf(LocalTime.now());
+            Customer customer = service.getCustomer(customerEmail);
+            Cart c = service.createCart(translateEnum(type), customer, creationDate, creationTime);
+            return convertToDTO(c);
+        }
+        else {
+            throw new IllegalArgumentException("Must be logged in as a customer.");
+        }
+    }
+
+    /**
+     * This implements part of Req. 06 which relates to setting a desired time slot
+     * The Grocery software system shall only allow delivery and pick-up time slots to be reserved by customers if there is one 
+     * employee available to tend to the delivery or pick-up during that time slot
+     * @return returns list of timeslots that are available
+     * @throws IllegalArgumentException
+     */
+    @PostMapping(value = {"/carts/timeslot", "/carts/timeslot/"})
+    public CartDTO setCartTimeSlot(@RequestParam(name = "cartcustomeremail") String customerEmail,
+                                   @RequestParam(name = "cartdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date cartDate,
+                                   @RequestParam(name = "carttime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date cartTime, 
+                                   @RequestParam(name = "timeslotdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date timeSlotDate,
+                                   @RequestParam(name = "timeslotstarttime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotStartTime,
+                                   @RequestParam(name = "timeslotendtime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotEndTime) {
+        Customer customer = service.getCustomer(customerEmail);
+        TimeSlot timeSlot = service.getTimeSlot(new Date(timeSlotDate.getTime()), new Time(timeSlotStartTime.getTime()), new Time(timeSlotEndTime.getTime()));
+        Cart cart = service.getCartByCustomerAndDateAndTime(customer, new Date(cartDate.getTime()), new Time(cartTime.getTime()));
+        cart = service.setTimeSlot(cart, timeSlot);
+        return convertToDTO(cart);
     }
     
     /**
-     * This implements Req. 06
+     * This implements part of Req. 06 which relates to requesting to see all available timeslots
      * The Grocery software system shall only allow delivery and pick-up time slots to be reserved by customers if there is one 
      * employee available to tend to the delivery or pick-up during that time slot
      * @return returns list of timeslots that are available
@@ -185,7 +220,7 @@ public class GroceryStoreController {
     public List<TimeSlotDTO> availableTimeSlots() throws IllegalArgumentException {
     	List<TimeSlot> tslot = service.getAllTimeSlots();
     	if(tslot == null) {
-    		throw new IllegalArgumentException("No TimeSot exists!");
+    		throw new IllegalArgumentException("No TimeSlot exists!");
     	}
     	List<Shift> shifts = service.getAllShifts();
     	if(shifts == null) {
@@ -193,17 +228,14 @@ public class GroceryStoreController {
     	}
     	List<TimeSlot> availableTimeSlots = new ArrayList<>();
     	for(TimeSlot t: tslot) {
-    		for(Shift s: shifts) {
-    			if(t.getDate().equals(s.getDate()) && t.getStartTime().before(s.getEndHour()) || t.getDate().equals(s.getDate()) && t.getEndTime().after(s.getStartHour())) { ///need to clarify how shift will work in terms of hours
-    				if(!availableTimeSlots.contains(t)) {
-    					availableTimeSlots.add(t);
-    				}
-    			}
-    		}
+            if(t.getMaxOrderPerSlot() > 0) {
+                availableTimeSlots.add(t);
+            }
     	}
     	
     	return convertTimeSlotListToDTO(availableTimeSlots);
     }
+
     /**
      * This implements Req. 09
      * The Grocery software system shall keep track of all the employees who work and have worked at the grocery store with employee accounts
@@ -259,7 +291,7 @@ public class GroceryStoreController {
     /**
      * This implements Req. 11
      * The Grocery Store System shall allow the employee or customer to create a 
-     * customer account with the customer’s email and physical address.
+     * customer account with the customerï¿½s email and physical address.
      * All this method does is check if it is the employee making the customer account. We assume when a customer is making
      * an account the userType will not be set
      * @return returns the newly added customer
@@ -288,8 +320,6 @@ public class GroceryStoreController {
      * @return returns true if free-shipping requirements are met, false otherwise.
      * @throws IllegalArgumentException
      */
-    ////Creating a local address for the grocery store temporarily 
-    Address localAddress = new Address("Montreal", "McgillStreet", "HHHH", 1234);
     @GetMapping(value = {"/shipping", "/shipping/"})
     public boolean shippingFeeChecker() throws IllegalArgumentException{
     	boolean freeShipping = false;
@@ -298,7 +328,7 @@ public class GroceryStoreController {
         	String email = currentUser.getEmail();
         	Customer customer = service.getCustomer(email);
         	Address customeraddress = customer.getAddress();
-        	if(customeraddress.getTown().equals(localAddress.getTown())) {
+        	if(customeraddress.getTown().equals(Project321BackendApplication.getStore().getAddress().getTown())) {
         		freeShipping = true;
         	}
         	return freeShipping;
@@ -452,6 +482,47 @@ public class GroceryStoreController {
     	}
     	return sum;
     }
+
+    @GetMapping(value = {"/checkout", "/checkout/"})
+    public int checkout() throws IllegalAccessException, IllegalArgumentException{
+        int totalPrice = 0;
+        if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().contentEquals("customer")) {
+            CartDTO localCart = Project321BackendApplication.getCart();
+            if(localCart == null) {
+                throw new IllegalAccessException("No cart to checkout!");
+            }
+            List<CartItemDTO> itemList = localCart.getCartItems();
+            for(CartItemDTO i : itemList) {
+                totalPrice += i.getQuantity() * i.getProduct().getPrice();
+            }
+            if(shippingFeeChecker()){
+                totalPrice += Project321BackendApplication.getStore().getOutOfTownFee();
+            }
+            service.createOrder(false, java.sql.Date.valueOf(LocalDate.now()), 
+                                totalPrice, null, convertToDomainObject(localCart));
+            return totalPrice;     
+        }
+        else {
+            throw new IllegalArgumentException("Must be logged in as a customer.");
+        }
+    }
+
+    @PostMapping(value = {"/pay", "/pay/"})
+    public boolean pay(@RequestParam(name = "paymentcode") String paymentCode) 
+                       throws IllegalAccessException{
+        if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().contentEquals("customer")) {
+            CartDTO localCart = Project321BackendApplication.getCart();
+            if(localCart == null) {
+                throw new IllegalAccessException("No cart to pay for!");
+            }
+            Order order = service.getOrderByCart(convertToDomainObject(localCart));
+            service.setPayment(order, paymentCode);
+            return true;     
+        }
+        else {
+            throw new IllegalArgumentException("Must be logged in as a customer.");
+        }
+    }
     
     @GetMapping(value = {"/shifts", "/shifts/"})
     public List<ShiftDTO> getAllShift() throws IllegalArgumentException {
@@ -480,9 +551,15 @@ public class GroceryStoreController {
                               @RequestParam(name = "employeeEmail")  String email) 
                               throws IllegalArgumentException {
     	if (!"owner".equals(Project321BackendApplication.getUserType())) {
-    		throw new IllegalArgumentException("only owner is able to creat a shift.");
+    		throw new IllegalArgumentException("only owner is able to create a shift.");
     	}
-    	Shift shift = service.createShift(new Time(startHour.getTime()), new Time(endHour.getTime()), new java.sql.Date(date.getTime()), service.getEmployee(email));
+        Time startTime = new Time(startHour.getTime());
+        Time endTime = new Time(endHour.getTime());
+    	Shift shift = service.createShift(startTime, endTime, new java.sql.Date(date.getTime()), service.getEmployee(email));
+        List<TimeSlot> timeSlotOverShift = service.getTimeSlotsBetween(startTime, endTime);
+        for(TimeSlot t : timeSlotOverShift) {
+            service.incrementMaxOrderPerslot(t);
+        }
     	if (shift == null) {
     		throw new IllegalArgumentException("the shift with the same date for the employee already exsist.");
     	}
@@ -516,12 +593,14 @@ public class GroceryStoreController {
                                       @RequestParam(name = "town")     String town, 
                                       @RequestParam(name = "street")      String street, 
                                       @RequestParam(name = "postalcode")  String postalcode,
-                                      @RequestParam(name = "unit")     int unit)
-    throws IllegalArgumentException {
-    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
-    		throw new IllegalArgumentException("only owner is able to creat a store.");
-    	}
+                                      @RequestParam(name = "unit")     int unit, 
+                                      @RequestParam(name = "outoftownfee") int outOfTownFee)
+    throws IllegalArgumentException, IllegalStateException{
     	Address address = service.getAddresseByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalcode);
+        StoreOwner owner = service.getStoreOwner();
+        if(owner == null) {
+            throw new IllegalStateException("No store owner in the system, cannot create a store");
+        }
     	AddressDTO addressDto;
     	if (address == null) {
     		addressDto = createAddress(town, street, postalcode, unit);
@@ -529,7 +608,7 @@ public class GroceryStoreController {
     		addressDto = convertToDTO(address);
     	}
     	Store s = service.createStore(telephone, email, new Time(startHour.getTime()), new Time(endHour.getTime()),
-    			                      convertToDomainObject((StoreOwnerDTO)Project321BackendApplication.getCurrentUser()), convertToDomainObject(addressDto));
+    			                      owner, convertToDomainObject(addressDto), outOfTownFee);
     	if (s == null) {
     		throw new IllegalArgumentException("there is a store at the location already.");
     	}
@@ -559,7 +638,7 @@ public class GroceryStoreController {
     	} else {
     		addressDto = convertToDTO(address);
     	}
-    	Store s = service.getStore(address);
+    	Store s = service.getStore();
     	if (s == null) {
     		throw new IllegalArgumentException("there is no store at the location");
     	}
@@ -571,12 +650,12 @@ public class GroceryStoreController {
     }
     
     @GetMapping(value = {"/store", "/store/"})
-    public List<StoreDTO> getAllStores() throws IllegalArgumentException {
-    	List<Store> list = service.getAllStore();
-    	if  (list == null) {
+    public StoreDTO getStore() throws IllegalArgumentException {
+    	Store store = service.getStore();
+    	if  (store == null) {
     		throw new IllegalArgumentException("There are currently no any store in the system");
     	}
-        return convertStoreListDTO(list);
+        return convertToDTO(store);
     }
     
     /* Helper methods ---------------------------------------------------------------------------------------------------- */
@@ -679,7 +758,8 @@ public class GroceryStoreController {
     private StoreDTO convertToDTO(Store store) {
         if(store == null) throw new IllegalArgumentException("store does not exist");
         StoreDTO s = new StoreDTO(store.getTelephone(), store.getEmail(), store.getOpeningHour(), 
-        		                  store.getClosingHour(),convertToDTO(store.getStoreOwner()) ,convertToDTO(store.getAddress()));
+        		                  store.getClosingHour(), convertToDTO(store.getStoreOwner()), convertToDTO(store.getAddress()),
+                                  store.getOutOfTownFee());
         return s;
     }
     
@@ -706,7 +786,7 @@ public class GroceryStoreController {
     }
     
     private StoreOwner convertToDomainObject(StoreOwnerDTO ownerDto) {
-        StoreOwner owner = service.getStoreOwner(ownerDto.getEmail());
+        StoreOwner owner = service.getStoreOwner();
         return owner;
     }
 
@@ -724,7 +804,7 @@ public class GroceryStoreController {
         CustomerDTO customer = convertToDTO(cart.getCustomer());
         CartDTO.ShoppingTypeDTO type = translateEnum(cart.getType());
         if(type == null) throw new IllegalArgumentException("Invalid shopping type for cart");
-        CartDTO c = new CartDTO(type, customer, timeSlot);
+        CartDTO c = new CartDTO(type, customer, cart.getCreationDate(), cart.getCreationTime(), timeSlot);
         c.setCartItems(createCartItemsList(cart, c));
         return c;
     }
@@ -738,7 +818,7 @@ public class GroceryStoreController {
     }
     
     private TimeSlotDTO convertToDTO(TimeSlot timeSlot) {
-        if(timeSlot == null) throw new IllegalArgumentException("TimeSlot does not exist");
+        if(timeSlot == null) return null;
         TimeSlotDTO t = new TimeSlotDTO(timeSlot.getDate(), timeSlot.getStartTime(), 
                                         timeSlot.getEndTime(), timeSlot.getMaxOrderPerSlot());
         return t;
@@ -856,6 +936,17 @@ public class GroceryStoreController {
                 timeSlot.getEndTime().equals(t.getEndTime())) {
                 return t;
             }
+        }
+        return null;
+    }
+
+    private Cart convertToDomainObject(CartDTO cart) {
+        List<Cart> allCarts = service.getAllCarts();
+        for(Cart c : allCarts) {
+            if(c.getCustomer().getEmail().equals(cart.getCustomer().getEmail()) &&
+               c.getCreationDate().equals(cart.getCreationDate()) && c.getCreationTime().equals(cart.getCreationTime())) {
+                   return c;
+               }
         }
         return null;
     }

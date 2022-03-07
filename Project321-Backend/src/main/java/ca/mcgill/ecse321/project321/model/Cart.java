@@ -3,6 +3,9 @@
 
 package ca.mcgill.ecse321.project321.model;
 
+import java.sql.Date;
+import java.sql.Time;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,14 +36,18 @@ public class Cart
   //Cart Associations
   private Customer customer;
   private TimeSlot timeSlot;
+  private Date creationDate;
+  private Time creationTime;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Cart(ShoppingType aType, Customer aCustomer)
+  public Cart(ShoppingType aType, Customer aCustomer, Date aCreationDate, Time aCreationTime)
   {
     type = aType;
+    creationDate = aCreationDate;
+    creationTime = aCreationTime;
     cartId = 0;
     if (!setCustomer(aCustomer))
     {
@@ -68,9 +75,35 @@ public class Cart
     return wasSet;
   }
 
+  public boolean setCreationDate(Date aCreationDate) 
+  {
+    boolean wasSet = false;
+    creationDate = aCreationDate;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public boolean setCreationTime(Time aCreationTime) 
+  {
+    boolean wasSet = false;
+    creationTime = aCreationTime;
+    wasSet = true;
+    return wasSet;
+  }
+
   public ShoppingType getType()
   {
     return type;
+  }
+
+  public Date getCreationDate()
+  {
+    return creationDate;
+  }
+
+  public Time getCreationTime()
+  {
+    return creationTime;
   }
 
   @Id

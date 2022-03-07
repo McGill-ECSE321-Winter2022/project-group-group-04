@@ -12,4 +12,16 @@ public class CartItemDTO {
         this.quantity = quantity;
         this.product = product;
     }
+
+    public CartDTO getCart() {
+        return cart;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public ProductDTO getProduct() {
+        return product;
+    }
 }

@@ -42,6 +42,8 @@ class Cart
   * -> 1 Customer;
   * -> 0..1 TimeSlot;
   lazy Integer cartId;
+  Date creationDate;
+  Time creationTime;
   
   public Cart() {}
 }
@@ -132,6 +134,7 @@ class Store
   * -> 1 StoreOwner;
   * -> 1 Address;
   lazy Integer storeId;
+  Integer outOfTownFee;
   
   public Store() {}
 }
