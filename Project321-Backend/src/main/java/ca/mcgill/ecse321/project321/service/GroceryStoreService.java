@@ -72,8 +72,9 @@ public class GroceryStoreService {
     /* Customer-related service methods -------------------------------------------------------------------------- */
     @Transactional
     public Customer createCustomer(String email, String name, String password, String phone, Address address) {
-        if( customerRepository.findByEmail(email) != null ) return null; // Customer already exists
-        Customer customer = new Customer(email, name, password, phone, address);
+        Customer customer = customerRepository.findByEmail(email);
+        if( customer != null ) return customer; // Customer already exists
+        customer = new Customer(email, name, password, phone, address);
         customerRepository.save(customer);
         return customer;
     }

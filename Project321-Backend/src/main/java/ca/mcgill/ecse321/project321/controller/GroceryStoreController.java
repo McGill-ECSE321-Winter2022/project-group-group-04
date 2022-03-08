@@ -75,9 +75,16 @@ public class GroceryStoreController {
                                       @RequestParam(name = "name")      String name, 
                                       @RequestParam(name = "password")  String password, 
                                       @RequestParam(name = "phone")     String phone, 
-                                      @RequestParam(name = "address")   AddressDTO address) 
+                                      @RequestParam(name = "town")      String town,
+                                      @RequestParam(name = "street")      String street, 
+                                      @RequestParam(name = "postalcode")  String postalcode,
+                                      @RequestParam(name = "unit")     int unit) 
     throws IllegalArgumentException {
-        Customer c = service.createCustomer(email, name, password, phone, convertToDomainObject(address));
+        Address a = service.getAddresseByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalcode);
+        if(a == null) {
+            a = service.createAddresses(town, street, postalcode, unit);
+        }
+        Customer c = service.createCustomer(email, name, password, phone, a);
         //System.out.println(c.getName());
         return convertToDTO(c);
     }
@@ -180,7 +187,7 @@ public class GroceryStoreController {
      * @throws IllegalStateException When there is already an opened cart under the customer account
      */
     @PostMapping(value = {"/carts", "/carts/"})
-    public CartDTO createCart(@RequestParam(name = "type")      ShoppingTypeDTO type,
+    public CartDTO createCart(@RequestParam(name = "type")      String type,
                               @RequestParam(name = "customeremail")  String customerEmail, 
                               @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException{
 
@@ -191,7 +198,8 @@ public class GroceryStoreController {
         Date creationDate = java.sql.Date.valueOf(LocalDate.now());
         Time creationTime = java.sql.Time.valueOf(LocalTime.now());
         Customer customer = service.getCustomer(customerEmail);
-        cart = service.createCart(translateEnum(type), customer, creationDate, creationTime);
+        ShoppingType cartType = translateStringToEnum(type);
+        cart = service.createCart(cartType, customer, creationDate, creationTime);
         return convertToDTO(cart);
     }
 
@@ -1142,5 +1150,15 @@ public class GroceryStoreController {
         	freeShipping = true;
         }
         return freeShipping;
+    }
+
+    private ShoppingType translateStringToEnum(String type) throws IllegalArgumentException {
+        if(type.equals("Delivery")) {
+            return ShoppingType.Delivery;
+        } else if(type.equals("Pickup")) {
+            return ShoppingType.Pickup;
+        } else {
+            throw new IllegalArgumentException("Invalid shopping type: can only be Delivery or Pickup");
+        }
     }
 }
