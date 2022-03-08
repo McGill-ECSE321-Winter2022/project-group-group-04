@@ -132,57 +132,6 @@ public class GroceryStoreController {
         return convertToDTO(service.getEmployee(email));
     }
     
-/*    @PostMapping(value = {"/login", "/login/"})
-    public UserDTO login(@RequestParam(name = "email")     String email, 
-                         @RequestParam(name = "password")  String password, 
-                         @RequestParam(name = "userType")  String userType)
-    throws IllegalArgumentException {
-    	switch (userType.toLowerCase()) {
-		case "owner":
-		case "storeowner":
-			StoreOwnerDTO so =convertToDTO(service.getStoreOwner());
-			if (so.getPassword().equals(password)) {
-				Project321BackendApplication.setCurrentUser(so);
-				Project321BackendApplication.setUserType("owner");
-				return so;
-			}
-			else {
-				throw new IllegalArgumentException("password do not match");
-			}
-			
-		case "customer":
-			CustomerDTO c =convertToDTO(service.getCustomer(email));
-			if (c != null) {
-				if (c.getPassword().equals(password)) {
-					Project321BackendApplication.setCurrentUser(c);
-					Project321BackendApplication.setUserType("customer");
-					return c;
-				}
-				else {
-					throw new IllegalArgumentException("password do not match");
-				}
-			}
-			break;
-			
-		case "employee":
-			EmployeeDTO e =convertToDTO(service.getEmployee(email));
-			if (e != null) {
-				if (e.getPassword().equals(password)) {
-					Project321BackendApplication.setCurrentUser(e);
-					Project321BackendApplication.setUserType("employee");
-					return e;
-				}
-				else {
-					throw new IllegalArgumentException("password do not match");
-				}
-			}
-			break;
-		default:
-			break;
-		}
-    	return null;
-    }
-    */
     @GetMapping(value = {"/carts", "/carts/"})
     public List<CartDTO> getAllCarts() throws IllegalArgumentException {
         return convertCartListToDTO(service.getAllCarts());
