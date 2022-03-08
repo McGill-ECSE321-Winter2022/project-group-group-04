@@ -34,6 +34,7 @@ import ca.mcgill.ecse321.project321.model.Shift;
 import ca.mcgill.ecse321.project321.model.Store;
 import ca.mcgill.ecse321.project321.model.StoreOwner;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
+import ca.mcgill.ecse321.project321.model.User;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
 
 @Service
@@ -69,6 +70,11 @@ public class GroceryStoreService {
     /* This class will contain the methods to interact with the CRUD repository. We will be creating the objects
        and updating the database from these methods */ 
 
+    @Transactional
+    public User getUser(String email) {
+        return userRepository.findByEmail(email);
+    }
+	
     /* Customer-related service methods -------------------------------------------------------------------------- */
     @Transactional
     public Customer createCustomer(String email, String name, String password, String phone, Address address) {

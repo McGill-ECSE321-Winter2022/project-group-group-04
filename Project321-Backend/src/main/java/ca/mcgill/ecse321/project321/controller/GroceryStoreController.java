@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.mcgill.ecse321.project321.Project321BackendApplication;
+import ca.mcgill.ecse321.project321.dao.StoreOwnerRepository;
 import ca.mcgill.ecse321.project321.dto.AddressDTO;
 import ca.mcgill.ecse321.project321.dto.CartDTO;
 import ca.mcgill.ecse321.project321.dto.CartItemDTO;
@@ -56,6 +57,8 @@ import ca.mcgill.ecse321.project321.service.GroceryStoreService;
 @CrossOrigin(origins = "*")
 @RestController
 public class GroceryStoreController {
+	
+    public static String adminCode = "admin";
     
     @Autowired
     private GroceryStoreService service;
@@ -97,8 +100,12 @@ public class GroceryStoreController {
     @PostMapping(value = {"/storeOwners", "/storeOwners/"})
     public StoreOwnerDTO createStoreOwner(@RequestParam(name = "email")     String email, 
                                           @RequestParam(name = "name")      String name, 
-                                          @RequestParam(name = "password")  String password) 
+                                          @RequestParam(name = "password")  String password,
+                                          @RequestParam(name = "adminCode")  String code) 
     throws IllegalArgumentException, IllegalAccessException {
+    	if (!adminCode.equals(code)) {
+    		throw new IllegalAccessException("You need the correct admin code to create owner");
+    	}
         if(service.getStoreOwner() != null) {
             throw new IllegalAccessException("A store owner already exits! Cannot create another");
         }
@@ -110,7 +117,12 @@ public class GroceryStoreController {
     @PostMapping(value = {"/storeOwners/info", "/storeOwners/info/"})
     public StoreOwnerDTO setStoreOwnerInfo(@RequestParam(name = "email")     String email, 
                                            @RequestParam(name = "name")      String name, 
-                                           @RequestParam(name = "password")  String password){
+                                           @RequestParam(name = "password")  String password,
+                                           @RequestParam(name = "adminCode")  String code)
+    throws IllegalArgumentException, IllegalAccessException {
+    	if (!adminCode.equals(code)) {
+    		throw new IllegalAccessException("You need the correct admin code to set StoreOwnerInfo");
+    	}
         StoreOwner c = service.setStoreOwnerInfo(email, name, password);
         return convertToDTO(c);
     }
@@ -120,7 +132,7 @@ public class GroceryStoreController {
         return convertToDTO(service.getEmployee(email));
     }
     
-    @PostMapping(value = {"/login", "/login/"})
+/*    @PostMapping(value = {"/login", "/login/"})
     public UserDTO login(@RequestParam(name = "email")     String email, 
                          @RequestParam(name = "password")  String password, 
                          @RequestParam(name = "userType")  String userType)
@@ -170,7 +182,7 @@ public class GroceryStoreController {
 		}
     	return null;
     }
-    
+    */
     @GetMapping(value = {"/carts", "/carts/"})
     public List<CartDTO> getAllCarts() throws IllegalArgumentException {
         return convertCartListToDTO(service.getAllCarts());
@@ -287,12 +299,11 @@ public class GroceryStoreController {
      * @return returns list of empolyee, current and old
      * @throws IllegalArgumentException if userType is not owner
      */
-    @GetMapping(value = {"/listemployees", "/listemployees/"})
-    public List<EmployeeDTO> listEmployees() throws IllegalArgumentException{
-    	if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().equals("owner")) {
-            return convertEmployeeListToDTO(service.getAllEmployee());    		
-    	}
-    	throw new IllegalArgumentException("Only owner can do this!");
+    @GetMapping(value = {"/employees", "/employees/"})
+    public List<EmployeeDTO> listEmployees(@RequestParam(name = "ownerEmail") String email,
+    									   @RequestParam(name = "ownerPassword") String password) throws IllegalArgumentException{
+    	CheckUser(email, password, "owner", "Only owner is able to list all employee");
+        return convertEmployeeListToDTO(service.getAllEmployee());    		
     }
     
     /**
@@ -303,34 +314,25 @@ public class GroceryStoreController {
      * @throws IllegalArgumentException if userType is not owner
      */
     @PostMapping(value = {"/employee", "/employee/"})
-    public EmployeeDTO owneraddEmployee(@RequestParam(name = "email")     String email, 
-            @RequestParam(name = "name")      String name, 
-            @RequestParam(name = "password")  String password,
-            @RequestParam(name = "status")     EmployeeStatusDTO status) throws IllegalArgumentException {
-    	if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().equals("owner")) {
+    public EmployeeDTO owneraddEmployee(@RequestParam(name = "employeeEmail")     String email, 
+							            @RequestParam(name = "employeeName")      String name, 
+							            @RequestParam(name = "password")  String password,
+							            @RequestParam(name = "status")     EmployeeStatusDTO status,
+							            @RequestParam(name = "ownerEmail") String ownerEmail,
+									    @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException {
+    	
+    		CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to add an employee");
     		Employee e = service.createEmployee(email, name, password, translateEnum(status));
         	return convertToDTO(e);
-    	}
-    	else {
-    		throw new IllegalArgumentException("Only owner can do this!");
-    	}
     }
     @PostMapping(value = {"/removeemployee", "/removeemployee/"})
-    public void ownerremoveEmployee(@RequestParam(name = "email")     String email) {
-    	if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().equals("owner")) {
+    public void ownerremoveEmployee(@RequestParam(name = "employeeEmail") String email,							            
+						    		@RequestParam(name = "ownerEmail") String ownerEmail,
+								    @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException {
+    		CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is ably to remove an employee");
     		Employee e = service.getEmployee(email);
     		service.removeEmployee(e);
     		System.out.println("Employee deleted");
-    	}
-    	else {
-    		throw new IllegalArgumentException("Only owner can do this!");
-    	}
-    }
-    
-    ///Helper to check all the employees
-    @GetMapping(value = {"/employees", "/employees/"})
-    public List<EmployeeDTO> getAllEmployee() throws IllegalArgumentException{
-        return convertEmployeeListToDTO(service.getAllEmployee());
     }
     
     /**
@@ -347,15 +349,20 @@ public class GroceryStoreController {
                                       @RequestParam(name = "name")      String name, 
                                       @RequestParam(name = "password")  String password, 
                                       @RequestParam(name = "phone")     String phone, 
-                                      @RequestParam(name = "address")   AddressDTO address) 
+                                      @RequestParam(name = "town")      String town,
+                                      @RequestParam(name = "street")      String street, 
+                                      @RequestParam(name = "postalcode")  String postalcode,
+                                      @RequestParam(name = "unit")     int unit,
+                                      @RequestParam(name = "employeeEmail") String employeeEmail,
+  								      @RequestParam(name = "employeePassword") String employeePassword) 
     throws IllegalArgumentException {
-    	if(!Project321BackendApplication.getUserType().equalsIgnoreCase("owner")) {   //anyone but the owner can create a customer account for customer
-    		Customer c = service.createCustomer(email, name, password, phone, convertToDomainObject(address));
-            return convertToDTO(c);
-    	}
-    	else {
-    		throw new IllegalArgumentException("Only a customer or and employee can do this.");
-    	}
+    	CheckUser(employeeEmail, employeePassword, "employee", "Only employee is able to help creat a customer account");
+        Address a = service.getAddresseByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalcode);
+        if(a == null) {
+            a = service.createAddresses(town, street, postalcode, unit);
+        }
+        Customer c = service.createCustomer(email, name, password, phone, a);
+        return convertToDTO(c);
     }
     
     /**
@@ -388,11 +395,14 @@ public class GroceryStoreController {
      * @throws IllegalArgumentException
      */
     @GetMapping(value = {"/products", "/products/"})
-    public List<ProductDTO> getAllProduct() throws IllegalArgumentException {
-    	if ("customer".equals(Project321BackendApplication.getUserType())) {
+    public List<ProductDTO> getAllProduct(@RequestParam(name = "customerPage") Boolean customerPage) throws IllegalArgumentException {
+    	
+    	if (customerPage == false) { // provide all product if did not specify to view in customer's perspective
+    		return convertProductListDTO(service.getAllProduct());
+    	}
+    	else { // else we provide all items that are in stock for better online shopping experience
     		return convertProductListDTO(service.getProductByStockGreaterThan(0));
     	}
-        return convertProductListDTO(service.getAllProduct());
     }
     
     
@@ -408,10 +418,10 @@ public class GroceryStoreController {
                               @RequestParam(name = "productName")  String productName,
                               @RequestParam(name = "Online")  String isAviliableOnline,
     						  @RequestParam(name = "price")  int price,
-    					      @RequestParam(name = "stock")  int stock) throws IllegalArgumentException{
-    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
-    		throw new IllegalArgumentException("only owner is able to create products.");
-    	}
+    					      @RequestParam(name = "stock")  int stock,
+    					      @RequestParam(name = "ownerEmail") String ownerEmail,
+							  @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
+    	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to create an item");
     	Product p = service.createProduct(translateEnum(type), productName, isAviliableOnline, price, stock);
         return convertToDTO(p);
     }
@@ -422,10 +432,10 @@ public class GroceryStoreController {
      * @throws IllegalArgumentException
      */
     @PostMapping(value = {"/products/delete", "/products/delete/"})
-    public ProductDTO deleteProduct(@RequestParam(name = "productName") String productName) {
-    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
-    		throw new IllegalArgumentException("only owner is able to delete products.");
-    	}
+    public ProductDTO deleteProduct(@RequestParam(name = "productName") String productName,
+					    		    @RequestParam(name = "ownerEmail") String ownerEmail,
+								    @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
+    	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to delete an item");
     	Product p = service.deleteProduct(productName);
         return convertToDTO(p);
     }
@@ -437,13 +447,12 @@ public class GroceryStoreController {
      */
     @PostMapping(value = {"/products/changestock", "/products/changestock/"})
     public ProductDTO changeProductStock(@RequestParam(name = "productName") String productName,
-    									 @RequestParam(name = "stock") int stock){
+    									 @RequestParam(name = "stock") int stock,
+    									 @RequestParam(name = "ownerEmail") String ownerEmail,
+    									 @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
+    	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to update an item stock");
     	if (stock < 0) {
     		throw new IllegalArgumentException("stock cannot be a negative value");
-    	}
-    	if (!("owner".equals(Project321BackendApplication.getUserType()) || 
-    	    "employee".equals(Project321BackendApplication.getUserType()))) {
-    		throw new IllegalArgumentException("only owner or employee is able to change product stock.");
     	}
     	Product p = service.getProductByName(productName);
     	if (p == null) {
@@ -465,7 +474,10 @@ public class GroceryStoreController {
      */
     @PostMapping(value = {"/products/changeAvailability", "/products/changeAvailability/"})
     public ProductDTO changeProductAvailability(@RequestParam(name = "productName") String productName,
-    									        @RequestParam(name = "isAviliableOnline") String isAviliableOnline){
+    									        @RequestParam(name = "isAviliableOnline") String isAviliableOnline,
+    									        @RequestParam(name = "ownerEmail") String ownerEmail,
+    										    @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
+    	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to change product aviliablity");
     	Product p = service.getProductByName(productName);
     	if (p == null) {
     		throw new IllegalArgumentException("the product do not exsist");
@@ -485,10 +497,9 @@ public class GroceryStoreController {
      * @throws IllegalArgumentException
      */
     @GetMapping(value = {"/orders", "/orders"})
-    public List<OrderDTO> getAllOrders() throws IllegalArgumentException {
-    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
-    		throw new IllegalArgumentException("only owner is able to view sales report.");
-    	}
+    public List<OrderDTO> getAllOrders( @RequestParam(name = "ownerEmail") String ownerEmail,
+		    							@RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
+    	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to generate sales report");
     	List<Order> list = service.getAllOrders();
     	if (list == null) {
     		throw new IllegalArgumentException("currently no orders in the system");
@@ -499,14 +510,13 @@ public class GroceryStoreController {
     /**
      * This is an enhancement to Req.14, which generates the sales total for the owner.
      * Req.14-The Grocery Store System shall allow the owner to create a sales report containing all orders and their respective totals 
-     * @return sales total
+     * @return online sales total
      * @throws IllegalArgumentException
      */
     @GetMapping(value = {"/orders/total", "/orders/total"})
-    public int getAllOrdersTotal() throws IllegalArgumentException {
-    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
-    		throw new IllegalArgumentException("only owner is able to view sales total.");
-    	}
+    public int getAllOrdersTotal( @RequestParam(name = "ownerEmail") String ownerEmail,
+		    					  @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
+    	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is ably to generate online sales total");
     	List<Order> list = service.getAllOrders();
     	if (list == null) {
     		throw new IllegalArgumentException("currently no orders in the system");
@@ -564,11 +574,10 @@ public class GroceryStoreController {
      * @throws IllegalArgumentException
      */
     @GetMapping(value = {"/shifts/myshifts", "/shifts/myshifts/"})
-    public List<ShiftDTO> getAllShiftbyEmployee() throws IllegalArgumentException {
-    	if (!Project321BackendApplication.getUserType().equals("employee")) {
-    		throw new IllegalArgumentException("you do not have an employee account loged in. Unable to retrive shifts.");
-    	}
-    	List<ShiftDTO> list = convertShiftListToDTO(service.getShiftByEmployee(convertToDomainObject((EmployeeDTO)Project321BackendApplication.getCurrentUser())));
+    public List<ShiftDTO> getAllShiftbyEmployee( @RequestParam(name = "email") String email,
+		    									@RequestParam(name = "password") String password) throws IllegalArgumentException{
+    	UserDTO user = CheckUser(email, password, "employee", "Only employee is able to see their shift");
+    	List<ShiftDTO> list = convertShiftListToDTO(service.getShiftByEmployee(convertToDomainObject((EmployeeDTO)user)));
         return list;
     }
     
@@ -598,14 +607,16 @@ public class GroceryStoreController {
         Time endTime = new Time(endHour.getTime());
         Time storeOpening = service.getStore().getOpeningHour();
         Time storeClosing = service.getStore().getClosingHour();
-        if(startTime.before(storeOpening) || startTime.before(storeClosing) || 
-            endTime.after(storeOpening) || endTime.before(storeClosing)) {
+        if(startTime.before(storeOpening) || startTime.after(storeClosing) || 
+            endTime.before(storeOpening) || endTime.after(storeClosing)) {
             throw new IllegalArgumentException("Invalid start or end time for the shift");
         }
     	Shift shift = service.createShift(startTime, endTime, new java.sql.Date(date.getTime()), service.getEmployee(email));
         List<TimeSlot> timeSlotOverShift = service.getTimeSlotsBetween(startTime, endTime);
-        for(TimeSlot t : timeSlotOverShift) {
-            service.incrementMaxOrderPerslot(t);
+        if (timeSlotOverShift != null) {
+            for(TimeSlot t : timeSlotOverShift) {
+                service.incrementMaxOrderPerslot(t);
+            }
         }
     	if (shift == null) {
     		throw new IllegalArgumentException("the shift with the same date for the employee already exsist.");
@@ -641,8 +652,11 @@ public class GroceryStoreController {
                                       @RequestParam(name = "street")      String street, 
                                       @RequestParam(name = "postalcode")  String postalcode,
                                       @RequestParam(name = "unit")     int unit, 
-                                      @RequestParam(name = "outoftownfee") int outOfTownFee)
-    throws IllegalArgumentException, IllegalStateException{
+                                      @RequestParam(name = "outoftownfee") int outOfTownFee,
+                                      @RequestParam(name = "ownerEmail") String ownerEmail,
+    								  @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
+    									  
+    	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to create a store");
         if(service.getStore() != null) {
             throw new IllegalStateException("A store already exits! Cannot create another");
         }
@@ -673,29 +687,31 @@ public class GroceryStoreController {
     @PostMapping(value = {"/store/changeHours", "/changeHours/"})
     public StoreDTO changeStoreHours(@RequestParam(name = "openingHour")  @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date startHour,
                                       @RequestParam(name = "closingHour")  @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date endHour,
-                                      @RequestParam(name = "town")     String town, 
-                                      @RequestParam(name = "street")      String street, 
-                                      @RequestParam(name = "postalcode")  String postalcode,
-                                      @RequestParam(name = "unit")     int unit)
-    throws IllegalArgumentException {
-    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
-    		throw new IllegalArgumentException("only owner is able to change store hours.");
-    	}
-    	Address address = service.getAddresseByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalcode);
-    	AddressDTO addressDto;
-    	if (address == null) {
-    		addressDto = createAddress(town, street, postalcode, unit);
-    	} else {
-    		addressDto = convertToDTO(address);
-    	}
+    								  @RequestParam(name = "ownerEmail") String ownerEmail,
+    								  @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
+    									  
+    	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able changeStore hour");
     	Store s = service.getStore();
     	if (s == null) {
-    		throw new IllegalArgumentException("there is no store at the location");
+    		throw new IllegalArgumentException("there is no store in the system yet");
     	}
     	service.deleteStore(s);
     	s.setOpeningHour(new Time(startHour.getTime()));
     	s.setClosingHour(new Time(endHour.getTime()));
     	service.createStore(s);
+        return convertToDTO(s);
+    }
+    
+    @PostMapping(value = {"/store/delete", "/store/delete/"})
+    public StoreDTO deleteStore( @RequestParam(name = "ownerEmail") String ownerEmail,
+			  					 @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
+    									  
+    	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able delete store");
+    	Store s = service.getStore();
+    	if (s == null) {
+    		throw new IllegalArgumentException("there is no store in the system yet");
+    	}
+    	service.deleteStore(s);
         return convertToDTO(s);
     }
     
@@ -745,6 +761,59 @@ public class GroceryStoreController {
     }
 
     /* Helper methods ---------------------------------------------------------------------------------------------------- */
+    
+    public UserDTO CheckUser (String email, String password, String targetUserType, String errorMsg) throws IllegalArgumentException {
+    	
+    	if (service.getUser(email) == null) {
+    		throw new IllegalArgumentException("the user with the email does not exsist");
+    	}
+    	
+    	switch (targetUserType.toLowerCase()) {
+		case "owner":
+		case "storeowner":
+			StoreOwner so = service.getStoreOwner();
+			if (so != null && so.getEmail() != email) {
+				throw new IllegalArgumentException(errorMsg);
+			}
+			StoreOwnerDTO soDto =convertToDTO(so);
+			if (so.getPassword().equals(password)) {
+				return soDto;
+			}
+			else {
+				throw new IllegalArgumentException("password do not match");
+			}
+			
+		case "customer":
+			Customer c = service.getCustomer(email);
+			if (c == null) {
+				throw new IllegalArgumentException(errorMsg);
+			}
+			CustomerDTO cDto =convertToDTO(c);
+			if (cDto.getPassword().equals(password)) {
+				return cDto;
+			}
+			else {
+				throw new IllegalArgumentException("password do not match");
+			}
+			
+		case "employee":
+			Employee e = service.getEmployee(email);
+			if (e == null) {
+				throw new IllegalArgumentException(errorMsg);
+			}
+			EmployeeDTO eDto =convertToDTO(e);
+			if (eDto.getPassword().equals(password)) {
+				return eDto;
+			}
+			else {
+				throw new IllegalArgumentException("password do not match");
+			}
+			
+		default:
+			throw new IllegalArgumentException("target user type needs to be employee, owner, or customer");
+		}
+    }
+    
     private List<CustomerDTO> convertCustomerListToDTO(List<Customer> customers) throws IllegalArgumentException{
         List<CustomerDTO> list = new ArrayList<CustomerDTO>();
         for(Customer c : customers) {
