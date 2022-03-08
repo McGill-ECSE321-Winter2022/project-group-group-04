@@ -187,7 +187,7 @@ public class GroceryStoreController {
      * @throws IllegalStateException When there is already an opened cart under the customer account
      */
     @PostMapping(value = {"/carts", "/carts/"})
-    public CartDTO createCart(@RequestParam(name = "type")      String type,
+    public CartDTO createCart(@RequestParam(name = "type")      ShoppingTypeDTO type,
                               @RequestParam(name = "customeremail")  String customerEmail, 
                               @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException{
 
@@ -198,8 +198,7 @@ public class GroceryStoreController {
         Date creationDate = java.sql.Date.valueOf(LocalDate.now());
         Time creationTime = java.sql.Time.valueOf(LocalTime.now());
         Customer customer = service.getCustomer(customerEmail);
-        ShoppingType cartType = translateStringToEnum(type);
-        cart = service.createCart(cartType, customer, creationDate, creationTime);
+        cart = service.createCart(translateEnum(type), customer, creationDate, creationTime);
         return convertToDTO(cart);
     }
 
@@ -1150,15 +1149,5 @@ public class GroceryStoreController {
         	freeShipping = true;
         }
         return freeShipping;
-    }
-
-    private ShoppingType translateStringToEnum(String type) throws IllegalArgumentException {
-        if(type.equals("Delivery")) {
-            return ShoppingType.Delivery;
-        } else if(type.equals("Pickup")) {
-            return ShoppingType.Pickup;
-        } else {
-            throw new IllegalArgumentException("Invalid shopping type: can only be Delivery or Pickup");
-        }
     }
 }
