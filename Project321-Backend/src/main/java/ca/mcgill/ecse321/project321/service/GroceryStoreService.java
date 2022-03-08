@@ -14,7 +14,7 @@ import ca.mcgill.ecse321.project321.dao.CartItemRepository;
 import ca.mcgill.ecse321.project321.dao.CartRepository;
 import ca.mcgill.ecse321.project321.dao.CustomerRepository;
 import ca.mcgill.ecse321.project321.dao.EmployeeRepository;
-import ca.mcgill.ecse321.project321.dao.InStoreBillRepository;
+import ca.mcgill.ecse321.project321.dao.InStorePurchaseRepository;
 import ca.mcgill.ecse321.project321.dao.OrderRepository;
 import ca.mcgill.ecse321.project321.dao.ProductRepository;
 import ca.mcgill.ecse321.project321.dao.ShiftRepository;
@@ -27,7 +27,7 @@ import ca.mcgill.ecse321.project321.model.Cart;
 import ca.mcgill.ecse321.project321.model.CartItem;
 import ca.mcgill.ecse321.project321.model.Customer;
 import ca.mcgill.ecse321.project321.model.Employee;
-import ca.mcgill.ecse321.project321.model.InStoreBill;
+import ca.mcgill.ecse321.project321.model.InStorePurchase;
 import ca.mcgill.ecse321.project321.model.Order;
 import ca.mcgill.ecse321.project321.model.Product;
 import ca.mcgill.ecse321.project321.model.Shift;
@@ -62,7 +62,7 @@ public class GroceryStoreService {
     @Autowired
     private AddressRepository addressRepository;
 	@Autowired
-	private InStoreBillRepository inStoreBillRepository;
+	private InStorePurchaseRepository inStorePurchaseRepository;
 	@Autowired
 	private UserRepository userRepository;
 
@@ -196,10 +196,10 @@ public class GroceryStoreService {
     }
 
     @Transactional
-    public CartItem createCartItem(int quantity, Product product, InStoreBill inStoreBill) {
+    public CartItem createCartItem(int quantity, Product product, InStorePurchase inStorePurchase) {
         if( productRepository.findByProductName(product.getProductName()) == null ) return null; // Product does not exist
         CartItem cartItem = new CartItem(quantity, product);
-        cartItem.setInStoreBill(inStoreBill);
+        cartItem.setInStorePurchase(inStorePurchase);
         return cartItem;
     }
 
@@ -209,8 +209,8 @@ public class GroceryStoreService {
     }
 
     @Transactional
-    public List<CartItem> getCartItemsByInStoreBill(InStoreBill inStoreBill) {
-        return cartItemRepository.findByInStoreBill(inStoreBill);
+    public List<CartItem> getCartItemsByInStorePurchase(InStorePurchase inStorePurchase) {
+        return cartItemRepository.findByInStorePurchase(inStorePurchase);
     }
 
     @Transactional
@@ -219,8 +219,8 @@ public class GroceryStoreService {
     }
 
     @Transactional
-    public CartItem getCartItemByProductAndInStoreBill(Product product, InStoreBill inStoreBill) {
-        return cartItemRepository.findByInStoreBillAndProduct(inStoreBill, product);
+    public CartItem getCartItemByProductAndInStorePurchase(Product product, InStorePurchase inStorePurchase) {
+        return cartItemRepository.findByInStorePurchaseAndProduct(inStorePurchase, product);
     }
 
     @Transactional
@@ -231,6 +231,12 @@ public class GroceryStoreService {
     @Transactional
     public List<CartItem> getAllCartItems() {
         return toList(cartItemRepository.findAll());
+    }
+
+    @Transactional
+    public void deleteCartItem(CartItem item) {
+        if(item == null) return;
+        cartItemRepository.delete(item);
     }
 
     /* Address-related service methods --------------------------------------------------------------------------- */
@@ -276,24 +282,24 @@ public class GroceryStoreService {
     	employeeRepository.delete(employee);
     }
     
-    /* In-Store Bill-related service methods --------------------------------------------------------------------- */
+    /* In-Store Purchase-related service methods --------------------------------------------------------------------- */
     @Transactional
-    public InStoreBill createInStoreBill(int total, Date purchaseDate, String paymentCode) {
-        InStoreBill bill = new InStoreBill(total, purchaseDate, paymentCode);
-        inStoreBillRepository.save(bill);
-        return bill;
+    public InStorePurchase createInStorePurchase(int total, Date purchaseDate) {
+        InStorePurchase purchase = new InStorePurchase(total, purchaseDate);
+        inStorePurchaseRepository.save(purchase);
+        return purchase;
     }
 
     @Transactional
-    public InStoreBill setInStoreBillTotal(int total, InStoreBill inStoreBill) {
-        inStoreBill.setTotal(total);
-        inStoreBillRepository.save(inStoreBill);
-        return inStoreBill;
+    public InStorePurchase setInStorePurchaseTotal(int total, InStorePurchase inStorePurchase) {
+        inStorePurchase.setTotal(total);
+        inStorePurchaseRepository.save(inStorePurchase);
+        return inStorePurchase;
     }
 
     @Transactional
-    public List<InStoreBill> getAllInStoreBills() {
-        return toList(inStoreBillRepository.findAll());
+    public List<InStorePurchase> getAllInStorePurchases() {
+        return toList(inStorePurchaseRepository.findAll());
     }
 
     /* Product-related service methods --------------------------------------------------------------------------- */

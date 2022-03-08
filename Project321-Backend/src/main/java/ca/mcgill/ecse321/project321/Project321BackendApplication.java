@@ -9,7 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.mcgill.ecse321.project321.dto.CartDTO;
-import ca.mcgill.ecse321.project321.dto.InStoreBillDTO;
+import ca.mcgill.ecse321.project321.dto.InStorePurchaseDTO;
 import ca.mcgill.ecse321.project321.dto.StoreDTO;
 import ca.mcgill.ecse321.project321.dto.StoreOwnerDTO;
 import ca.mcgill.ecse321.project321.dto.UserDTO;
@@ -25,7 +25,7 @@ public class Project321BackendApplication {
 	private static String 			userType;
 	private static StoreDTO 		store;
 	private static CartDTO 			cart;
-	private static InStoreBillDTO 	bill;
+	private static InStorePurchaseDTO 	purchase;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Project321BackendApplication.class, args);
@@ -35,7 +35,7 @@ public class Project321BackendApplication {
 	@RequestMapping("/")
   	public String greeting(){
 		cart = null;
-		bill = null;
+		purchase = null;
 
 		if (currentUser != null) {
 	    	return "Hello world! Current user email is " + currentUser.getEmail() + ". And the user type is " + userType;
@@ -72,11 +72,11 @@ public class Project321BackendApplication {
 		cart = aCart;
 	}
 
-	public static InStoreBillDTO getBill() {
-		return bill;
+	public static InStorePurchaseDTO getPurchase() {
+		return purchase;
 	}
 
-	public static void setBill(InStoreBillDTO aBill) {
-		bill = aBill;
+	public static void setPurchase(InStorePurchaseDTO aPurchase) {
+		purchase = aPurchase;
 	}
 }

@@ -27,7 +27,7 @@ public class CartItem
   //CartItem Associations
   private Product product;
   private Cart cart;
-  private InStoreBill inStoreBill;
+  private InStorePurchase inStorePurchase;
 
   //------------------------
   // CONSTRUCTOR
@@ -94,14 +94,14 @@ public class CartItem
   }
   /* Code from template association_GetOne */
   @ManyToOne(cascade = CascadeType.MERGE)
-  public InStoreBill getInStoreBill()
+  public InStorePurchase getInStorePurchase()
   {
-    return inStoreBill;
+    return inStorePurchase;
   }
 
-  public boolean hasInStoreBill()
+  public boolean hasInStorePurchase()
   {
-    boolean has = inStoreBill != null;
+    boolean has = inStorePurchase != null;
     return has;
   }
   /* Code from template association_SetUnidirectionalOne */
@@ -124,10 +124,10 @@ public class CartItem
     return wasSet;
   }
   /* Code from template association_SetUnidirectionalOptionalOne */
-  public boolean setInStoreBill(InStoreBill aNewInStoreBill)
+  public boolean setInStorePurchase(InStorePurchase aNewInStorePurchase)
   {
     boolean wasSet = false;
-    inStoreBill = aNewInStoreBill;
+    inStorePurchase = aNewInStorePurchase;
     wasSet = true;
     return wasSet;
   }
@@ -136,7 +136,7 @@ public class CartItem
   {
     product = null;
     cart = null;
-    inStoreBill = null;
+    inStorePurchase = null;
   }
 
   // line 92 "../../../../../../model.ump"
@@ -152,6 +152,6 @@ public class CartItem
             "cartItemId" + ":" + getCartItemId()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "product = "+(getProduct()!=null?Integer.toHexString(System.identityHashCode(getProduct())):"null") + System.getProperties().getProperty("line.separator") +
             "  " + "cart = "+(getCart()!=null?Integer.toHexString(System.identityHashCode(getCart())):"null") + System.getProperties().getProperty("line.separator") +
-            "  " + "inStoreBill = "+(getInStoreBill()!=null?Integer.toHexString(System.identityHashCode(getInStoreBill())):"null");
+            "  " + "inStorePurchase = "+(getInStorePurchase()!=null?Integer.toHexString(System.identityHashCode(getInStorePurchase())):"null");
   }
 }

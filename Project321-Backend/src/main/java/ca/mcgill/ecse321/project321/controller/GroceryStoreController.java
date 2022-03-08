@@ -22,9 +22,9 @@ import ca.mcgill.ecse321.project321.dto.CartDTO;
 import ca.mcgill.ecse321.project321.dto.CartItemDTO;
 import ca.mcgill.ecse321.project321.dto.CustomerDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO;
-import ca.mcgill.ecse321.project321.dto.InStoreBillDTO;
+import ca.mcgill.ecse321.project321.dto.InStorePurchaseDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO.EmployeeStatusDTO;
-import ca.mcgill.ecse321.project321.dto.InStoreBillDTO;
+import ca.mcgill.ecse321.project321.dto.InStorePurchaseDTO;
 import ca.mcgill.ecse321.project321.dto.OrderDTO;
 import ca.mcgill.ecse321.project321.dto.ProductDTO;
 import ca.mcgill.ecse321.project321.dto.TimeSlotDTO;
@@ -39,12 +39,13 @@ import ca.mcgill.ecse321.project321.model.Cart;
 import ca.mcgill.ecse321.project321.model.CartItem;
 import ca.mcgill.ecse321.project321.model.Customer;
 import ca.mcgill.ecse321.project321.model.Employee;
-import ca.mcgill.ecse321.project321.model.InStoreBill;
+import ca.mcgill.ecse321.project321.model.InStorePurchase;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
-import ca.mcgill.ecse321.project321.model.InStoreBill;
+import ca.mcgill.ecse321.project321.model.InStorePurchase;
 import ca.mcgill.ecse321.project321.model.Order;
 import ca.mcgill.ecse321.project321.model.Product;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
+import ca.mcgill.ecse321.project321.model.User;
 import ca.mcgill.ecse321.project321.model.Cart.ShoppingType;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
 import ca.mcgill.ecse321.project321.model.Shift;
@@ -168,21 +169,51 @@ public class GroceryStoreController {
         return convertCartListToDTO(service.getAllCarts());
     }
 
+    /**
+     * Method partly related to Req.03 (1/3): As a user of the Grocery software system with a customer account, I 
+     * would like to add items into a cart if they are online shopperable and checkout when I am ready for payment 
+     * Use to create a new cart under the customer account
+     * @param type Type of shopping, either Delivery or Pick-up
+     * @param customerEmail Email of customer for identification
+     * @param customerPassword Password of customer for identification
+     * @return The data transfer object of the cart created
+     * @throws IllegalStateException When there is already an opened cart under the customer account
+     */
     @PostMapping(value = {"/carts", "/carts/"})
     public CartDTO createCart(@RequestParam(name = "type")      ShoppingTypeDTO type,
-                              @RequestParam(name = "customeremail")  String customerEmail) {
+                              @RequestParam(name = "customeremail")  String customerEmail, 
+                              @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException{
 
-        if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().contentEquals("customer")) {
-            Date creationDate = java.sql.Date.valueOf(LocalDate.now());
-            Time creationTime = java.sql.Time.valueOf(LocalTime.now());
-            Customer customer = service.getCustomer(customerEmail);
-            Cart c = service.createCart(translateEnum(type), customer, creationDate, creationTime);
-            CartDTO cart = convertToDTO(c);
-            Project321BackendApplication.setCart(cart); // Set current cart in session
-            return cart;
+        Cart cart = retrieveOpenCart(customerEmail, customerPassword);
+        if(cart != null) {
+            throw new IllegalStateException("Failed to create a new cart: an opened cart already exists, delete the opened cart or carry on the purchase on this one");
         }
-        else {
-            throw new IllegalArgumentException("Must be logged in as a customer.");
+        Date creationDate = java.sql.Date.valueOf(LocalDate.now());
+        Time creationTime = java.sql.Time.valueOf(LocalTime.now());
+        Customer customer = service.getCustomer(customerEmail);
+        cart = service.createCart(translateEnum(type), customer, creationDate, creationTime);
+        return convertToDTO(cart);
+    }
+
+    /**
+     * Method partly related to Req.03 (1/3): As a user of the Grocery software system with a customer account, I 
+     * would like to add items into a cart if they are online shopperable and checkout when I am ready for payment
+     * Use to clear all items in the cart
+     * @param customerEmail Email of customer for identification
+     * @param customerPassword Password of customer for identification
+     * @throws IllegalStateException
+     */
+    @PostMapping(value = {"/carts/clear", "/carts/clear/"})
+    public void clearCart(@RequestParam(name = "customeremail")  String customerEmail, 
+                          @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException {
+        Cart cart = retrieveOpenCart(customerEmail, customerPassword);
+        if(cart == null) {
+            throw new IllegalStateException("Failed to clear the current cart: there is no opened cart to clear");
+        }
+        List<CartItem> items = service.getCartItemsByCart(cart);
+        for(CartItem i : items) {
+            service.setProductStock(i.getProduct().getProductName(), (i.getProduct().getStock() + i.getQuantity()));
+            service.deleteCartItem(i);
         }
     }
 
@@ -190,19 +221,26 @@ public class GroceryStoreController {
      * This implements part of Req. 06 which relates to setting a desired time slot
      * The Grocery software system shall only allow delivery and pick-up time slots to be reserved by customers if there is one 
      * employee available to tend to the delivery or pick-up during that time slot
+     * It is also related to Req.02-As a user of the Grocery software system with a customer account, I would like to schedule
+     * a delivery or pick-up time among a variety of available time slots
      * @return returns list of timeslots that are available
      * @throws IllegalArgumentException
      */
     @PostMapping(value = {"/carts/timeslot", "/carts/timeslot/"})
-    public CartDTO setCartTimeSlot(@RequestParam(name = "cartcustomeremail") String customerEmail,
-                                   @RequestParam(name = "cartdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date cartDate,
-                                   @RequestParam(name = "carttime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date cartTime, 
+    public CartDTO setCartTimeSlot(@RequestParam(name = "customeremail") String customerEmail,
+                                   @RequestParam(name = "customerpassword") String customerPassword,
                                    @RequestParam(name = "timeslotdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date timeSlotDate,
                                    @RequestParam(name = "timeslotstarttime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotStartTime,
-                                   @RequestParam(name = "timeslotendtime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotEndTime) {
-        Customer customer = service.getCustomer(customerEmail);
+                                   @RequestParam(name = "timeslotendtime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotEndTime) 
+                                   throws IllegalArgumentException, IllegalAccessException{
+        Cart cart = retrieveOpenCart(customerEmail, customerPassword);
+        if(cart == null) {
+            throw new IllegalAccessException("No opened cart available under this customer!");
+        }
         TimeSlot timeSlot = service.getTimeSlot(new Date(timeSlotDate.getTime()), new Time(timeSlotStartTime.getTime()), new Time(timeSlotEndTime.getTime()));
-        Cart cart = service.getCartByCustomerAndDateAndTime(customer, new Date(cartDate.getTime()), new Time(cartTime.getTime()));
+        if(timeSlot == null) {
+            throw new IllegalArgumentException("No time slot found under the specified hours and date");
+        }
         cart = service.setTimeSlot(cart, timeSlot);
         return convertToDTO(cart);
     }
@@ -211,6 +249,8 @@ public class GroceryStoreController {
      * This implements part of Req. 06 which relates to requesting to see all available timeslots
      * The Grocery software system shall only allow delivery and pick-up time slots to be reserved by customers if there is one 
      * employee available to tend to the delivery or pick-up during that time slot
+     * It is also related to Req.02-As a user of the Grocery software system with a customer account, I would like to schedule
+     * a delivery or pick-up time among a variety of available time slots
      * @return returns list of timeslots that are available
      * @throws IllegalArgumentException
      */
@@ -319,21 +359,11 @@ public class GroceryStoreController {
      * @throws IllegalArgumentException
      */
     @GetMapping(value = {"/shipping", "/shipping/"})
-    public boolean shippingFeeChecker() throws IllegalArgumentException{
-    	boolean freeShipping = false;
-    	if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().contentEquals("customer")) {
-    		UserDTO currentUser = Project321BackendApplication.getCurrentUser();
-        	String email = currentUser.getEmail();
-        	Customer customer = service.getCustomer(email);
-        	Address customeraddress = customer.getAddress();
-        	if(customeraddress.getTown().equals(Project321BackendApplication.getStore().getAddress().getTown())) {
-        		freeShipping = true;
-        	}
-        	return freeShipping;
-    	}
-    	else {
-    		throw new IllegalArgumentException("Must be logged in as a customer.");
-    	}
+    public boolean shippingFeeChecker(@RequestParam(name = "customeremail")  String customerEmail, 
+                                      @RequestParam(name = "customerpassword") String customerPassword) throws IllegalArgumentException{
+    	
+        checkCustomer(customerEmail, customerPassword); // Will throw exception if email is not a customer
+        return outOfTown(customerEmail);
     }
     ////helper method for testing things requiring customer
     @PostMapping(value = {"/testcustomer", "/testcustomer/"})
@@ -481,46 +511,38 @@ public class GroceryStoreController {
     	return sum;
     }
 
-    @GetMapping(value = {"/cart/checkout", "/cart/checkout/"})
-    public int checkoutCart() throws IllegalAccessException, IllegalArgumentException{
-        int totalPrice = 0;
-        if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().contentEquals("customer")) {
-            CartDTO localCart = Project321BackendApplication.getCart();
-            if(localCart == null) {
-                throw new IllegalAccessException("No cart to checkout!");
-            }
-            List<CartItemDTO> itemList = localCart.getCartItems();
-            for(CartItemDTO i : itemList) {
-                totalPrice += i.getQuantity() * i.getProduct().getPrice();
-            }
-            if(shippingFeeChecker()){
-                totalPrice += Project321BackendApplication.getStore().getOutOfTownFee();
-            }
-            service.createOrder(false, java.sql.Date.valueOf(LocalDate.now()), 
-                                totalPrice, null, convertToDomainObject(localCart));
-            return totalPrice;     
+    @GetMapping(value = {"/cart/total", "/cart/total/"})
+    public int getCartTotal(@RequestParam(name = "customeremail") String customerEmail,
+                            @RequestParam(name = "customerpassword") String customerPassword) throws IllegalArgumentException{
+        Cart cart = retrieveOpenCart(customerEmail, customerPassword);
+        if(cart == null) {
+            throw new IllegalArgumentException("Failed to find a cart that is currently opened!");
         }
-        else {
-            throw new IllegalArgumentException("Must be logged in as a customer.");
-        }
+        int totalPrice = getCurrentTotal(cart);
+        return totalPrice;     
     }
 
+    /**
+     * Method partly related to Req.03 (1/3): As a user of the Grocery software system with a customer account, I
+     * would like to add items into a cart if they are online shopperable and checkout when I am ready for payment 
+     * Use to pay the cart 
+     * @param paymentCode Payment code used to confirm the transaction
+     * @param customerEmail Email of the customer for identification
+     * @param customerPassword Password of the customer for identification
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     */
     @PostMapping(value = {"/cart/pay", "/cart/pay/"})
-    public boolean payCart(@RequestParam(name = "paymentcode") String paymentCode) 
-                       throws IllegalAccessException{
-        if(Project321BackendApplication.getUserType() != null && Project321BackendApplication.getUserType().contentEquals("customer")) {
-            CartDTO localCart = Project321BackendApplication.getCart();
-            if(localCart == null) {
-                throw new IllegalAccessException("No cart to pay for!");
-            }
-            Order order = service.getOrderByCart(convertToDomainObject(localCart));
-            service.setPayment(order, paymentCode);
-            Project321BackendApplication.setCart(null); // Reset the cart to null since we are done handling the latest cart
-            return true;     
+    public void payCart(@RequestParam(name = "paymentcode") String paymentCode, 
+                            @RequestParam(name = "customeremail") String customerEmail,
+                            @RequestParam(name = "customerpassword") String customerPassword) throws IllegalAccessException, IllegalArgumentException{
+        Cart cart = retrieveOpenCart(customerEmail, customerPassword);
+        if(cart == null) {
+            throw new IllegalArgumentException("Failed to find a cart that is currently opened!");
         }
-        else {
-            throw new IllegalArgumentException("Must be logged in as a customer.");
-        }
+        int totalPrice = getCurrentTotal(cart);
+        service.createOrder(false, java.sql.Date.valueOf(LocalDate.now()), 
+                            totalPrice, paymentCode, cart);     
     }
     
     @GetMapping(value = {"/shifts", "/shifts/"})
@@ -543,17 +565,36 @@ public class GroceryStoreController {
         return list;
     }
     
+    /**
+     * Method related to Req.08-The Grocery software system shall allow the owner to schedule 
+     * employees with active accounts to work within the daily opening hours of the store
+     * Use to create a new shift and assign a specific employee to the shift
+     * @param startHour Starting time of the shift
+     * @param endHour Ending time of the shift
+     * @param date Date of the shift
+     * @param email Email of the employee to which we assign the shift
+     * @param ownerEmail Email of the owner for identification
+     * @param ownerPassword Password of the owner for identification
+     * @return Data transfer object of the shift 
+     * @throws IllegalArgumentException When owner identification fails, cannot find employee in database or invalid hours
+     */
     @PostMapping(value = {"/shifts", "/shifts/"})
     public ShiftDTO createShift(@RequestParam(name = "startHour") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date startHour,
                               @RequestParam(name = "endHour") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date endHour,
                               @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date date,
-                              @RequestParam(name = "employeeEmail")  String email) 
+                              @RequestParam(name = "employeeEmail")  String email, 
+                              @RequestParam(name = "ownerEmail")  String ownerEmail,
+                              @RequestParam(name = "ownerPassword")  String ownerPassword) 
                               throws IllegalArgumentException {
-    	if (!"owner".equals(Project321BackendApplication.getUserType())) {
-    		throw new IllegalArgumentException("only owner is able to create a shift.");
-    	}
+    	checkOwner(ownerEmail, ownerPassword); // Will throw an exception if owner email or password is wrong
         Time startTime = new Time(startHour.getTime());
         Time endTime = new Time(endHour.getTime());
+        Time storeOpening = service.getStore().getOpeningHour();
+        Time storeClosing = service.getStore().getClosingHour();
+        if(startTime.before(storeOpening) || startTime.before(storeClosing) || 
+            endTime.after(storeOpening) || endTime.before(storeClosing)) {
+            throw new IllegalArgumentException("Invalid start or end time for the shift");
+        }
     	Shift shift = service.createShift(startTime, endTime, new java.sql.Date(date.getTime()), service.getEmployee(email));
         List<TimeSlot> timeSlotOverShift = service.getTimeSlotsBetween(startTime, endTime);
         for(TimeSlot t : timeSlotOverShift) {
@@ -661,107 +702,39 @@ public class GroceryStoreController {
     }
     
     @PostMapping(value = {"/cart/item", "/cart/item/"})
-    public CartItemDTO addItemToCart(@RequestParam(name = "productname") String productName,
+    public CartItemDTO addItemToCart(@RequestParam(name = "useremail") String userEmail,
+                                     @RequestParam(name = "userpassword") String userPassword,
+                                     @RequestParam(name = "productname") String productName,
                                      @RequestParam(name = "quantity") Integer quantity) 
                                      throws IllegalAccessException, IllegalArgumentException {
-        CartDTO localCart = Project321BackendApplication.getCart();
-        if(localCart == null) {
-            throw new IllegalAccessException("No cart to add item to!");
-        }
-        Product product = service.getProductByName(productName);
-        if(product == null) {
-            throw new IllegalArgumentException("Failed to find the product with the following name: " + productName);
-        }
-        if(quantity < 1) {
-            throw new IllegalArgumentException("Invalid quantity: must be above or equal to one, received " + quantity);
-        } else if(quantity > product.getStock()) {
-            throw new IllegalArgumentException("Invalid quantity: quantity demanded higher than available stock");
-        }
-        Cart cart = convertToDomainObject(localCart);
-        if(cart == null) {
-            throw new IllegalAccessException("Failed to find current cart in database!");
-        }
-        CartItem item = service.createCartItem(quantity, product, cart);
-        List<CartItemDTO> itemList = localCart.getCartItems();
-        CartItemDTO localItem = convertToDTO(item, localCart);
-        itemList.add(localItem);
-        localCart.setCartItems(itemList);
-        Project321BackendApplication.setCart(localCart);
-        product.setStock(product.getStock() - quantity);
         
-        return localItem;
+        Cart cart = retrieveOpenCart(userEmail, userPassword);
+        if(cart == null) {
+            throw new IllegalArgumentException("Failed to find a cart that is currently opened!");
+        }
+        Product product = verifyProductAvailabilityAndShoppability(productName, quantity);
+        CartItem item = service.createCartItem(quantity, product, cart);
+        service.setProductStock(productName, (product.getStock() - quantity));
+        return convertToDTO(item, convertToDTO(cart));
     }
 
-    @PostMapping(value = {"/instorebill", "/instorebill/"})
-    public InStoreBillDTO createInStoreBill() throws IllegalAccessException{
-        if(Project321BackendApplication.getUserType() != null && 
-            (Project321BackendApplication.getUserType().contentEquals("employee") || Project321BackendApplication.getUserType().contentEquals("storeowner"))) {
-            Date purchaseDate = java.sql.Date.valueOf(LocalDate.now());
-            InStoreBillDTO bill = new InStoreBillDTO(0, purchaseDate, null);
-            Project321BackendApplication.setBill(bill);
-            return bill;
-        } else {
-            throw new IllegalAccessException("Cannot create an in-store bill! You need to have employee or store owner clearance");
-        }
+    @PostMapping(value = {"/instorepurchase", "/instorepurchase/"})
+    public InStorePurchaseDTO createInStorePurchase(@RequestParam(name = "useremail") String userEmail,
+                                                    @RequestParam(name = "userpassword") String userPassword,
+                                                    @RequestParam(name = "productname") String productName,
+                                                    @RequestParam(name = "quantity") Integer quantity) throws IllegalAccessException{
+        checkEmployeeOrOwner(userEmail, userPassword);
+        Product p = verifyProductAvailability(productName, quantity);
+        Date purchaseDate = java.sql.Date.valueOf(LocalDate.now());
+        InStorePurchase purchase = new InStorePurchase((quantity * p.getPrice()), purchaseDate);
+        service.setProductStock(productName, (p.getStock() - quantity));
+        return convertToDTO(purchase);
     }
 
-    @PostMapping(value = {"/instorebill/item", "/instorebill/item/"})
-    public CartItemDTO addItemToBill(@RequestParam(name = "productname") String productName,
-                                     @RequestParam(name = "quantity") Integer quantity) 
-                                     throws IllegalAccessException, IllegalArgumentException {
-        if(Project321BackendApplication.getUserType() != null && 
-            (Project321BackendApplication.getUserType().contentEquals("employee") || Project321BackendApplication.getUserType().contentEquals("storeowner"))) {
-            InStoreBillDTO localBill = Project321BackendApplication.getBill();
-            if(localBill == null) {
-                throw new IllegalAccessException("No bill to add item to");
-            }
-            Product product = service.getProductByName(productName);
-            if(product == null) {
-                throw new IllegalArgumentException("Failed to find the product with the following name: " + productName);
-            }
-            if(quantity < 1) {
-                throw new IllegalArgumentException("Invalid quantity: must be above or equal to one, received " + quantity);
-            }
-            CartItemDTO localItem = new CartItemDTO(localBill, quantity, convertToDTO(product));
-            List<CartItemDTO> items = localBill.getCartItems();
-            items.add(localItem);
-            localBill.setCartItems(items);
-            Project321BackendApplication.setBill(localBill);
-            return localItem;
-        } else {
-            throw new IllegalAccessException("Cannot add item to in-store bill! You need to have employee or store owner clearance");
-        }
-    }
-
-    @PostMapping(value = {"/instorebill/pay", "/instorebill/pay/"})
-    public InStoreBillDTO payInStoreBill(@RequestParam(name = "paymentcode") String paymentCode) 
-                                        throws IllegalAccessException {
-        if(Project321BackendApplication.getUserType() != null && 
-            (Project321BackendApplication.getUserType().contentEquals("employee") || Project321BackendApplication.getUserType().contentEquals("storeowner"))) {
-            InStoreBillDTO localBill = Project321BackendApplication.getBill();
-            if(localBill == null) {
-                throw new IllegalAccessException("No in-store bill to pay for!");
-            }
-            InStoreBill bill = service.createInStoreBill(localBill.getTotal(), localBill.getPurchaseDate(), paymentCode);
-            int total = 0;
-            List<CartItemDTO> localItems = localBill.getCartItems();
-            List<CartItem> items = new ArrayList<CartItem>();
-            for(CartItemDTO i : localItems) {
-                total += i.getQuantity() * i.getProduct().getPrice();
-                Product p = service.getProductByName(i.getProduct().getProductName());
-                if(p == null) {
-                    throw new IllegalStateException("Cannot seem to find product named " + i.getProduct().getProductName() 
-                                                    + " in database anymore...");
-                }
-                p = service.setProductStock(i.getProduct().getProductName(), i.getQuantity());
-                CartItem c = service.createCartItem(i.getQuantity(), p, bill);
-                items.add(c);
-            }
-            service.setInStoreBillTotal(total, bill);
-            return null;
-        } else {
-            throw new IllegalAccessException("Cannot add item to in-store bill! You need to have employee or store owner clearance");
-        }
+    @GetMapping(value = {"/instorepurchases", "/instorepurchases/"})
+    public List<InStorePurchaseDTO> getAllInStorePurchases() {
+        List<InStorePurchase> localList = service.getAllInStorePurchases();
+        return convertInStorePurchaseListToDTO(localList);
     }
 
     /* Helper methods ---------------------------------------------------------------------------------------------------- */
@@ -821,9 +794,9 @@ public class GroceryStoreController {
         return list;
     }
     
-    private List<InStoreBillDTO> convertInStoreBillListToDTO(List<InStoreBill> bills) throws IllegalArgumentException{
-        List<InStoreBillDTO> list = new ArrayList<InStoreBillDTO>();
-        for(InStoreBill isb : bills) {
+    private List<InStorePurchaseDTO> convertInStorePurchaseListToDTO(List<InStorePurchase> purchases) throws IllegalArgumentException{
+        List<InStorePurchaseDTO> list = new ArrayList<InStorePurchaseDTO>();
+        for(InStorePurchase isb : purchases) {
             list.add(convertToDTO(isb));
         }
         return list;
@@ -876,9 +849,9 @@ public class GroceryStoreController {
         return s;
     }
     
-    private InStoreBillDTO convertToDTO(InStoreBill bill) {
-        if(bill == null) throw new IllegalArgumentException("store does not exist");
-        InStoreBillDTO isb = new InStoreBillDTO(bill.getTotal(), bill.getPurchaseDate(), bill.getPaymentCode());
+    private InStorePurchaseDTO convertToDTO(InStorePurchase purchase) {
+        if(purchase == null) throw new IllegalArgumentException("store does not exist");
+        InStorePurchaseDTO isb = new InStorePurchaseDTO(purchase.getTotal(), purchase.getPurchaseDate());
         return isb;
     }
     
@@ -1068,5 +1041,106 @@ public class GroceryStoreController {
                }
         }
         return null;
+    }
+
+    private Cart retrieveOpenCart(String customerEmail, String customerPassword) throws IllegalArgumentException {
+        Customer customer = checkCustomer(customerEmail, customerPassword);
+        List<Cart> carts= service.getCartsByCustomer(customer);
+        Cart cart = null;
+        for(Cart c : carts) {
+            if(service.getOrderByCart(c) == null) {
+                cart = c;
+                break;
+            }
+        }
+        return cart;
+    }
+
+    private Customer checkCustomer(String customerEmail, String customerPassword) throws IllegalArgumentException {
+        Customer customer = service.getCustomer(customerEmail);
+        if(customer == null) {
+            throw new IllegalArgumentException("Must be logged in as a customer!");
+        }
+        if(customer.getPassword().equals(customerPassword)) {
+            throw new IllegalArgumentException("Failed identification: password is incorrect");
+        }
+        return customer;
+    }
+
+    private StoreOwner checkOwner(String ownerEmail, String ownerPassword) {
+        StoreOwner owner = service.getStoreOwner();
+        if(!owner.getEmail().equals(ownerEmail) || !owner.getPassword().equals(ownerPassword)) {
+            throw new IllegalArgumentException("Cannot create an in-store purchase! You need to have employee or store owner clearance");
+        }
+        return owner;
+    }
+
+    private Employee checkEmployee(String employeeEmail, String employeePassword) {
+        Employee employee = service.getEmployee(employeeEmail);
+        if(employee == null) {
+            throw new IllegalArgumentException("Must be logged in as an employee!");
+        }
+        if(employee.getPassword().equals(employeePassword)) {
+            throw new IllegalArgumentException("Failed identification: password is incorrect");
+        }
+        return employee;
+    }
+
+    private User checkEmployeeOrOwner(String userEmail, String userPassword) throws IllegalArgumentException {
+        User u = service.getEmployee(userEmail);
+        if(u == null) {
+            u = service.getStoreOwner();
+            if(!u.getEmail().equals(userEmail)) {
+                throw new IllegalArgumentException("Cannot create an in-store purchase! You need to have employee or store owner clearance");
+            }
+        }
+        if(!u.getPassword().equals(userPassword)) {
+            throw new IllegalArgumentException("Failed identification: password is incorrect");
+        }
+        return u;
+    }
+
+    private Product verifyProductAvailability(String productName, int quantity) throws IllegalArgumentException {
+        Product p = service.getProductByName(productName);
+        if(p == null) {
+            throw new IllegalArgumentException("Failed to find the product with name " + " in the database");
+        }
+        if(quantity < 1) {
+            throw new IllegalArgumentException("Invalid quantity: quantity must be bigger or equal to 1, received " + quantity);
+        }
+        if(quantity > p.getStock()) {
+            throw new IllegalArgumentException("Invalid quantity: cannot purchase more than the available stock");
+        }
+        return null;
+    }
+
+    private Product verifyProductAvailabilityAndShoppability(String productName, int quantity) throws IllegalArgumentException {
+        Product p = verifyProductAvailability(productName, quantity);
+        if(p.getIsAvailableOnline().equals("no")) {
+            throw new IllegalArgumentException("Invalid product: this product is not available for online purchases");
+        }
+        return null;
+    }
+
+    private int getCurrentTotal(Cart cart) {
+        int totalPrice = 0;
+        List<CartItem> itemList = service.getCartItemsByCart(cart);
+        for(CartItem i : itemList) {
+            totalPrice += i.getQuantity() * i.getProduct().getPrice();
+        }
+        if(outOfTown(cart.getCustomer().getEmail())){
+            totalPrice += service.getStore().getOutOfTownFee();
+        }
+        return totalPrice;
+    }
+
+    private boolean outOfTown(String customerEmail) {
+        boolean freeShipping = false;
+        Customer customer = service.getCustomer(customerEmail);
+        Address customeraddress = customer.getAddress();
+        if(customeraddress.getTown().equals(service.getStore().getAddress().getTown())) {
+        	freeShipping = true;
+        }
+        return freeShipping;
     }
 }

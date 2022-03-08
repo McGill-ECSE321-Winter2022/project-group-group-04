@@ -2,7 +2,7 @@ package ca.mcgill.ecse321.project321.dto;
 
 public class CartItemDTO {
     private CartDTO         cart;
-    private InStoreBillDTO  bill;
+    private InStorePurchaseDTO  purchase;
     private Integer         quantity;
     private ProductDTO      product;
 
@@ -10,14 +10,14 @@ public class CartItemDTO {
 
     public CartItemDTO(CartDTO cart, Integer quantity, ProductDTO product) {
         this.cart = cart;
-        this.bill = null;
+        this.purchase = null;
         this.quantity = quantity;
         this.product = product;
     }
 
-    public CartItemDTO(InStoreBillDTO bill, Integer quantity, ProductDTO product) {
+    public CartItemDTO(InStorePurchaseDTO purchase, Integer quantity, ProductDTO product) {
         this.cart = null;
-        this.bill = bill;
+        this.purchase = purchase;
         this.quantity = quantity;
         this.product = product;
     }
@@ -26,8 +26,8 @@ public class CartItemDTO {
         return cart;
     }
 
-    public InStoreBillDTO getInStoreBill() {
-        return bill;
+    public InStorePurchaseDTO getInStorePurchase() {
+        return purchase;
     }
 
     public Integer getQuantity() {

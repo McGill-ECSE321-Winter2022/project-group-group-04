@@ -5,23 +5,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class InStoreBillDTO {
+public class InStorePurchaseDTO {
     private int total;
     private Date purchaseDate;
-    private String paymentCode;
     private List<CartItemDTO> cartItems;
     
-    public InStoreBillDTO() {}
+    public InStorePurchaseDTO() {}
     
-    public InStoreBillDTO(int total, Date purchaseDate, String paymentCode, List<CartItemDTO> cartItems) {
+    public InStorePurchaseDTO(int total, Date purchaseDate, List<CartItemDTO> cartItems) {
     	this.total = total;
     	this.purchaseDate = purchaseDate;
     	this.cartItems = new ArrayList<CartItemDTO>(cartItems);
     }
     
     @SuppressWarnings("unchecked")
-    public InStoreBillDTO(int total, Date purchaseDate, String paymentCode) {
-        this(total, purchaseDate, paymentCode, Collections.EMPTY_LIST);
+    public InStorePurchaseDTO(int total, Date purchaseDate) {
+        this(total, purchaseDate, Collections.EMPTY_LIST);
     }
     
     public int getTotal() {
@@ -31,10 +30,6 @@ public class InStoreBillDTO {
     public Date getPurchaseDate() {
 		return this.purchaseDate;
 	}
-
-    public String getPaymentCode() {
-        return this.paymentCode;
-    }
     
     public List<CartItemDTO> getCartItems() {
 		return this.cartItems;
