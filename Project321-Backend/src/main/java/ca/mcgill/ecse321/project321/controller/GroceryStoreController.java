@@ -23,7 +23,6 @@ import ca.mcgill.ecse321.project321.dto.CustomerDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO;
 import ca.mcgill.ecse321.project321.dto.InStorePurchaseDTO;
 import ca.mcgill.ecse321.project321.dto.EmployeeDTO.EmployeeStatusDTO;
-import ca.mcgill.ecse321.project321.dto.InStorePurchaseDTO;
 import ca.mcgill.ecse321.project321.dto.OrderDTO;
 import ca.mcgill.ecse321.project321.dto.ProductDTO;
 import ca.mcgill.ecse321.project321.dto.TimeSlotDTO;
@@ -40,7 +39,6 @@ import ca.mcgill.ecse321.project321.model.Customer;
 import ca.mcgill.ecse321.project321.model.Employee;
 import ca.mcgill.ecse321.project321.model.InStorePurchase;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
-import ca.mcgill.ecse321.project321.model.InStorePurchase;
 import ca.mcgill.ecse321.project321.model.Order;
 import ca.mcgill.ecse321.project321.model.Product;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
@@ -892,14 +890,6 @@ public class GroceryStoreController {
         return list;
     }
     
-    private List<StoreDTO> convertStoreListDTO(List<Store> stores) throws IllegalArgumentException{
-        List<StoreDTO> list = new ArrayList<StoreDTO>();
-        for(Store s : stores) {
-            list.add(convertToDTO(s));
-        }
-        return list;
-    }
-    
     private List<InStorePurchaseDTO> convertInStorePurchaseListToDTO(List<InStorePurchase> purchases) throws IllegalArgumentException{
         List<InStorePurchaseDTO> list = new ArrayList<InStorePurchaseDTO>();
         for(InStorePurchase isb : purchases) {
@@ -988,11 +978,6 @@ public class GroceryStoreController {
             }
         }
         return null;
-    }
-    
-    private StoreOwner convertToDomainObject(StoreOwnerDTO ownerDto) {
-        StoreOwner owner = service.getStoreOwner();
-        return owner;
     }
 
     private List<CartDTO> convertCartListToDTO(List<Cart> carts) throws IllegalArgumentException{
@@ -1123,27 +1108,6 @@ public class GroceryStoreController {
         }
     }
 
-    private Customer convertToDomainObject(CustomerDTO customer) {
-        List<Customer> allCustomers = service.getAllCustomers();
-        for( Customer c : allCustomers ) {
-            if( customer.getEmail().equals(c.getEmail()) ) {
-                    return c;
-            }
-        }
-        return null;
-    }
-
-    private TimeSlot convertToDomainObject(TimeSlotDTO timeSlot) {
-        List<TimeSlot> allTimeSlots = service.getAllTimeSlots();
-        for( TimeSlot t : allTimeSlots ){
-            if(timeSlot.getDate().equals(t.getDate()) && timeSlot.getStartTime().equals(t.getStartTime()) &&
-                timeSlot.getEndTime().equals(t.getEndTime())) {
-                return t;
-            }
-        }
-        return null;
-    }
-
     private Cart retrieveOpenCart(String customerEmail, String customerPassword) throws IllegalArgumentException {
         Customer customer = checkCustomer(customerEmail, customerPassword);
         List<Cart> carts= service.getCartsByCustomer(customer);
@@ -1174,17 +1138,6 @@ public class GroceryStoreController {
             throw new IllegalArgumentException("Cannot create an in-store purchase! You need to have employee or store owner clearance");
         }
         return owner;
-    }
-
-    private Employee checkEmployee(String employeeEmail, String employeePassword) {
-        Employee employee = service.getEmployee(employeeEmail);
-        if(employee == null) {
-            throw new IllegalArgumentException("Must be logged in as an employee!");
-        }
-        if(!employee.getPassword().equals(employeePassword)) {
-            throw new IllegalArgumentException("Failed identification: password is incorrect");
-        }
-        return employee;
     }
 
     private User checkEmployeeOrOwner(String userEmail, String userPassword) throws IllegalArgumentException {
