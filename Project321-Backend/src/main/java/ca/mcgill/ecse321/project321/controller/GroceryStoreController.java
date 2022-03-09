@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ca.mcgill.ecse321.project321.Project321BackendApplication;
-import ca.mcgill.ecse321.project321.dao.StoreOwnerRepository;
 import ca.mcgill.ecse321.project321.dto.AddressDTO;
 import ca.mcgill.ecse321.project321.dto.CartDTO;
 import ca.mcgill.ecse321.project321.dto.CartItemDTO;
@@ -68,8 +66,8 @@ public class GroceryStoreController {
         return convertCustomerListToDTO(service.getAllCustomers());
     }
 
-    @GetMapping(value = {"/customers/{email}", "/customers/{email}/"})
-    public CustomerDTO getCustomer(@PathVariable("email") String email) throws IllegalArgumentException{
+    @GetMapping(value = {"/customer", "/customer/"})
+    public CustomerDTO getCustomer(@RequestParam(name = "email") String email) throws IllegalArgumentException{
         return convertToDTO(service.getCustomer(email));
     }
 
@@ -89,6 +87,21 @@ public class GroceryStoreController {
         }
         Customer c = service.createCustomer(email, name, password, phone, a);
         //System.out.println(c.getName());
+        return convertToDTO(c);
+    }
+
+    @PostMapping(value = {"/customers/address", "/customers/address/"})
+    public CustomerDTO setCustomersAddress(@RequestParam(name = "town")      String town,
+                                            @RequestParam(name = "street")      String street, 
+                                            @RequestParam(name = "postalcode")  String postalcode,
+                                            @RequestParam(name = "unit") int unit,
+                                            @RequestParam(name = "customeremail") String customerEmail,
+                                            @RequestParam(name = "customerpassword") String customerPassword) throws IllegalArgumentException {
+        CheckUser(customerEmail, customerPassword, "customer", "Must be logged in as customer to change a customer's address");
+        Customer c = service.setCustomersAddress(customerEmail, town, street, postalcode, unit);
+        if(c == null) {
+            throw new IllegalArgumentException("Cannot seem to find customer in database...");
+        }
         return convertToDTO(c);
     }
     
@@ -158,8 +171,21 @@ public class GroceryStoreController {
         }
         Date creationDate = java.sql.Date.valueOf(LocalDate.now());
         Time creationTime = java.sql.Time.valueOf(LocalTime.now());
+        if(creationDate != null) {
+            System.out.println("creation date not null");
+        }
         Customer customer = service.getCustomer(customerEmail);
         cart = service.createCart(translateEnum(type), customer, creationDate, creationTime);
+        return convertToDTO(cart);
+    }
+
+    @GetMapping(value = {"/cart", "/cart/"})
+    public CartDTO getCart(@RequestParam(name = "customeremail")  String customerEmail, 
+                            @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException {
+        Cart cart = retrieveOpenCart(customerEmail, customerPassword);
+        if(cart == null) {
+            throw new IllegalStateException("No cart currently opened");
+        }
         return convertToDTO(cart);
     }
 
@@ -242,6 +268,37 @@ public class GroceryStoreController {
     	return convertTimeSlotListToDTO(availableTimeSlots);
     }
 
+    @PostMapping(value = {"/timeslot/delete", "/timeslot/delete/"})
+    public void deleteTimeSlot(@RequestParam(name = "timeslotdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date timeSlotDate,
+                                @RequestParam(name = "timeslotstarttime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotStartTime,
+                                @RequestParam(name = "timeslotendtime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotEndTime,
+                                @RequestParam(name = "ownerEmail") String email,
+                                @RequestParam(name = "ownerPassword") String password) throws IllegalArgumentException {
+        CheckUser(email, password, "owner", "Only owner is able to create a time slot"); 
+        Time startTime = new Time(timeSlotStartTime.getTime());
+        Time endTime = new Time(timeSlotEndTime.getTime());
+        Date date = new Date(timeSlotDate.getTime());
+        service.deleteTimeSlot(startTime, endTime, date);                           
+    }
+
+    @PostMapping(value = {"/timeslot", "/timeslot/"})
+    public TimeSlotDTO createTimeSlot(@RequestParam(name = "timeslotdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date timeSlotDate,
+                                        @RequestParam(name = "timeslotstarttime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotStartTime,
+                                        @RequestParam(name = "timeslotendtime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotEndTime,
+                                        @RequestParam(name = "ownerEmail") String email,
+    									@RequestParam(name = "ownerPassword") String password) throws IllegalArgumentException {
+        CheckUser(email, password, "owner", "Only owner is able to create a time slot");
+        Time startTime = new Time(timeSlotStartTime.getTime());
+        Time endTime = new Time(timeSlotEndTime.getTime());
+        Date date = new Date(timeSlotDate.getTime());
+        int maxOrderPerSlot = service.getEmployeesForTimeSlot(date, startTime, endTime);
+        TimeSlot t = service.createTimeSlot(startTime, endTime, date, maxOrderPerSlot);
+        if(t == null) {
+            throw new IllegalArgumentException("Time slot already exists!");
+        }
+        return convertToDTO(t);
+    }
+
     /**
      * This implements Req. 09
      * The Grocery software system shall keep track of all the employees who work and have worked at the grocery store with employee accounts
@@ -272,18 +329,22 @@ public class GroceryStoreController {
     	
     		CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to add an employee");
     		Employee e = service.createEmployee(email, name, password, translateEnum(status));
+            if(e == null) {
+                throw new IllegalArgumentException("Employee with email " + email + " already exists");
+            }
         	return convertToDTO(e);
     }
     @PostMapping(value = {"/removeemployee", "/removeemployee/"})
     public void ownerremoveEmployee(@RequestParam(name = "employeeEmail") String email,							            
 						    		@RequestParam(name = "ownerEmail") String ownerEmail,
-								    @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException {
+								    @RequestParam(name = "ownerPassword") String ownerPassword) 
+                                    throws IllegalArgumentException {
     		CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is ably to remove an employee");
     		Employee e = service.getEmployee(email);
     		service.removeEmployee(e);
     		System.out.println("Employee deleted");
     }
-    
+
     /**
      * This implements Req. 11
      * The Grocery Store System shall allow the employee or customer to create a 
@@ -371,7 +432,10 @@ public class GroceryStoreController {
     					      @RequestParam(name = "ownerEmail") String ownerEmail,
 							  @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
     	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to create an item");
-    	Product p = service.createProduct(translateEnum(type), productName, isAviliableOnline, price, stock);
+        Product p = service.createProduct(translateEnum(type), productName, isAviliableOnline, price, stock);
+        if(p == null) {
+            throw new IllegalStateException("Product with name " + productName + " already exists!");
+        }
         return convertToDTO(p);
     }
     
@@ -383,7 +447,7 @@ public class GroceryStoreController {
     @PostMapping(value = {"/products/delete", "/products/delete/"})
     public ProductDTO deleteProduct(@RequestParam(name = "productName") String productName,
 					    		    @RequestParam(name = "ownerEmail") String ownerEmail,
-								    @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
+								    @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException, IllegalStateException{
     	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to delete an item");
     	Product p = service.deleteProduct(productName);
         return convertToDTO(p);
@@ -501,14 +565,20 @@ public class GroceryStoreController {
     @PostMapping(value = {"/cart/pay", "/cart/pay/"})
     public void payCart(@RequestParam(name = "paymentcode") String paymentCode, 
                             @RequestParam(name = "customeremail") String customerEmail,
-                            @RequestParam(name = "customerpassword") String customerPassword) throws IllegalAccessException, IllegalArgumentException{
+                            @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException, IllegalArgumentException{
         Cart cart = retrieveOpenCart(customerEmail, customerPassword);
         if(cart == null) {
             throw new IllegalArgumentException("Failed to find a cart that is currently opened!");
         }
+        if(cart.getTimeSlot() == null) {
+            throw new IllegalStateException("Cannot pay before having chosen a time slot for delivery or pick-up");
+        }
         int totalPrice = getCurrentTotal(cart);
-        service.createOrder(false, java.sql.Date.valueOf(LocalDate.now()), 
+        Order o = service.createOrder(false, java.sql.Date.valueOf(LocalDate.now()), 
                             totalPrice, paymentCode, cart);     
+        if(o == null) {
+            throw new IllegalStateException("An order is already attached to this cart!");
+        }
     }
     
     @GetMapping(value = {"/shifts", "/shifts/"})
@@ -560,8 +630,13 @@ public class GroceryStoreController {
             endTime.before(storeOpening) || endTime.after(storeClosing)) {
             throw new IllegalArgumentException("Invalid start or end time for the shift");
         }
-    	Shift shift = service.createShift(startTime, endTime, new java.sql.Date(date.getTime()), service.getEmployee(email));
-        List<TimeSlot> timeSlotOverShift = service.getTimeSlotsBetween(startTime, endTime);
+        Date shiftDate = new Date(date.getTime());
+        Employee e = service.getEmployee(email);
+        if(e == null) {
+            throw new IllegalArgumentException("No employee with the email " + email);
+        }
+    	Shift shift = service.createShift(startTime, endTime, shiftDate, service.getEmployee(email));
+        List<TimeSlot> timeSlotOverShift = service.getTimeSlotsBetween(shiftDate, startTime, endTime);
         if (timeSlotOverShift != null) {
             for(TimeSlot t : timeSlotOverShift) {
                 service.incrementMaxOrderPerslot(t);
@@ -685,9 +760,15 @@ public class GroceryStoreController {
             throw new IllegalArgumentException("Failed to find a cart that is currently opened!");
         }
         Product product = verifyProductAvailabilityAndShoppability(productName, quantity);
+        List<CartItem> allItems = service.getCartItemsByCart(cart);
+        for(CartItem i : allItems) {
+            if(i.getProduct().getProductName().equals(productName)) {
+                throw new IllegalArgumentException("You already have this product in the cart!");
+            }
+        }
         CartItem item = service.createCartItem(quantity, product, cart);
         service.setProductStock(productName, (product.getStock() - quantity));
-        return convertToDTO(item, convertToDTO(cart));
+        return convertToDTO(item);
     }
 
     @PostMapping(value = {"/instorepurchase", "/instorepurchase/"})
@@ -721,7 +802,7 @@ public class GroceryStoreController {
 		case "owner":
 		case "storeowner":
 			StoreOwner so = service.getStoreOwner();
-			if (so != null && so.getEmail() != email) {
+			if (so != null && !so.getEmail().equals(email)) {
 				throw new IllegalArgumentException(errorMsg);
 			}
 			StoreOwnerDTO soDto =convertToDTO(so);
@@ -832,7 +913,14 @@ public class GroceryStoreController {
         AddressDTO address = convertToDTO(customer.getAddress());
         CustomerDTO c = new CustomerDTO(customer.getEmail(), customer.getName(), customer.getPassword(), 
                                         customer.getPhone(), address);
+        c.setCarts(createCartList(customer));
         return c;
+    }
+
+    private List<CartDTO> createCartList(Customer customer) {
+        List<Cart> list = service.getCartsByCustomer(customer);
+        List<CartDTO> result = convertCartListToDTO(list);
+        return result;
     }
     
     private StoreOwnerDTO convertToDTO(StoreOwner storeOwner) {
@@ -918,11 +1006,10 @@ public class GroceryStoreController {
     private CartDTO convertToDTO(Cart cart) {
         if(cart == null) throw new IllegalArgumentException("Cart does not exist");
         TimeSlotDTO timeSlot = convertToDTO(cart.getTimeSlot());
-        CustomerDTO customer = convertToDTO(cart.getCustomer());
         CartDTO.ShoppingTypeDTO type = translateEnum(cart.getType());
         if(type == null) throw new IllegalArgumentException("Invalid shopping type for cart");
-        CartDTO c = new CartDTO(type, customer, cart.getCreationDate(), cart.getCreationTime(), timeSlot);
-        c.setCartItems(createCartItemsList(cart, c));
+        CartDTO c = new CartDTO(type, cart.getCreationDate(), cart.getCreationTime(), timeSlot);
+        c.setCartItems(createCartItemsList(cart));
         return c;
     }
 
@@ -941,19 +1028,19 @@ public class GroceryStoreController {
         return t;
     }
 
-    private List<CartItemDTO> createCartItemsList(Cart cart, CartDTO cartDTO) {
+    private List<CartItemDTO> createCartItemsList(Cart cart) {
         List<CartItemDTO> list = new ArrayList<CartItemDTO>();
         List<CartItem> items = service.getCartItemsByCart(cart);
         for( CartItem i : items ) {
-            list.add(convertToDTO(i, cartDTO));
+            list.add(convertToDTO(i));
         }
         return list;
     }
 
-    private CartItemDTO convertToDTO(CartItem cartItem, CartDTO cart) {
+    private CartItemDTO convertToDTO(CartItem cartItem) {
         if(cartItem == null) throw new IllegalArgumentException("Cart Item does not exist");
         ProductDTO product = convertToDTO(cartItem.getProduct());
-        CartItemDTO i = new CartItemDTO(cart, cartItem.getQuantity(), product);
+        CartItemDTO i = new CartItemDTO(cartItem.getQuantity(), product);
         return i;
     }
 
@@ -1057,17 +1144,6 @@ public class GroceryStoreController {
         return null;
     }
 
-    private Cart convertToDomainObject(CartDTO cart) {
-        List<Cart> allCarts = service.getAllCarts();
-        for(Cart c : allCarts) {
-            if(c.getCustomer().getEmail().equals(cart.getCustomer().getEmail()) &&
-               c.getCreationDate().equals(cart.getCreationDate()) && c.getCreationTime().equals(cart.getCreationTime())) {
-                   return c;
-               }
-        }
-        return null;
-    }
-
     private Cart retrieveOpenCart(String customerEmail, String customerPassword) throws IllegalArgumentException {
         Customer customer = checkCustomer(customerEmail, customerPassword);
         List<Cart> carts= service.getCartsByCustomer(customer);
@@ -1086,7 +1162,7 @@ public class GroceryStoreController {
         if(customer == null) {
             throw new IllegalArgumentException("Must be logged in as a customer!");
         }
-        if(customer.getPassword().equals(customerPassword)) {
+        if(!customer.getPassword().equals(customerPassword)) {
             throw new IllegalArgumentException("Failed identification: password is incorrect");
         }
         return customer;
@@ -1105,7 +1181,7 @@ public class GroceryStoreController {
         if(employee == null) {
             throw new IllegalArgumentException("Must be logged in as an employee!");
         }
-        if(employee.getPassword().equals(employeePassword)) {
+        if(!employee.getPassword().equals(employeePassword)) {
             throw new IllegalArgumentException("Failed identification: password is incorrect");
         }
         return employee;
@@ -1128,7 +1204,7 @@ public class GroceryStoreController {
     private Product verifyProductAvailability(String productName, int quantity) throws IllegalArgumentException {
         Product p = service.getProductByName(productName);
         if(p == null) {
-            throw new IllegalArgumentException("Failed to find the product with name " + " in the database");
+            throw new IllegalArgumentException("Failed to find the product with name " + productName + " in the database");
         }
         if(quantity < 1) {
             throw new IllegalArgumentException("Invalid quantity: quantity must be bigger or equal to 1, received " + quantity);
@@ -1136,7 +1212,7 @@ public class GroceryStoreController {
         if(quantity > p.getStock()) {
             throw new IllegalArgumentException("Invalid quantity: cannot purchase more than the available stock");
         }
-        return null;
+        return p;
     }
 
     private Product verifyProductAvailabilityAndShoppability(String productName, int quantity) throws IllegalArgumentException {
@@ -1144,7 +1220,7 @@ public class GroceryStoreController {
         if(p.getIsAvailableOnline().equals("no")) {
             throw new IllegalArgumentException("Invalid product: this product is not available for online purchases");
         }
-        return null;
+        return p;
     }
 
     private int getCurrentTotal(Cart cart) {
@@ -1160,12 +1236,12 @@ public class GroceryStoreController {
     }
 
     private boolean outOfTown(String customerEmail) {
-        boolean freeShipping = false;
+        boolean outOfTown = true;
         Customer customer = service.getCustomer(customerEmail);
         Address customeraddress = customer.getAddress();
         if(customeraddress.getTown().equals(service.getStore().getAddress().getTown())) {
-        	freeShipping = true;
+        	outOfTown = false;
         }
-        return freeShipping;
+        return outOfTown;
     }
 }

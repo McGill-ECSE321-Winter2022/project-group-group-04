@@ -94,10 +94,20 @@ public class GroceryStoreService {
         return toList(customerRepository.findAll());
     }
 
+    @Transactional
+    public Customer setCustomersAddress(String customerEmail, String town, String street, String postalcode, int unit) {
+        Customer c = customerRepository.findByEmail(customerEmail);
+        if(c == null) return null;
+        c.setAddress(new Address(town, street, postalcode, unit));
+        customerRepository.save(c);
+        return c;
+    }
+
     /* Cart-related service methods ------------------------------------------------------------------------------ */
     @Transactional
     public Cart createCart(Cart.ShoppingType type, Customer customer, Date creationDate, Time creationTime) {
         Cart cart = new Cart(type, customer, creationDate, creationTime);
+        cartRepository.save(cart);
         return cart;
     }
 
@@ -105,6 +115,7 @@ public class GroceryStoreService {
     public Cart createCart(Cart.ShoppingType type, Customer customer, Date creationDate, Time creationTime, TimeSlot timeSlot) {
         Cart cart = new Cart(type, customer, creationDate, creationTime);
         cart.setTimeSlot(timeSlot);
+        cartRepository.save(cart);
         return cart;
     }
 
@@ -125,6 +136,7 @@ public class GroceryStoreService {
 
     @Transactional
     public TimeSlot createTimeSlot(Time startTime, Time endTime, Date date, int maxOrderPerSlot) {
+        if(timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime) != null) return null; // Already exists
     	TimeSlot ts = new TimeSlot(startTime, endTime, date, maxOrderPerSlot);
     	timeslotRepository.save(ts);
         return ts;
@@ -147,11 +159,19 @@ public class GroceryStoreService {
         return cartRepository.findByType(type);
     }
 
+    @Transactional
+    public void deleteTimeSlot(Time startTime, Time endTime, Date date) {
+        TimeSlot t = timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime);
+        if(t == null) return;
+        timeslotRepository.delete(t);
+    }
+
     /* Order-related service methods ----------------------------------------------------------------------------- */
     @Transactional
     public Order createOrder(boolean completed, Date date, int total, String payment, Cart cart) {
         if( orderRepository.findByCart(cart) != null ) return null; // An order is already attached to this cart
         Order order = new Order(completed, date, total, payment, cart);
+        orderRepository.save(order);
         return order;
     }
 
@@ -198,6 +218,7 @@ public class GroceryStoreService {
         if( productRepository.findByProductName(product.getProductName()) == null ) return null; // Product does not exist
         CartItem cartItem = new CartItem(quantity, product);
         cartItem.setCart(cart);
+        cartItemRepository.save(cartItem);
         return cartItem;
     }
 
@@ -206,12 +227,14 @@ public class GroceryStoreService {
         if( productRepository.findByProductName(product.getProductName()) == null ) return null; // Product does not exist
         CartItem cartItem = new CartItem(quantity, product);
         cartItem.setInStorePurchase(inStorePurchase);
+        cartItemRepository.save(cartItem);
         return cartItem;
     }
 
     @Transactional
     public List<CartItem> getCartItemsByCart(Cart cart) {
-        return cartItemRepository.findByCart(cart);
+        List<CartItem> list = cartItemRepository.findByCart(cart);
+        return list;
     }
 
     @Transactional
@@ -457,25 +480,15 @@ public class GroceryStoreService {
     }
 
     @Transactional
-    public List<TimeSlot> getTimeSlotsBetween(Time lowerThreshold, Time upperThreshold) {
-        List<TimeSlot> extendedList = timeslotRepository.findByStartTimeBetween(lowerThreshold, upperThreshold);
-        extendedList.addAll(timeslotRepository.findByEndTimeBetween(lowerThreshold, upperThreshold));
+    public List<TimeSlot> getTimeSlotsBetween(Date date, Time lowerThreshold, Time upperThreshold) {
+        List<TimeSlot> extendedList = timeslotRepository.findByDate(date);
         List<TimeSlot> finalList = new ArrayList<TimeSlot>();
-        for(TimeSlot t1 : extendedList) {
-            boolean contains = false;
-            for(TimeSlot t2: finalList) {
-                if(t1.getDate().equals(t2.getDate()) && t1.getStartTime().equals(t2.getStartTime()) && 
-                    t1.getEndTime().equals(t2.getEndTime())) {
-                    contains = true;
-                    break;
-                }
-            }
-            if(!contains) {
-                contains = false;
-                finalList.add(t1);
+        for(TimeSlot t : extendedList) {
+            if(lowerThreshold.before(t.getStartTime()) && upperThreshold.after(t.getEndTime())) {
+                finalList.add(t);
             }
         }
-        return null;
+        return finalList;
     }
 
     @Transactional
@@ -493,6 +506,18 @@ public class GroceryStoreService {
             timeslotRepository.save(timeSlot);
         }
         return true;
+    }
+
+    @Transactional
+    public int getEmployeesForTimeSlot(Date date, Time timeslotStartTime, Time timeSlotEndTime) {
+        List<Shift> extendedList = shiftRepository.findByDate(date);
+        List<Shift> finalList = new ArrayList<Shift>();
+        for(Shift s : extendedList) {
+            if(timeslotStartTime.after(s.getStartHour()) && timeSlotEndTime.before(s.getEndHour())) {
+                finalList.add(s);
+            }
+        }
+        return finalList.size();
     }
     
     /* Helper methods -------------------------------------------------------------------------------------------- */
