@@ -24,3 +24,17 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+task integrationTestExecution() {
+	exec {
+		if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+    		commandLine 'cmd', '/c', "./src/test/integration/integrationTest.bat"
+		} else {
+    		commandLine './src/test/integration/integrationTest.sh'
+		}
+	}
+}
+
+task integrationTests(type:Test) {
+	dependsOn integrationTestExecution
+}
