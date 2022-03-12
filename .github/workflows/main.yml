@@ -30,6 +30,6 @@ jobs:
     - name: Deploy to Heroku
       uses: akhileshns/heroku-deploy@v3.12.12
       with:
-        heroku_api_key: heroku pg:psql postgresql-clean-26729 --app grocery-system-backend-22ws
+        heroku_api_key: c7391b5f-3672-41f1-b2bc-49e3644295f4
         heroku_app_name:  grocery-system-backend-22ws
         heroku_email: cedric.barre@mail.mcgill.ca
