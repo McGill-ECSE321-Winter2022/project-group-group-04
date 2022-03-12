@@ -30,6 +30,6 @@ jobs:
     - name: Deploy to Heroku
       uses: akhileshns/heroku-deploy@v3.12.12
       with:
-        heroku_api_key: c7391b5f-3672-41f1-b2bc-49e3644295f4
+        heroku_api_key: 65cb0f88-55fd-4f13-b32a-dd686c369d48
         heroku_app_name:  grocery-system-backend-22ws
         heroku_email: cedric.barre@mail.mcgill.ca
