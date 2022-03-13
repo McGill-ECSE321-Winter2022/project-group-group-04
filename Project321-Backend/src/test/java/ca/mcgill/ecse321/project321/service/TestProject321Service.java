@@ -345,5 +345,58 @@ public class TestProject321Service {
 				error);
 	}
 	
+	@Test
+	public void testCreateAddresses() {
+		assertEquals(0, service.getAllAddresses().size());
+		
+		String town = "TestTown";
+		String street = "TestStreet";
+		String postalCode = "TestPostalCode";
+		int unit = 321;
+		  
+		Address address = null ;
+		
+		try {
+			address = service.createAddresses(town,street,postalCode,unit);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			fail();
+		}
+		assertNotNull(address);
+		checkResultAddress(address,town,street,postalCode,unit);
+	}
+
+	private void checkResultAddress(Address address, String aTown, String aStreet, String aPostalCode, int aUnit) {
+		assertEquals(address.getTown(),aTown);
+		assertEquals(address.getStreet(),aStreet);
+		assertEquals(address.getPostalCode(),aPostalCode);
+		assertEquals(address.getUnit(),aUnit);
+	}
+	
+	@Test
+	public void testCreateAddressNull() {
+		
+		String town = null;
+		String street = null;
+		String postalCode = null;
+		int unit = 321;
+		  
+		Address address = null ;
+		String error=null;
+		
+
+		try {
+			address = service.createAddresses(town,street,postalCode,unit);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(address);
+		// check error
+		assertEquals(
+				"town, street, postalCode cannot be empty!",
+				error);
+	}
+	
 }
 
