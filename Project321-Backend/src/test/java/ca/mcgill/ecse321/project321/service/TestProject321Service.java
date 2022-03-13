@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -53,6 +54,7 @@ import ca.mcgill.ecse321.project321.model.Store;
 import ca.mcgill.ecse321.project321.model.StoreOwner;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
 import ca.mcgill.ecse321.project321.model.User;
+import ca.mcgill.ecse321.project321.model.Cart.ShoppingType;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
 
 @ExtendWith(MockitoExtension.class)
@@ -211,10 +213,10 @@ public class TestProject321Service {
 			fail();
 		}
 		assertNotNull(storeOwner);
-		checkResultCustomer(storeOwner,email,name,password);
+		checkResultOwner(storeOwner,email,name,password);
 	}
 
-	private void checkResultCustomer(StoreOwner user, String email, String name, String password) {
+	private void checkResultOwner(StoreOwner user, String email, String name, String password) {
 		assertNotNull(user);
 		assertEquals(user.getEmail(),email);
 		assertEquals(user.getPassword(),password);
@@ -396,6 +398,182 @@ public class TestProject321Service {
 		assertEquals(
 				"town, street, postalCode cannot be empty!",
 				error);
+	}
+	
+	@Test
+	public void testCreateCart() {
+		ShoppingType type = ShoppingType.Delivery;
+		
+		String email = "customer@mail.com";
+		String name = "TestCustomer";
+		String password = "Testpassword";
+		String phone = "000-1111";
+		String town = "TestTown";
+		String street = "TestStreet";
+		String postalCode = "TestPostalCode";
+		int unit = 321;
+		Address address = new Address(town,street,postalCode,unit);	
+		
+		Customer customer = new Customer(email, name, password, phone, address);
+
+		Date creationDate = java.sql.Date.valueOf(LocalDate.now());
+		Time creationTime = java.sql.Time.valueOf(LocalTime.now());
+		
+		Cart cart = null;
+		
+		try {
+			cart = service.createCart(type, customer,creationDate, creationTime);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			fail();
+		}
+		
+		assertNotNull(cart);
+		checkResultCustomer(cart.getCustomer(),email,name,password,phone);
+		checkResultAddress(cart.getCustomer().getAddress(),town,street,postalCode,unit);
+		assertEquals(cart.getCreationDate(),creationDate);
+		assertEquals(cart.getCreationTime(),creationTime);
+		assertEquals(cart.getType(),type);
+		
+	}
+	
+	@Test
+	public void testCreateTimeSlot() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		int maxOrderPerSlot = 100;
+		
+		TimeSlot ts = null;
+		
+		try {
+			ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			fail();
+		}
+		
+		assertNotNull(ts);
+		assertEquals(ts.getStartTime(),startTime);
+		assertEquals(ts.getEndTime(),endTime);
+		assertEquals(ts.getDate(),date);
+		assertEquals(ts.getMaxOrderPerSlot(),maxOrderPerSlot);
+	}
+	
+	@Test
+	public void testCreateTimeSlotNull() {
+		Time startTime = null;
+		Time endTime = null;
+		Date date = null;
+		int maxOrderPerSlot = 100;
+		
+		TimeSlot ts = null;
+		String error = null;
+		
+		try {
+			ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			fail();
+		}
+		
+		assertNotNull(ts);
+		assertEquals(
+				"start time, end time, date of TimeSlot cannot be empty!",
+				error);
+	}
+	
+	@Test
+	public void testCreateTimeSlotEndTimeBeforeStartTime() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		int maxOrderPerSlot = 100;
+		
+		TimeSlot ts = null;
+		String error = null;
+		
+		try {
+			ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			fail();
+		}
+		
+		assertNotNull(ts);
+		assertEquals("Event end time cannot be before start time!", error);
+	}
+	
+	@Test
+	public void testCreateOrder() {
+
+		 String email = "customer@mail.com";
+		 String name = "TestCustomer";
+		 String password = "Testpassword";
+		 String phone = "000-1111";	  
+		 String town = "TestTown";
+		 String street = "TestStreet";
+		 String postalCode = "TestPostalCode";
+		 int unit = 321;
+		 Address address = new Address(town,street,postalCode,unit); 
+		 Customer customer = new Customer(email, name, password, phone, address);
+
+		 Date creationDate = java.sql.Date.valueOf(LocalDate.of(2022, 12, 31));
+		 Time creationTime = java.sql.Time.valueOf(LocalTime.of(13, 00));
+		Cart testCart = new Cart(ShoppingType.Delivery, customer, creationDate, creationTime);
+
+		boolean comp = false;
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		int total = 500;
+		String payment = "CreditCard";
+		
+		Order order = null;
+		
+		try {
+			order = service.createOrder(comp, date, total,  payment, testCart);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			fail();
+		}
+		
+		assertNotNull(order);
+		assertEquals(order.getCompleted(),comp);
+		assertEquals(order.getOrderDate(),date);
+		assertEquals(order.getTotal(),total);
+		assertEquals(order.getPayment(),payment);
+
+		assertEquals(order.getCart().getType(),ShoppingType.Delivery);
+		assertEquals(order.getCart().getCreationDate(),creationDate);
+		assertEquals(order.getCart().getCreationTime(),creationTime);
+		checkResultCustomer(order.getCart().getCustomer(),email,name,password,phone);
+		checkResultAddress(order.getCart().getCustomer().getAddress(),
+				town,street,postalCode,unit);
+		
+		
+	}
+	@Test
+	public void testCreateOrderNull() {
+		boolean comp = false;
+		Date date = null;
+		int total = 0;
+		String payment = null;
+		Cart cart = null;
+		
+		String error = null;
+		Order order = null;
+		
+		try {
+			order = service.createOrder(comp, date, total,  payment, cart);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			fail();
+		}
+		
+		assertNull(order);
+		assertEquals(
+				"Payment method, cart, date cannot be empty!"
+				+ "total cannot be empty!", error);
+		
 	}
 	
 }

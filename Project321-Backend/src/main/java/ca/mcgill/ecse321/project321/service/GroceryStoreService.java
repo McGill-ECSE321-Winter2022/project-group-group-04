@@ -111,14 +111,7 @@ public class GroceryStoreService {
         return cart;
     }
 
-    @Transactional
-    public Cart createCart(Cart.ShoppingType type, Customer customer, Date creationDate, Time creationTime, TimeSlot timeSlot) {
-        Cart cart = new Cart(type, customer, creationDate, creationTime);
-        cart.setTimeSlot(timeSlot);
-        cartRepository.save(cart);
-        return cart;
-    }
-
+    
     @Transactional
     public List<Cart> getCartsByCustomer(Customer customer) {
         return cartRepository.findByCustomer(customer);
