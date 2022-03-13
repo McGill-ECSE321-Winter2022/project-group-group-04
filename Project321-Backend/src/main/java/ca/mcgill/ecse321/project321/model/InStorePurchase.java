@@ -12,28 +12,28 @@ import javax.persistence.Id;
 // line 128 "../../../../../../model.ump"
 // line 191 "../../../../../../model.ump"
 @Entity
-public class InStoreBill
+public class InStorePurchase
 {
 
   //------------------------
   // MEMBER VARIABLES
   //------------------------
 
-  //InStoreBill Attributes
+  //InStorePurchase Attributes
   private int total;
   private Date purchaseDate;
-  private int inStoreBillId;
+  private int inStorePurchaseId;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public InStoreBill(int aTotal, Date aPurchaseDate)
+  public InStorePurchase(int aTotal, Date aPurchaseDate)
   {
     total = aTotal;
     purchaseDate = aPurchaseDate;
 
-    inStoreBillId = 0;
+    inStorePurchaseId = 0;
   }
 
   //------------------------
@@ -56,10 +56,10 @@ public class InStoreBill
     return wasSet;
   }
 
-  public boolean setInStoreBillId(int aInStoreBillId)
+  public boolean setInStorePurchaseId(int aInStorePurchaseId)
   {
     boolean wasSet = false;
-    inStoreBillId = aInStoreBillId;
+    inStorePurchaseId = aInStorePurchaseId;
     wasSet = true;
     return wasSet;
   }
@@ -76,16 +76,16 @@ public class InStoreBill
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  public int getInStoreBillId()
+  public int getInStorePurchaseId()
   {
-    return inStoreBillId;
+    return inStorePurchaseId;
   }
 
   public void delete()
   {}
 
   // line 139 "../../../../../../model.ump"
-   public  InStoreBill(){
+   public  InStorePurchase(){
     
   }
 
@@ -95,7 +95,7 @@ public class InStoreBill
     return super.toString() + "["+
 
             "total" + ":" + getTotal()+ "," +
-            "inStoreBillId" + ":" + getInStoreBillId()+ "]" + System.getProperties().getProperty("line.separator") +
+            "inStorePurchaseId" + ":" + getInStorePurchaseId()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "purchaseDate" + "=" + (getPurchaseDate() != null ? !getPurchaseDate().equals(this)  ? getPurchaseDate().toString().replaceAll("  ","    ") : "this" : "null");
   }
 }

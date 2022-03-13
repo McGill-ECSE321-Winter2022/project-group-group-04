@@ -14,7 +14,7 @@ import ca.mcgill.ecse321.project321.dao.CartItemRepository;
 import ca.mcgill.ecse321.project321.dao.CartRepository;
 import ca.mcgill.ecse321.project321.dao.CustomerRepository;
 import ca.mcgill.ecse321.project321.dao.EmployeeRepository;
-import ca.mcgill.ecse321.project321.dao.InStoreBillRepository;
+import ca.mcgill.ecse321.project321.dao.InStorePurchaseRepository;
 import ca.mcgill.ecse321.project321.dao.OrderRepository;
 import ca.mcgill.ecse321.project321.dao.ProductRepository;
 import ca.mcgill.ecse321.project321.dao.ShiftRepository;
@@ -27,13 +27,14 @@ import ca.mcgill.ecse321.project321.model.Cart;
 import ca.mcgill.ecse321.project321.model.CartItem;
 import ca.mcgill.ecse321.project321.model.Customer;
 import ca.mcgill.ecse321.project321.model.Employee;
-import ca.mcgill.ecse321.project321.model.InStoreBill;
+import ca.mcgill.ecse321.project321.model.InStorePurchase;
 import ca.mcgill.ecse321.project321.model.Order;
 import ca.mcgill.ecse321.project321.model.Product;
 import ca.mcgill.ecse321.project321.model.Shift;
 import ca.mcgill.ecse321.project321.model.Store;
 import ca.mcgill.ecse321.project321.model.StoreOwner;
 import ca.mcgill.ecse321.project321.model.TimeSlot;
+import ca.mcgill.ecse321.project321.model.User;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
 
 @Service
@@ -62,13 +63,18 @@ public class GroceryStoreService {
     @Autowired
     private AddressRepository addressRepository;
 	@Autowired
-	private InStoreBillRepository inStoreBillRepository;
+	private InStorePurchaseRepository inStorePurchaseRepository;
 	@Autowired
 	private UserRepository userRepository;
 
     /* This class will contain the methods to interact with the CRUD repository. We will be creating the objects
        and updating the database from these methods */ 
 
+    @Transactional
+    public User getUser(String email) {
+        return userRepository.findByEmail(email);
+    }
+	
     /* Customer-related service methods -------------------------------------------------------------------------- */
     @Transactional
     public Customer createCustomer(String email, String name, String password, String phone, Address address) {
@@ -88,10 +94,20 @@ public class GroceryStoreService {
         return toList(customerRepository.findAll());
     }
 
+    @Transactional
+    public Customer setCustomersAddress(String customerEmail, String town, String street, String postalcode, int unit) {
+        Customer c = customerRepository.findByEmail(customerEmail);
+        if(c == null) return null;
+        c.setAddress(new Address(town, street, postalcode, unit));
+        customerRepository.save(c);
+        return c;
+    }
+
     /* Cart-related service methods ------------------------------------------------------------------------------ */
     @Transactional
     public Cart createCart(Cart.ShoppingType type, Customer customer, Date creationDate, Time creationTime) {
         Cart cart = new Cart(type, customer, creationDate, creationTime);
+        cartRepository.save(cart);
         return cart;
     }
 
@@ -99,6 +115,7 @@ public class GroceryStoreService {
     public Cart createCart(Cart.ShoppingType type, Customer customer, Date creationDate, Time creationTime, TimeSlot timeSlot) {
         Cart cart = new Cart(type, customer, creationDate, creationTime);
         cart.setTimeSlot(timeSlot);
+        cartRepository.save(cart);
         return cart;
     }
 
@@ -119,6 +136,7 @@ public class GroceryStoreService {
 
     @Transactional
     public TimeSlot createTimeSlot(Time startTime, Time endTime, Date date, int maxOrderPerSlot) {
+        if(timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime) != null) return null; // Already exists
     	TimeSlot ts = new TimeSlot(startTime, endTime, date, maxOrderPerSlot);
     	timeslotRepository.save(ts);
         return ts;
@@ -141,11 +159,19 @@ public class GroceryStoreService {
         return cartRepository.findByType(type);
     }
 
+    @Transactional
+    public void deleteTimeSlot(Time startTime, Time endTime, Date date) {
+        TimeSlot t = timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime);
+        if(t == null) return;
+        timeslotRepository.delete(t);
+    }
+
     /* Order-related service methods ----------------------------------------------------------------------------- */
     @Transactional
     public Order createOrder(boolean completed, Date date, int total, String payment, Cart cart) {
         if( orderRepository.findByCart(cart) != null ) return null; // An order is already attached to this cart
         Order order = new Order(completed, date, total, payment, cart);
+        orderRepository.save(order);
         return order;
     }
 
@@ -192,25 +218,28 @@ public class GroceryStoreService {
         if( productRepository.findByProductName(product.getProductName()) == null ) return null; // Product does not exist
         CartItem cartItem = new CartItem(quantity, product);
         cartItem.setCart(cart);
+        cartItemRepository.save(cartItem);
         return cartItem;
     }
 
     @Transactional
-    public CartItem createCartItem(int quantity, Product product, InStoreBill inStoreBill) {
+    public CartItem createCartItem(int quantity, Product product, InStorePurchase inStorePurchase) {
         if( productRepository.findByProductName(product.getProductName()) == null ) return null; // Product does not exist
         CartItem cartItem = new CartItem(quantity, product);
-        cartItem.setInStoreBill(inStoreBill);
+        cartItem.setInStorePurchase(inStorePurchase);
+        cartItemRepository.save(cartItem);
         return cartItem;
     }
 
     @Transactional
     public List<CartItem> getCartItemsByCart(Cart cart) {
-        return cartItemRepository.findByCart(cart);
+        List<CartItem> list = cartItemRepository.findByCart(cart);
+        return list;
     }
 
     @Transactional
-    public List<CartItem> getCartItemsByInStoreBill(InStoreBill inStoreBill) {
-        return cartItemRepository.findByInStoreBill(inStoreBill);
+    public List<CartItem> getCartItemsByInStorePurchase(InStorePurchase inStorePurchase) {
+        return cartItemRepository.findByInStorePurchase(inStorePurchase);
     }
 
     @Transactional
@@ -219,8 +248,8 @@ public class GroceryStoreService {
     }
 
     @Transactional
-    public CartItem getCartItemByProductAndInStoreBill(Product product, InStoreBill inStoreBill) {
-        return cartItemRepository.findByInStoreBillAndProduct(inStoreBill, product);
+    public CartItem getCartItemByProductAndInStorePurchase(Product product, InStorePurchase inStorePurchase) {
+        return cartItemRepository.findByInStorePurchaseAndProduct(inStorePurchase, product);
     }
 
     @Transactional
@@ -231,6 +260,12 @@ public class GroceryStoreService {
     @Transactional
     public List<CartItem> getAllCartItems() {
         return toList(cartItemRepository.findAll());
+    }
+
+    @Transactional
+    public void deleteCartItem(CartItem item) {
+        if(item == null) return;
+        cartItemRepository.delete(item);
     }
 
     /* Address-related service methods --------------------------------------------------------------------------- */
@@ -276,7 +311,25 @@ public class GroceryStoreService {
     	employeeRepository.delete(employee);
     }
     
-    /* In-Store Bill-related service methods --------------------------------------------------------------------- */
+    /* In-Store Purchase-related service methods --------------------------------------------------------------------- */
+    @Transactional
+    public InStorePurchase createInStorePurchase(int total, Date purchaseDate) {
+        InStorePurchase purchase = new InStorePurchase(total, purchaseDate);
+        inStorePurchaseRepository.save(purchase);
+        return purchase;
+    }
+
+    @Transactional
+    public InStorePurchase setInStorePurchaseTotal(int total, InStorePurchase inStorePurchase) {
+        inStorePurchase.setTotal(total);
+        inStorePurchaseRepository.save(inStorePurchase);
+        return inStorePurchase;
+    }
+
+    @Transactional
+    public List<InStorePurchase> getAllInStorePurchases() {
+        return toList(inStorePurchaseRepository.findAll());
+    }
 
     /* Product-related service methods --------------------------------------------------------------------------- */
 
@@ -286,7 +339,7 @@ public class GroceryStoreService {
     }
     
     @Transactional
-    public Product getAllProductByName(String name) {
+    public Product getProductByName(String name) {
         return productRepository.findByProductName(name);
     }
     
@@ -310,7 +363,16 @@ public class GroceryStoreService {
         productRepository.delete(p);
         return p;
     }
-    
+
+    @Transactional
+    public Product setProductStock(String productName, int stock) {
+        Product p = productRepository.findByProductName(productName);
+        if(p == null ) return null;
+        p.setStock(stock);
+        productRepository.save(p);
+        return p;
+    }
+
     /* Shift-related service methods ----------------------------------------------------------------------------- */
 
     @Transactional
@@ -418,25 +480,15 @@ public class GroceryStoreService {
     }
 
     @Transactional
-    public List<TimeSlot> getTimeSlotsBetween(Time lowerThreshold, Time upperThreshold) {
-        List<TimeSlot> extendedList = timeslotRepository.findByStartTimeBetween(lowerThreshold, upperThreshold);
-        extendedList.addAll(timeslotRepository.findByEndTimeBetween(lowerThreshold, upperThreshold));
+    public List<TimeSlot> getTimeSlotsBetween(Date date, Time lowerThreshold, Time upperThreshold) {
+        List<TimeSlot> extendedList = timeslotRepository.findByDate(date);
         List<TimeSlot> finalList = new ArrayList<TimeSlot>();
-        for(TimeSlot t1 : extendedList) {
-            boolean contains = false;
-            for(TimeSlot t2: finalList) {
-                if(t1.getDate().equals(t2.getDate()) && t1.getStartTime().equals(t2.getStartTime()) && 
-                    t1.getEndTime().equals(t2.getEndTime())) {
-                    contains = true;
-                    break;
-                }
-            }
-            if(!contains) {
-                contains = false;
-                finalList.add(t1);
+        for(TimeSlot t : extendedList) {
+            if(lowerThreshold.before(t.getStartTime()) && upperThreshold.after(t.getEndTime())) {
+                finalList.add(t);
             }
         }
-        return null;
+        return finalList;
     }
 
     @Transactional
@@ -454,6 +506,18 @@ public class GroceryStoreService {
             timeslotRepository.save(timeSlot);
         }
         return true;
+    }
+
+    @Transactional
+    public int getEmployeesForTimeSlot(Date date, Time timeslotStartTime, Time timeSlotEndTime) {
+        List<Shift> extendedList = shiftRepository.findByDate(date);
+        List<Shift> finalList = new ArrayList<Shift>();
+        for(Shift s : extendedList) {
+            if(timeslotStartTime.after(s.getStartHour()) && timeSlotEndTime.before(s.getEndHour())) {
+                finalList.add(s);
+            }
+        }
+        return finalList.size();
     }
     
     /* Helper methods -------------------------------------------------------------------------------------------- */

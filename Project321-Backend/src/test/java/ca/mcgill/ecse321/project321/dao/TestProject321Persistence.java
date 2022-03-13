@@ -27,7 +27,7 @@ import ca.mcgill.ecse321.project321.model.Employee;
 import ca.mcgill.ecse321.project321.model.Employee.EmployeeStatus;
 import ca.mcgill.ecse321.project321.model.Product.PriceType;
 import ca.mcgill.ecse321.project321.model.Shift;
-import ca.mcgill.ecse321.project321.model.InStoreBill;
+import ca.mcgill.ecse321.project321.model.InStorePurchase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -64,7 +64,7 @@ public class TestProject321Persistence {
     @Autowired
     private AddressRepository addressRepository;
 	@Autowired
-	private InStoreBillRepository inStoreBillRepository;
+	private InStorePurchaseRepository inStorePurchaseRepository;
 	@Autowired
 	private UserRepository userRepository;
 
@@ -76,7 +76,7 @@ public class TestProject321Persistence {
         shiftRepository.deleteAll();
         cartRepository.deleteAll();
         cartItemRepository.deleteAll();
-		inStoreBillRepository.deleteAll();
+		inStorePurchaseRepository.deleteAll();
         productRepository.deleteAll();
 		employeeRepository.deleteAll();
 		customerRepository.deleteAll();
@@ -487,35 +487,35 @@ public class TestProject321Persistence {
 		  assertEquals(testShift.getEmployee().getEmail(), employee2.getEmail());
 	}
 
-//Read and Write test for InStoreBill Class
+//Read and Write test for InStorePurchase Class
 	@Test
-    public void testPersistAndLoadInStoreBill() {
+    public void testPersistAndLoadInStorePurchase() {
 		
 		int testTotal = 100;
 		Date testDate = java.sql.Date.valueOf(LocalDate.now());
-		InStoreBill testBill = new InStoreBill(testTotal, testDate);
+		InStorePurchase testPurchase = new InStorePurchase(testTotal, testDate);
 		
-		inStoreBillRepository.save(testBill);
+		inStorePurchaseRepository.save(testPurchase);
 		
-		testBill = null;
-		List<InStoreBill> tempList = inStoreBillRepository.findByPurchaseDate(testDate);
-		testBill = tempList.get(0);
+		testPurchase = null;
+		List<InStorePurchase> tempList = inStorePurchaseRepository.findByPurchaseDate(testDate);
+		testPurchase = tempList.get(0);
 //Write test for Class	
-		assertNotNull(testBill);
-		assertEquals(testBill.getTotal(), testTotal);
-		assertEquals(testBill.getPurchaseDate(), testDate);
+		assertNotNull(testPurchase);
+		assertEquals(testPurchase.getTotal(), testTotal);
+		assertEquals(testPurchase.getPurchaseDate(), testDate);
 
 // Test for attribute persistence
 		int newTotal = 200;
-		testBill.setTotal(newTotal);
-		inStoreBillRepository.save(testBill);
+		testPurchase.setTotal(newTotal);
+		inStorePurchaseRepository.save(testPurchase);
 		
-		testBill = null;
-		tempList = inStoreBillRepository.findByPurchaseDate(testDate);
+		testPurchase = null;
+		tempList = inStorePurchaseRepository.findByPurchaseDate(testDate);
 		assertNotEquals(tempList.size(), 0);
-		testBill = tempList.get(0);
-		assertNotNull(testBill);
-		assertEquals(testBill.getTotal(), newTotal);
+		testPurchase = tempList.get(0);
+		assertNotNull(testPurchase);
+		assertEquals(testPurchase.getTotal(), newTotal);
 
 	}
 

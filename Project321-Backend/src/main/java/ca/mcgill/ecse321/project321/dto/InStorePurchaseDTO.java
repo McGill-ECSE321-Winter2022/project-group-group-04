@@ -5,21 +5,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class InStoreBillDTO {
+public class InStorePurchaseDTO {
     private int total;
     private Date purchaseDate;
     private List<CartItemDTO> cartItems;
     
-    public InStoreBillDTO() {}
+    public InStorePurchaseDTO() {}
     
-    public InStoreBillDTO(int total, Date purchaseDate, List<CartItemDTO> cartItems) {
+    public InStorePurchaseDTO(int total, Date purchaseDate, List<CartItemDTO> cartItems) {
     	this.total = total;
     	this.purchaseDate = purchaseDate;
     	this.cartItems = new ArrayList<CartItemDTO>(cartItems);
     }
     
     @SuppressWarnings("unchecked")
-    public InStoreBillDTO(int total, Date purchaseDate) {
+    public InStorePurchaseDTO(int total, Date purchaseDate) {
         this(total, purchaseDate, Collections.EMPTY_LIST);
     }
     
