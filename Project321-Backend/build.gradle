@@ -55,3 +55,19 @@ jacocoTestCoverageVerification {
 		}
 	}
 }
+
+jacocoTestReport {
+    reports {
+        xml.required = false
+        csv.required = false
+		html.enabled = true
+        html.destination file("${buildDir}/jacocoHtml") 
+    }
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+jacocoTestReport {
+    dependsOn test
+}

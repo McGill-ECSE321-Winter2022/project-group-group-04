@@ -29,7 +29,7 @@ storePostalCode="1X1X1X"
 
 storeOwnerCreationTest () {
     curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/storeOwners?email=$ownerEmail&name=$ownerName&password=$ownerPassword&adminCode=$adminCode" > $JSON_DATA
-    if [ -z $(cat $JSON_DATA)]
+    if [ ! -s $JSON_DATA ]
     then
         echo -e "  storeOwnerCreationTest: [ ${red}FAILED${nc} ] "
         return
@@ -46,7 +46,7 @@ storeOwnerCreationTest () {
 
 storeCreationTest () {
     curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/store?ownerEmail=$ownerEmail&ownerPassword=$ownerPassword&telephone=$storePhone&email=$storeEmail&openingHour=$storeOpeningHours&closingHour=$storeClosingHours&town=$storeTown&street=$storeStreet&postalcode=$storePostalCode&unit=$storeUnit&outoftownfee=$storeOutOfTownFee" > $JSON_DATA
-    if [ -z $(cat $JSON_DATA)]
+    if [ ! -s $JSON_DATA ]
     then
         echo -e "  storeCreationTest: [ ${red}FAILED${nc} ] "
         return
