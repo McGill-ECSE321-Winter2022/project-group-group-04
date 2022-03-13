@@ -26,9 +26,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-import ca.mcgill.ecse321.eventregistration.model.Event;
-import ca.mcgill.ecse321.eventregistration.model.Person;
-import ca.mcgill.ecse321.eventregistration.model.Registration;
 import ca.mcgill.ecse321.project321.dao.AddressRepository ;
 import ca.mcgill.ecse321.project321.dao.CartItemRepository ;
 import ca.mcgill.ecse321.project321.dao.CartRepository ;
@@ -69,6 +66,10 @@ public class TestProject321Service {
 	private CartRepository cartDao;
 	@Mock
 	private CustomerRepository customerDao;
+	@Mock
+	private EmployeeRepository employeeDao;
+	@Mock
+	private StoreOwnerRepository storeOwnerDao;
 	@Mock
 	private UserRepository userDao;
 	//
