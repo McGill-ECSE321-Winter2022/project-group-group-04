@@ -74,6 +74,12 @@ public class TestProject321Service {
 	private StoreOwnerRepository storeOwnerDao;
 	@Mock
 	private UserRepository userDao;
+	@Mock
+	private TimeslotRepository timeSlotDao;
+	@Mock
+	private ProductRepository productDao;
+	@Mock
+	private ShiftRepository shiftDao; 
 	//
 
 	@InjectMocks
