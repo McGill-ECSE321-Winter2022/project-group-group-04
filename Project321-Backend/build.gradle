@@ -55,3 +55,7 @@ jacocoTestCoverageVerification {
 		}
 	}
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '7.3.3'
+}
