@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.6.3'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'jacoco'
 }
 
 group = 'ca.mcgill.ecse321'
@@ -25,6 +26,7 @@ dependencies {
 	testImplementation 'org.junit.platform:junit-platform-launcher:1.4.1'
 
 	testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
 }
 
 tasks.named('test') {
@@ -43,4 +45,19 @@ task integrationTestExecution() {
 
 task integrationTests(type:Test) {
 	dependsOn integrationTestExecution
+}
+
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			limit {
+				minimum = 0.01 // Temporary
+			}
+		}
+	}
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '7.3.3'
 }
