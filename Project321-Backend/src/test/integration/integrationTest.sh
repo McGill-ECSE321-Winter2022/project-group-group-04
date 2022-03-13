@@ -31,7 +31,7 @@ storeOwnerCreationTest () {
     curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/storeOwners?email=$ownerEmail&name=$ownerName&password=$ownerPassword&adminCode=$adminCode" > $JSON_DATA
     if [ ! -s $JSON_DATA ]
     then
-        echo -e "  storeOwnerCreationTest: [ ${red}FAILED${nc} ] "
+        echo -e "  storeOwnerCreationTest: [ ${red}FAILED${nc} ] -> Application does not seem to be running on localhost:8080"
         return
     fi
 
@@ -40,7 +40,7 @@ storeOwnerCreationTest () {
     then
         echo -e "  storeOwnerCreationTest: [ ${green}PASSED${nc} ] "
     else
-        echo -e "  storeOwnerCreationTest: [ ${red}FAILED${nc} ] "
+        echo -e "  storeOwnerCreationTest: [ ${red}FAILED${nc} ] -> $(cat $JSON_DATA)"
     fi
 }
 
@@ -48,7 +48,7 @@ storeCreationTest () {
     curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/store?ownerEmail=$ownerEmail&ownerPassword=$ownerPassword&telephone=$storePhone&email=$storeEmail&openingHour=$storeOpeningHours&closingHour=$storeClosingHours&town=$storeTown&street=$storeStreet&postalcode=$storePostalCode&unit=$storeUnit&outoftownfee=$storeOutOfTownFee" > $JSON_DATA
     if [ ! -s $JSON_DATA ]
     then
-        echo -e "  storeCreationTest: [ ${red}FAILED${nc} ] "
+        echo -e "  storeCreationTest: [ ${red}FAILED${nc} ] -> Application does not seem to be running on localhost:8080"
         return
     fi
     
@@ -57,7 +57,7 @@ storeCreationTest () {
     then
         echo -e "  storeCreationTest: [ ${green}PASSED${nc} ] "
     else
-        echo -e "  storeCreationTest: [ ${red}FAILED${nc} ] "
+        echo -e "  storeCreationTest: [ ${red}FAILED${nc} ] -> $(cat $JSON_DATA)"
     fi
 }
 
