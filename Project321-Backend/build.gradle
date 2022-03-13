@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.6.3'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'jacoco'
 }
 
 group = 'ca.mcgill.ecse321'
@@ -43,4 +44,14 @@ task integrationTestExecution() {
 
 task integrationTests(type:Test) {
 	dependsOn integrationTestExecution
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			limit {
+				minimum = 0.01 // Temporary
+			}
+		}
+	}
 }
