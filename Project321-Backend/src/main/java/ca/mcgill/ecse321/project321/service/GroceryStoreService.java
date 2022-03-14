@@ -79,6 +79,17 @@ public class GroceryStoreService {
     @Transactional
     public Customer createCustomer(String email, String name, String password, String phone, Address address) {
         if( customerRepository.findByEmail(email) != null ) return null; // Customer already exists
+        
+        if (email == null || email.trim().length() == 0 
+                || name == null || name.trim().length() == 0
+                || password == null || password.trim().length() == 0) {
+               	throw new IllegalArgumentException("email, name, and password of customer all needs to be associated with a non-empty string");
+               }
+               
+        if (password.length() < 6) {
+            throw new IllegalArgumentException("Customer account password should be longer than 6 alphabet/numbers");
+            }
+               
         Customer customer = new Customer(email, name, password, phone, address);
         customerRepository.save(customer);
         return customer;
@@ -130,6 +141,14 @@ public class GroceryStoreService {
     @Transactional
     public TimeSlot createTimeSlot(Time startTime, Time endTime, Date date, int maxOrderPerSlot) {
         if(timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime) != null) return null; // Already exists
+        
+        if (startTime == null || endTime == null || date == null) {
+               	throw new IllegalArgumentException("Any of the startTime, endTime, and date of a timeSlot cannot be null");
+               }
+        if (startTime.after(endTime)){
+           	throw new IllegalArgumentException("Event end time cannot be before start time!");
+           }
+        
     	TimeSlot ts = new TimeSlot(startTime, endTime, date, maxOrderPerSlot);
     	timeslotRepository.save(ts);
         return ts;
@@ -163,6 +182,11 @@ public class GroceryStoreService {
     @Transactional
     public Order createOrder(boolean completed, Date date, int total, String payment, Cart cart) {
         if( orderRepository.findByCart(cart) != null ) return null; // An order is already attached to this cart
+        
+        if (date == null || payment == null || cart == null) {
+           	throw new IllegalArgumentException("Any of the date, payment, and cart of a order cannot be null");
+           }
+        
         Order order = new Order(completed, date, total, payment, cart);
         orderRepository.save(order);
         return order;
@@ -275,6 +299,13 @@ public class GroceryStoreService {
     @Transactional
     public Address createAddresses(String town, String street, String postalCode, int unit) {
     	if( addressRepository.findByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalCode) != null ) return null; // Customer already exists
+    	
+        if (town == null || town.trim().length() == 0 
+                || street == null || street.trim().length() == 0
+                || postalCode == null || postalCode.trim().length() == 0) {
+               	throw new IllegalArgumentException("town, street, and postalCode of address all needs to be associated with a non-empty string");
+               }
+        
         Address a = new Address(town, street, postalCode, unit);
         addressRepository.save(a);
         return a;
@@ -284,6 +315,17 @@ public class GroceryStoreService {
     @Transactional
     public Employee createEmployee(String email, String name, String password, Employee.EmployeeStatus status) {
         if( employeeRepository.findByEmail(email) != null ) return null; // Customer already exists
+        
+        if (email == null || email.trim().length() == 0 
+         || name == null || name.trim().length() == 0
+         || password == null || password.trim().length() == 0) {
+        	throw new IllegalArgumentException("email, name, and password of employee all needs to be associated with a non-empty string");
+        }
+        
+        if (password.length() < 6) {
+        	throw new IllegalArgumentException("Employee account password should be longer than 6 alphabet/numbers");
+        }
+        
         Employee employee = new Employee(email, name, password, status);
         employeeRepository.save(employee);
         return employee;
@@ -344,6 +386,19 @@ public class GroceryStoreService {
     @Transactional
     public Product createProduct(PriceType priceType, String productName, String isAvailableOnline, int price, int stock) {
         if(productRepository.findByProductName(productName) != null ) return null; // Product already exists
+        
+        if (priceType == null || productName == null || productName.trim().length() == 0 || isAvailableOnline == null || isAvailableOnline.trim().length() == 0) {
+           	throw new IllegalArgumentException("Any of the priceType, productName and isAvailableOnline of a product cannot be null");
+        }  
+        
+        if (price < 0) {
+        	throw new IllegalArgumentException("price cannot be negative");
+        }
+        
+        if (stock < 0) {
+        	throw new IllegalArgumentException("stock cannot be negative");
+        }
+        
         Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
         productRepository.save(product);
         return product;
@@ -371,6 +426,15 @@ public class GroceryStoreService {
     @Transactional
     public Shift createShift(Time startHour, Time endHour, Date date, Employee employee) {
         if(shiftRepository.findByDateAndEmployee(date, employee) != null ) return null; // Customer already exists
+        
+        if (date == null || startHour == null || endHour == null || date == null) {
+           	throw new IllegalArgumentException("startHour, endHour and date of a shift cannot be null");
+           }     
+        
+        if (employee == null) {
+           	throw new IllegalArgumentException("the employee that the shift is assigned to cannot be null");
+           }   
+        
         Shift shift = new Shift(startHour, endHour, date, employee);
         shiftRepository.save(shift);
         return shift;
@@ -431,6 +495,17 @@ public class GroceryStoreService {
     @Transactional
     public StoreOwner createStoreOwner(String email, String name, String password) {
         if( storeOwnerRepository.findByEmail(email) != null ) return null; 
+        
+        if (email == null || email.trim().length() == 0 
+                || name == null || name.trim().length() == 0
+                || password == null || password.trim().length() == 0) {
+               	throw new IllegalArgumentException("email, name, and password of storeOwner all needs to be associated with a non-empty string");
+               }
+               
+        if (password.length() < 6) {
+            throw new IllegalArgumentException("Owner account password should be longer than 6 alphabet/numbers");
+            }
+        
         StoreOwner storeOwner = new StoreOwner(email, name, password);
         storeOwnerRepository.save(storeOwner);
         return storeOwner;

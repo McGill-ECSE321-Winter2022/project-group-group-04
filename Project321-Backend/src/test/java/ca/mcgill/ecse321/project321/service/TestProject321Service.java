@@ -40,7 +40,7 @@ import ca.mcgill.ecse321.project321.dao.StoreOwnerRepository ;
 import ca.mcgill.ecse321.project321.dao.StoreRepository ;
 import ca.mcgill.ecse321.project321.dao.TimeslotRepository ;
 import ca.mcgill.ecse321.project321.dao.UserRepository ;
-
+import ca.mcgill.ecse321.project321.dto.OrderDTO;
 import ca.mcgill.ecse321.project321.model.Address;
 import ca.mcgill.ecse321.project321.model.Cart;
 import ca.mcgill.ecse321.project321.model.CartItem;
@@ -80,6 +80,8 @@ public class TestProject321Service {
 	private ProductRepository productDao;
 	@Mock
 	private ShiftRepository shiftDao; 
+	@Mock
+	private OrderRepository orderDao; 
 	//
 
 	@InjectMocks
@@ -105,6 +107,16 @@ public class TestProject321Service {
 			return invocation.getArgument(0);
 		};
 		lenient().when(userDao.save(any(User.class))).thenAnswer(returnParameterAsAnswer);
+		lenient().when(employeeDao.save(any(Employee.class))).thenAnswer(returnParameterAsAnswer);
+		lenient().when(orderDao.save(any(Order.class))).thenAnswer(returnParameterAsAnswer);
+		lenient().when(shiftDao.save(any(Shift.class))).thenAnswer(returnParameterAsAnswer);
+		lenient().when(productDao.save(any(Product.class))).thenAnswer(returnParameterAsAnswer);
+		lenient().when(timeSlotDao.save(any(TimeSlot.class))).thenAnswer(returnParameterAsAnswer);
+		lenient().when(storeOwnerDao.save(any(StoreOwner.class))).thenAnswer(returnParameterAsAnswer);
+		lenient().when(customerDao.save(any(Customer.class))).thenAnswer(returnParameterAsAnswer);
+		lenient().when(cartDao.save(any(Cart.class))).thenAnswer(returnParameterAsAnswer);
+		lenient().when(cartItemDao.save(any(CartItem.class))).thenAnswer(returnParameterAsAnswer);
+		lenient().when(addressDao.save(any(Address.class))).thenAnswer(returnParameterAsAnswer);
 	}
 	
 	@Test
@@ -170,7 +182,7 @@ public class TestProject321Service {
 		assertNull(customer);
 		// check error
 		assertEquals(
-				"Customer email, name, password, phone, address cannot be empty!",
+				"email, name, and password of customer all needs to be associated with a non-empty string",
 				error);
 	}
 		
@@ -249,7 +261,7 @@ public class TestProject321Service {
 		assertNull(owner);
 		// check error
 		assertEquals(
-				"Owner email, name, password cannot be empty!",
+				"email, name, and password of storeOwner all needs to be associated with a non-empty string",
 				error);
 	}
 		
@@ -325,7 +337,7 @@ public class TestProject321Service {
 		assertNull(employee);
 		// check error
 		assertEquals(
-				"Employee email, name, password cannot be empty!",
+				"email, name, and password of employee all needs to be associated with a non-empty string",
 				error);
 	}
 		
@@ -349,7 +361,7 @@ public class TestProject321Service {
 		assertNull(employee);
 		// check error
 		assertEquals(
-				"Owner account password should be longer than 6 alphabet/numbers",
+				"Employee account password should be longer than 6 alphabet/numbers",
 				error);
 	}
 	
@@ -402,7 +414,7 @@ public class TestProject321Service {
 		assertNull(address);
 		// check error
 		assertEquals(
-				"town, street, postalCode cannot be empty!",
+				"town, street, and postalCode of address all needs to be associated with a non-empty string",
 				error);
 	}
 	
@@ -480,12 +492,12 @@ public class TestProject321Service {
 			ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
 		} catch (IllegalArgumentException e) {
 			// Check that no error occurred
-			fail();
+			error = e.getMessage();
 		}
 		
-		assertNotNull(ts);
+		assertNull(ts);
 		assertEquals(
-				"start time, end time, date of TimeSlot cannot be empty!",
+				"Any of the startTime, endTime, and date of a timeSlot cannot be null",
 				error);
 	}
 	
@@ -503,10 +515,10 @@ public class TestProject321Service {
 			ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
 		} catch (IllegalArgumentException e) {
 			// Check that no error occurred
-			fail();
+			error = e.getMessage();
 		}
 		
-		assertNotNull(ts);
+		assertNull(ts);
 		assertEquals("Event end time cannot be before start time!", error);
 	}
 	
@@ -572,14 +584,168 @@ public class TestProject321Service {
 			order = service.createOrder(comp, date, total,  payment, cart);
 		} catch (IllegalArgumentException e) {
 			// Check that no error occurred
-			fail();
+			error = e.getMessage();
 		}
 		
 		assertNull(order);
 		assertEquals(
-				"Payment method, cart, date cannot be empty!"
-				+ "total cannot be empty!", error);
+				"Any of the date, payment, and cart of a order cannot be null", error);
 		
+	}
+	
+	@Test
+	public void testCreateShift() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		Employee employee = new Employee("testEmail@gmail.com", "TestName", "TestPsw", EmployeeStatus.Active);
+		
+		Shift s = null;
+		
+		try {
+			s = service.createShift(startTime, endTime, date, employee);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			fail();
+		}
+		
+		assertNotNull(s);
+		assertEquals(s.getStartHour(),startTime);
+		assertEquals(s.getEndHour(),endTime);
+		assertEquals(s.getDate(),date);
+		assertEquals(s.getEmployee(), employee);
+	}
+	
+	@Test
+	public void testCreateShiftNullTimeAndDate() {
+		Time startTime = null;
+		Time endTime = null;
+		Date date = null;
+		Employee employee = new Employee("testEmail@gmail.com", "TestName", "TestPsw", EmployeeStatus.Active);
+		Shift s = null;
+		String error = null;
+		
+		try {
+			s = service.createShift(startTime, endTime, date, employee);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(s);
+		assertEquals(
+				"startHour, endHour and date of a shift cannot be null", error);
+	}
+	
+	@Test
+	public void testCreateShiftNullEmployee() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		Employee employee = null;
+		Shift s = null;
+		String error = null;
+		
+		try {
+			s = service.createShift(startTime, endTime, date, employee);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(s);
+		assertEquals(
+				"the employee that the shift is assigned to cannot be null", error);
+	}
+	
+	@Test
+	public void testCreateProduct() {
+		Product.PriceType type = Product.PriceType.PER_UNIT; 
+		String productName = "testProduct";
+		String isAviliableOnline = "yes";  // Again, it is too deep into the project to fix it into a boolean. So it will stay a String.
+		int price = 5;
+		int stock = 50;
+		Product p = null;
+		
+		try {
+			p = service.createProduct(type, productName, isAviliableOnline, price, stock);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			fail();
+		}
+		
+		assertNotNull(p);
+		assertEquals(p.getPriceType(), type);
+		assertEquals(p.getProductName(), productName);
+		assertEquals(p.getIsAvailableOnline(),isAviliableOnline);
+		assertEquals(p.getPrice(),price);
+		assertEquals(p.getStock(), stock);
+	}
+	
+	@Test
+	public void testCreateProductNull() {
+		Product.PriceType type = null; 
+		String productName = null;
+		String isAviliableOnline = null;
+		int price = 5;
+		int stock = 50;
+		Product p = null;
+		String error = null;
+		
+		try {
+			p = service.createProduct(type, productName, isAviliableOnline, price, stock);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(p);
+		assertEquals(
+				"Any of the priceType, productName and isAvailableOnline of a product cannot be null", error);
+	}
+	
+	@Test
+	public void testCreateProductNegativeStock() {
+		Product.PriceType type = Product.PriceType.PER_UNIT; 
+		String productName = "testProduct";
+		String isAviliableOnline = "yes";
+		int price = 5;
+		int stock = -50;
+		Product p = null;
+		String error = null;
+		
+		try {
+			p = service.createProduct(type, productName, isAviliableOnline, price, stock);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(p);
+		assertEquals(
+				"stock cannot be negative", error);
+	}
+	
+	@Test
+	public void testCreateProductNegativePrice() {
+		Product.PriceType type = Product.PriceType.PER_UNIT; 
+		String productName = "testProduct";
+		String isAviliableOnline = "yes";
+		int price = -5;
+		int stock = 50;
+		Product p = null;
+		String error = null;
+		
+		try {
+			p = service.createProduct(type, productName, isAviliableOnline, price, stock);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(p);
+		assertEquals(
+				"price cannot be negative", error);
 	}
 	
 }
