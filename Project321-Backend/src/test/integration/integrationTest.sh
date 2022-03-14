@@ -27,6 +27,7 @@ storeUnit="10"
 storeOutOfTownFee="10"
 storePostalCode="1X1X1X"
 
+# Test method for the creation of a store owner
 storeOwnerCreationTest () {
     curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/storeOwners?email=$ownerEmail&name=$ownerName&password=$ownerPassword&adminCode=$adminCode" > $JSON_DATA
     if [ ! -s $JSON_DATA ]
@@ -38,12 +39,13 @@ storeOwnerCreationTest () {
     error=$(grep status $JSON_DATA) # If there is a 'status' field in the file, owner was not created
     if [ -z "$error" ]
     then
-        echo -e "  storeOwnerCreationTest: [ ${green}PASSED${nc} ] "
+        echo -e "  storeOwnerCreationTest: [ ${green}PASSED${nc} ] -> $(cat $JSON_DATA)"
     else
         echo -e "  storeOwnerCreationTest: [ ${red}FAILED${nc} ] -> $(cat $JSON_DATA)"
     fi
 }
 
+# Test method for the creation of a store
 storeCreationTest () {
     curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/store?ownerEmail=$ownerEmail&ownerPassword=$ownerPassword&telephone=$storePhone&email=$storeEmail&openingHour=$storeOpeningHours&closingHour=$storeClosingHours&town=$storeTown&street=$storeStreet&postalcode=$storePostalCode&unit=$storeUnit&outoftownfee=$storeOutOfTownFee" > $JSON_DATA
     if [ ! -s $JSON_DATA ]
@@ -55,7 +57,7 @@ storeCreationTest () {
     error=$(grep status $JSON_DATA) # If there is a 'status' field in the file, store was not created
     if [ -z "$error" ]
     then
-        echo -e "  storeCreationTest: [ ${green}PASSED${nc} ] "
+        echo -e "  storeCreationTest: [ ${green}PASSED${nc} ] -> $(cat $JSON_DATA)"
     else
         echo -e "  storeCreationTest: [ ${red}FAILED${nc} ] -> $(cat $JSON_DATA)"
     fi
@@ -63,6 +65,7 @@ storeCreationTest () {
 
 echo -e "${bold}Initiating Integration tests...${normal}"
 echo -e "      ${yellow}Make sure the application is running and connected to localhost:8080 to run the integration tests${nc}"
+# Call the test methods here in order here
 storeOwnerCreationTest
 storeCreationTest
 

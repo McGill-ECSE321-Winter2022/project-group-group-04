@@ -34,10 +34,11 @@ tasks.named('test') {
 
 task integrationTestExecution() {
 	exec {
+		workingDir 'src/test/integration'
 		if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-    		commandLine 'cmd', '/c', "./src/test/integration/integrationTest.bat"
+    		commandLine 'cmd.exe' ,'@cmd' , '/k', 'integrationTest.bat'
 		} else {
-    		commandLine './src/test/integration/integrationTest.sh'
+    		commandLine './integrationTest.sh'
 		}
 	}
 }

@@ -1,69 +1,62 @@
 @echo off
 
-SET bold=\033[1m
-SET normal=\033[0m
-SET red=\033[0;31m
-SET green=\033[0;32m
-SET yellow=\033[0;33m
-SET nc=\033[0m
-
 @REM # Received data file
-SET JSON_DATA="src/test/integration/results.json"
+SET JSON_DATA=results.json
 
 @REM # Valid store owner info
-SET ownerEmail="owner@email.com"
-SET ownerName="owner"
-SET ownerPassword="pwd"
-SET adminCode="admin"
+SET ownerEmail=owner@email.com
+SET ownerName=owner
+SET ownerPassword=pwd
+SET adminCode=admin
 
 @REM #Valid store info
-SET storePhone="2222222222"
-SET storeEmail="store@email.com"
-SET storeOpeningHours="09:00:00"
-SET storeClosingHours="17:00:00"
-SET storeTown="TOWN"
-SET storeStreet="STREET"
-SET storeUnit="10"
-SET storeOutOfTownFee="10"
-SET storePostalCode="1X1X1X"
+SET storePhone=2222222222
+SET storeEmail=store@email.com
+SET storeOpeningHours=09:00:00
+SET storeClosingHours=17:00:00
+SET storeTown=TOWN
+SET storeStreet=STREET
+SET storeUnit=10
+SET storeOutOfTownFee=10
+SET storePostalCode=1X1X1X
 
-
-ECHO -e "%bold%Initiating Integration tests...%normal%"
-ECHO -e "      %yellow%Make sure the application is running and connected to localhost:8080 to run the integration tests%nc%"
+echo INITIATING INTEGRATION TESTS...
+echo       *Make sure the application is running and connected to localhost:8080 to run the integration tests*
+:: Call the test methods here in order here
 CALL :storeOwnerCreationTest
 CALL :storeCreationTest
+EXIT /B %ERRORLEVEL%
 
+:: Test method for the creation of a store owner
 :storeOwnerCreationTest
-curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/storeOwners?email=$ownerEmail&name=$ownerName&password=$ownerPassword&adminCode=$adminCode" > $JSON_DATA
-for /f %%i in ("%JSON_DATA%") do set size=%%~zi
-if %size% equ 0 echo -e "  storeOwnerCreationTest: [ %red%FAILED%nc% ] -> Application does not seem to be running on localhost:8080"
-
-FOR /F "tokens=* USEBACKQ" %%F IN ("grep status %JSON_DATA%") DO (
-SET error=%%F
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/storeOwners?email=%ownerEmail%&name=%ownerName%&password=%ownerPassword%&adminCode=%adminCode%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo storeOwnerCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endStoreOwnerCreation
 )
-if %error% neq "" (
-    echo -e "  storeOwnerCreationTest: [ %green%PASSED%nc% ] "
+SET /p result=<%JSON_DATA%
+findstr /m "error" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   storeOwnerCreationTest: [ FAILED ] - %result%
 ) else (
-    FOR /F "tokens=* USEBACKQ" %%F IN ("cat %JSON_DATA%") DO (
-    SET error=%%F
-    )
-    echo -e "  storeOwnerCreationTest: [ %red%FAILED%nc% ] -> %error%"
+    echo   storeOwnerCreationTest: [ PASSED ] - %result%
 )
+:endStoreOwnerCreation
 EXIT /B 0
 
+:: Test method for the creation of a store
 :storeCreationTest
-curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/store?ownerEmail=$ownerEmail&ownerPassword=$ownerPassword&telephone=$storePhone&email=$storeEmail&openingHour=$storeOpeningHours&closingHour=$storeClosingHours&town=$storeTown&street=$storeStreet&postalcode=$storePostalCode&unit=$storeUnit&outoftownfee=$storeOutOfTownFee" > $JSON_DATA
-for /f %%i in ("%JSON_DATA%") do set size=%%~zi
-if %size% equ 0 echo -e "  storeCreationTest: [ %red%FAILED%nc% ] -> Application does not seem to be running on localhost:8080"
-FOR /F "tokens=* USEBACKQ" %%F IN ("grep status %JSON_DATA%") DO (
-SET error=%%F
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/store?ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%&telephone=%storePhone%&email=%storeEmail%&openingHour=%storeOpeningHours%&closingHour=%storeClosingHours%&town=%storeTown%&street=%storeStreet%&postalcode=%storePostalCode%&unit=%storeUnit%&outoftownfee=%storeOutOfTownFee%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo storeCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endStoreCreation
 )
-if %error% neq "" (
-    echo -e "  storeCreationTest: [ %green%PASSED%nc% ] "
+SET /p result=<%JSON_DATA%
+findstr /m "error" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   storeOwnerCreationTest: [ FAILED ] - %result%
 ) else (
-    FOR /F "tokens=* USEBACKQ" %%F IN ("cat %JSON_DATA%") DO (
-    SET error=%%F
-    )
-    echo -e "  storeCreationTest: [ %red%FAILED%nc% ] -> %error%"
+    echo   storeOwnerCreationTest: [ PASSED ] - %result%
 )
+:endStoreCreation
 EXIT /B 0
