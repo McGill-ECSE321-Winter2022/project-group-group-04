@@ -8,7 +8,7 @@ yellow='\033[0;33m'
 nc='\033[0m' # No Color
 
 # Received data file
-JSON_DATA="src/test/integration/results.json"
+JSON_DATA="results.json"
 
 # Valid store owner info
 ownerEmail="owner@email.com"

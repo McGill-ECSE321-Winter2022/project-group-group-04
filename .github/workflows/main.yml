@@ -33,3 +33,4 @@ jobs:
         heroku_api_key: 61282931-b412-4e23-a433-24e43e659a55
         heroku_app_name: grocery-system-backend-22ws
         heroku_email: cedric.barre@mail.mcgill.ca
+        dontuseforce: false
