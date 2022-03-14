@@ -25,6 +25,7 @@ echo       *Make sure the application is running and connected to localhost:8080
 :: Call the test methods here in order here
 CALL :storeOwnerCreationTest
 CALL :storeCreationTest
+DEL %JSON_DATA%
 EXIT /B %ERRORLEVEL%
 
 :: Test method for the creation of a store owner

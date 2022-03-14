@@ -68,4 +68,5 @@ echo -e "      ${yellow}Make sure the application is running and connected to lo
 # Call the test methods here in order here
 storeOwnerCreationTest
 storeCreationTest
+rm $JSON_DATA
 
