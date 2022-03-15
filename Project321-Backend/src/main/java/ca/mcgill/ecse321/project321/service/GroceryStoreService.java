@@ -42,8 +42,8 @@ public class GroceryStoreService {
 
 	@Autowired
 	private TimeslotRepository timeslotRepository;
-	@Autowired
-	private StoreRepository storeRepository;
+	@Autowired 
+	StoreRepository storeRepository;
     @Autowired
     private StoreOwnerRepository storeOwnerRepository;
     @Autowired
@@ -91,6 +91,7 @@ public class GroceryStoreService {
             }
                
         Customer customer = new Customer(email, name, password, phone, address);
+        userRepository.save(customer);
         customerRepository.save(customer);
         return customer;
     }
@@ -327,6 +328,7 @@ public class GroceryStoreService {
         }
         
         Employee employee = new Employee(email, name, password, status);
+        userRepository.save(employee);
         employeeRepository.save(employee);
         return employee;
     }
@@ -471,7 +473,10 @@ public class GroceryStoreService {
     @Transactional
     public Store createStore(String telephone, String email, Time openingHour, 
                              Time closingHour, StoreOwner storeOwner, Address address, int outOfTownFee) {
-    	if (storeRepository.findByAddress(address) != null) return null;
+    	if (storeRepository.findByAddress(address) != null) {
+    		throw new IllegalArgumentException("Store with this address, already exists");
+    	}
+    		
     	Store store = new Store(telephone, email, openingHour, closingHour, storeOwner, address, outOfTownFee);
     	storeRepository.save(store);
         return store;
@@ -507,6 +512,7 @@ public class GroceryStoreService {
             }
         
         StoreOwner storeOwner = new StoreOwner(email, name, password);
+        userRepository.save(storeOwner);
         storeOwnerRepository.save(storeOwner);
         return storeOwner;
     }

@@ -5,6 +5,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -16,7 +17,9 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.OngoingStubbing;
 
 import ca.mcgill.ecse321.project321.dao.AddressRepository ;
 import ca.mcgill.ecse321.project321.dao.CartItemRepository ;
@@ -82,13 +86,16 @@ public class TestProject321Service {
 	private ShiftRepository shiftDao; 
 	@Mock
 	private OrderRepository orderDao; 
-	//
+	@Mock
+	private StoreRepository storeDao;
+	
 
 	@InjectMocks
 	private GroceryStoreService service;
 
-	private static final String USER_KEY = "TestUser";
+	private static final String USER_KEY = "TestUser@mail.com";
 	private static final String NONEXISTING_KEY = "NotAUser";
+	private static final Address ADDRESS_KEY = new Address("testTown", "testStreet", "testPostCode", 1);
 	
 
 	@BeforeEach
@@ -96,12 +103,32 @@ public class TestProject321Service {
 		lenient().when(userDao.findByEmail(anyString())).thenAnswer((InvocationOnMock invocation) -> {
 			if (invocation.getArgument(0).equals(USER_KEY)) {
 				User user = new Customer();
-				user.setName(USER_KEY);
+				user.setEmail(USER_KEY);
 				return user;
 			} else {
 				return null;
 			}
 		});
+		
+		lenient().when((storeDao.findAll())).thenAnswer((InvocationOnMock invocation) -> {	
+				List<Store> storeList =  new ArrayList<Store>();
+				Store store = new Store();
+				store.setAddress(ADDRESS_KEY);
+				storeList.add(store);
+				return storeList;	
+		});
+		
+//		lenient().when(storeDao.delete(Store.class).thenAnswer((InvocationOnMock invocation) -> {
+//			if (invocation.getArgument(0).equals(USER_KEY)) {
+//				User user = new Customer();
+//				user.setEmail(USER_KEY);
+//				return user;
+//			} else {
+//				return null;
+//			}
+//		});
+		
+		
 		// Whenever anything is saved, just return the parameter object
 		Answer<?> returnParameterAsAnswer = (InvocationOnMock invocation) -> {
 			return invocation.getArgument(0);
@@ -117,7 +144,21 @@ public class TestProject321Service {
 		lenient().when(cartDao.save(any(Cart.class))).thenAnswer(returnParameterAsAnswer);
 		lenient().when(cartItemDao.save(any(CartItem.class))).thenAnswer(returnParameterAsAnswer);
 		lenient().when(addressDao.save(any(Address.class))).thenAnswer(returnParameterAsAnswer);
+		lenient().when(storeDao.save(any(Store.class))).thenAnswer(returnParameterAsAnswer);
 	}
+	
+/*TestsRelated to User Service Methods*/
+	@Test
+	public void testGetUserByEmail() {
+		assertEquals(USER_KEY, service.getUser(USER_KEY).getEmail());				
+	}	
+		
+	@Test
+	public void testGetNonExistentUser() {
+		assertNull(service.getUser(NONEXISTING_KEY));
+	}
+	
+/* Tests Related to Customer Service Methods */
 	
 	@Test
 	public void testCreateCustomer() {
@@ -151,7 +192,9 @@ public class TestProject321Service {
 		assertEquals(customer.getAddress().getUnit(),unit);
 		assertEquals(customer.getAddress().getAddressId(),address.getAddressId());
 	}
-
+	
+	
+   @Test
 	private void checkResultCustomer(Customer user, String email, String name, String password, String phone) {
 		assertNotNull(user);
 		assertEquals(user.getPhone(),phone);
@@ -216,6 +259,32 @@ public class TestProject321Service {
 				error);
 	}
 	
+	
+	@Test
+	public void testSetCustomerAddress() {
+		String email = "customer@mail.com";
+		String name = "Smith";
+		String password = "pw1234";
+		String phone = "000-1234";
+		
+		String town = "TestTown";
+		String street = "TestStreet";
+		String postalCode = "TestPostalCode";
+		int unit = 321;
+		  
+		Address address = new Address(town,street,postalCode,unit);
+		Customer customer = null;
+		
+		customer = service.createCustomer(email,name,password,phone,address);
+		Address newAddress = new Address("newTown", "newStreet", "newPostCode", 123);
+		service.setCustomersAddress(email, "newTown", "newStreet", "newPostCode", 123);
+		
+		assertEquals(newAddress, service.getCustomer(email).getAddress());
+		
+	}
+	
+/*Tests Related to Store Owner Service Methods */
+	
 	@Test
 	public void testCreateStoreOwner() {
 		
@@ -264,6 +333,7 @@ public class TestProject321Service {
 				"email, name, and password of storeOwner all needs to be associated with a non-empty string",
 				error);
 	}
+	
 		
 	@Test
 	public void testCreateStoreOwnerShortPassWord() {
@@ -287,6 +357,8 @@ public class TestProject321Service {
 				"Owner account password should be longer than 6 alphabet/numbers",
 				error);
 	}
+	
+/* Tests Related to Employee Service Methods*/
 	
 	@Test
 	public void testCreateEmployee() {
@@ -340,6 +412,7 @@ public class TestProject321Service {
 				"email, name, and password of employee all needs to be associated with a non-empty string",
 				error);
 	}
+	
 		
 	@Test
 	public void testCreateEmployeeShortPassWord() {
@@ -364,6 +437,8 @@ public class TestProject321Service {
 				"Employee account password should be longer than 6 alphabet/numbers",
 				error);
 	}
+		
+/*Tests Related to Address Service Methods*/
 	
 	@Test
 	public void testCreateAddresses() {
@@ -417,7 +492,9 @@ public class TestProject321Service {
 				"town, street, and postalCode of address all needs to be associated with a non-empty string",
 				error);
 	}
-	
+
+
+/* Tests Related to Cart Service Methods*/
 	@Test
 	public void testCreateCart() {
 		ShoppingType type = ShoppingType.Delivery;
@@ -455,6 +532,9 @@ public class TestProject321Service {
 		
 	}
 	
+	
+/*Tests Related to TimeSlot Service Methods */
+	
 	@Test
 	public void testCreateTimeSlot() {
 		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
@@ -477,6 +557,7 @@ public class TestProject321Service {
 		assertEquals(ts.getDate(),date);
 		assertEquals(ts.getMaxOrderPerSlot(),maxOrderPerSlot);
 	}
+	
 	
 	@Test
 	public void testCreateTimeSlotNull() {
@@ -501,6 +582,7 @@ public class TestProject321Service {
 				error);
 	}
 	
+	
 	@Test
 	public void testCreateTimeSlotEndTimeBeforeStartTime() {
 		Time startTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
@@ -522,6 +604,45 @@ public class TestProject321Service {
 		assertEquals("Event end time cannot be before start time!", error);
 	}
 	
+	
+	
+	@Test
+	public void testIncrementMaxOrderPerslot() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		int maxOrderPerSlot = 100;
+		
+		TimeSlot ts = null;
+		ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
+		
+		Boolean incremented = service.incrementMaxOrderPerslot(ts);
+		
+		assertTrue(incremented);
+		assertEquals(ts.getMaxOrderPerSlot(), 101);
+		
+	}
+	
+	
+	@Test 
+	public void testDecrementMaxOrderPerslot() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		int maxOrderPerSlot = 100;
+		
+		TimeSlot ts = null;
+		ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
+		
+		Boolean decremented = service.decrementMaxOrderPerslot(ts);
+		
+		assertTrue(decremented);
+		assertEquals(ts.getMaxOrderPerSlot(), 99);
+		
+	}
+	
+	
+/*Tests Related to Order Service Methods*/
 	@Test
 	public void testCreateOrder() {
 
@@ -555,7 +676,7 @@ public class TestProject321Service {
 		}
 		
 		assertNotNull(order);
-		assertEquals(order.getCompleted(),comp);
+	 	assertEquals(order.getCompleted(),comp);
 		assertEquals(order.getOrderDate(),date);
 		assertEquals(order.getTotal(),total);
 		assertEquals(order.getPayment(),payment);
@@ -569,6 +690,7 @@ public class TestProject321Service {
 		
 		
 	}
+	
 	@Test
 	public void testCreateOrderNull() {
 		boolean comp = false;
@@ -593,6 +715,7 @@ public class TestProject321Service {
 		
 	}
 	
+/*Tests Related to Shift Service Methods*/
 	@Test
 	public void testCreateShift() {
 		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
@@ -616,6 +739,7 @@ public class TestProject321Service {
 		assertEquals(s.getEmployee(), employee);
 	}
 	
+	
 	@Test
 	public void testCreateShiftNullTimeAndDate() {
 		Time startTime = null;
@@ -637,6 +761,7 @@ public class TestProject321Service {
 				"startHour, endHour and date of a shift cannot be null", error);
 	}
 	
+	
 	@Test
 	public void testCreateShiftNullEmployee() {
 		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
@@ -657,7 +782,8 @@ public class TestProject321Service {
 		assertEquals(
 				"the employee that the shift is assigned to cannot be null", error);
 	}
-	
+
+/*Tests Related to Product Service Methods*/
 	@Test
 	public void testCreateProduct() {
 		Product.PriceType type = Product.PriceType.PER_UNIT; 
@@ -682,6 +808,7 @@ public class TestProject321Service {
 		assertEquals(p.getStock(), stock);
 	}
 	
+	
 	@Test
 	public void testCreateProductNull() {
 		Product.PriceType type = null; 
@@ -704,6 +831,7 @@ public class TestProject321Service {
 				"Any of the priceType, productName and isAvailableOnline of a product cannot be null", error);
 	}
 	
+
 	@Test
 	public void testCreateProductNegativeStock() {
 		Product.PriceType type = Product.PriceType.PER_UNIT; 
@@ -725,6 +853,7 @@ public class TestProject321Service {
 		assertEquals(
 				"stock cannot be negative", error);
 	}
+	
 	
 	@Test
 	public void testCreateProductNegativePrice() {
@@ -748,5 +877,146 @@ public class TestProject321Service {
 				"price cannot be negative", error);
 	}
 	
-}
+	
+	
+/*Tests Related to Store Service Methods*/ 
 
+	@Test
+	public void  testCreateStore() {
+		String testPhoneNumber = "123-456-7890";
+		String testEmail = "test@test.com";
+		Time testOpenTime = java.sql.Time.valueOf(LocalTime.of(8, 00));
+		Time testCloseTime = java.sql.Time.valueOf(LocalTime.of(20, 00));
+		int testOutOfTownFee = 15;
+		
+		String email = "owner@mail.com";
+		String name = "TestOwner";
+		String password = "pw1234";
+		StoreOwner testStoreOwner = service.createStoreOwner(email,name,password);
+		
+		String town = "TestTown";
+		String street = "TestStreet";
+		String postalCode = "TestPostalCode";
+		int unit = 321;	  
+		Address address = service.createAddresses(town,street,postalCode,unit);
+		Store testStore = null;
+		
+		try {
+			testStore = service.createStore(testPhoneNumber, testEmail, testOpenTime, testCloseTime, testStoreOwner, address, testOutOfTownFee);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			fail();
+		}
+		
+		assertNotNull(testStore);
+		assertEquals(testStore.getTelephone(), testPhoneNumber);
+		assertEquals(testStore.getEmail(), testEmail);
+		assertEquals(testStore.getOpeningHour(),testOpenTime);
+		assertEquals(testStore.getClosingHour(), testCloseTime);
+		assertEquals(testStore.getStoreOwner(), testStoreOwner);
+		assertEquals(testStore.getAddress(), address);
+		assertEquals(testStore.getOutOfTownFee(), testOutOfTownFee);	
+		
+	}
+	
+	
+	@Test
+	public void testCreateExistingStore(){
+		String testPhoneNumber = "123-456-7890";
+		String testEmail = "test@test.com";
+		Time testOpenTime = java.sql.Time.valueOf(LocalTime.of(8, 00));
+		Time testCloseTime = java.sql.Time.valueOf(LocalTime.of(20, 00));
+		int testOutOfTownFee = 15;
+		
+		String email = "owner@mail.com";
+		String name = "TestOwner";
+		String password = "pw1234";
+		StoreOwner testStoreOwner = service.createStoreOwner(email,name,password);
+		
+		String town = "TestTown";
+		String street = "TestStreet";
+		String postalCode = "TestPostalCode";
+		int unit = 321;	  
+		Address address = service.createAddresses(town,street,postalCode,unit);
+		Store testStore = service.createStore(testPhoneNumber, testEmail, testOpenTime, testCloseTime, testStoreOwner, address, testOutOfTownFee);
+		String error = null;
+		//now testing duplicate store
+		
+		try {
+ 		Store testStore2 = service.createStore(testStore);
+		} catch (IllegalArgumentException e) {
+			// Check that error occurred
+			error = e.getMessage();
+			assertEquals(error, "Store with this address, already exists");
+		}
+	}
+	
+	
+	@Test 
+	public void testSetOwner(){
+		String testPhoneNumber = "123-456-7890";
+		String testEmail = "test@test.com";
+		Time testOpenTime = java.sql.Time.valueOf(LocalTime.of(8, 00));
+		Time testCloseTime = java.sql.Time.valueOf(LocalTime.of(20, 00));
+		int testOutOfTownFee = 15;
+		
+		String email = "owner@mail.com";
+		String name = "TestOwner";
+		String password = "pw1234";
+		StoreOwner testStoreOwner = service.createStoreOwner(email,name,password);
+	
+		String town = "TestTown";
+		String street = "TestStreet";
+		String postalCode = "TestPostalCode";
+		int unit = 321;	  
+		Address address = service.createAddresses(town,street,postalCode,unit);
+		Store testStore = service.createStore(testPhoneNumber, testEmail, testOpenTime, testCloseTime, testStoreOwner, address, testOutOfTownFee);
+		
+		String email2 = "owner2@mail.com";
+		String name2 = "newOwner";
+		String password2 = "pw21234";
+		StoreOwner testStoreOwner2 = service.createStoreOwner(email2,name2,password2);
+		
+		service.setOwner(testStore, testStoreOwner2);
+		assertEquals(testStore.getStoreOwner(),testStoreOwner2);
+		
+	}
+	
+	
+	@Test 
+	public void testDeleteStore() {
+		String testPhoneNumber = "123-456-7890";
+		String testEmail = "test@test.com";
+		Time testOpenTime = java.sql.Time.valueOf(LocalTime.of(8, 00));
+		Time testCloseTime = java.sql.Time.valueOf(LocalTime.of(20, 00));
+		int testOutOfTownFee = 15;
+		
+		String email = "owner@mail.com";
+		String name = "TestOwner";
+		String password = "pw1234";
+		StoreOwner testStoreOwner = service.createStoreOwner(email,name,password);
+	
+		String town = "TestTown";
+		String street = "TestStreet";
+		String postalCode = "TestPostalCode";
+		int unit = 321;	  
+		Address address = service.createAddresses(town,street,postalCode,unit);
+		Store testStore = service.createStore(testPhoneNumber, testEmail, testOpenTime, testCloseTime, testStoreOwner, address, testOutOfTownFee);
+		
+		assertNotNull(testStore);
+		service.deleteStore(testStore);
+		
+		assertNull(testStore);	
+		
+	}
+	
+	@Test
+	public void testGetStore() {
+		assertEquals(ADDRESS_KEY, service.getStore().getAddress());
+	}
+
+	
+	
+	
+	
+}
