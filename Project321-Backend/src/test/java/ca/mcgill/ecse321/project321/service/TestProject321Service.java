@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.Date;
@@ -26,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
@@ -95,11 +98,27 @@ public class TestProject321Service {
 
 	private static final String USER_KEY = "TestUser@mail.com";
 	private static final String NONEXISTING_KEY = "NotAUser";
-	private static final Address ADDRESS_KEY = new Address("testTown", "testStreet", "testPostCode", 1);
 	
-
+	private static final String CUSTOMER_KEY = "TestUser@mail.com";
+	private static final String NONEXISTING_CUSTOMER_KEY = "NotAUser";
+	private static final String SET_CUSTOMER_ADDRESS_KEY = "testSet@mail.com";
+	
+	private static final Address ADDRESS_KEY = new Address("testTown", "testStreet", "testPostCode", 1);
+	private static final Address NON_EXISTING_ADDRESS_KEY = new Address("testTown2", "testStreet2", "testPostCode2", 1);
+	private static final Address ADDRESS_KEY_DELETING = new Address("testTown", "testStreet", "testPostCode", 1);
+	
+	private static final Address CART_TESTING_ADDRESS = new Address("testTown", "testStreet", "testPostCode", 1);
+	private static final Customer CART_TESTING_CUSTOMER = new Customer("email", "name", "password", "phone",CART_TESTING_ADDRESS ); 
+	private static final Date TESTING_DATE = new Date(2022, 01, 01);
+	private static final Time START_TESTING_TIME = java.sql.Time.valueOf(LocalTime.of(12,00)); 
+	private static final Time END_TESTING_TIME = java.sql.Time.valueOf(LocalTime.of(16, 00));
+	private static final TimeSlot CART_TESTING_TIMESLOT = new TimeSlot(); 
+	private static final ShoppingType CART_TESTING_TYPE = ShoppingType.Delivery;
+//	private static Cart TEST_CART = new Cart;
+	
 	@BeforeEach
 	public void setMockOutput() {
+		
 		lenient().when(userDao.findByEmail(anyString())).thenAnswer((InvocationOnMock invocation) -> {
 			if (invocation.getArgument(0).equals(USER_KEY)) {
 				User user = new Customer();
@@ -110,6 +129,90 @@ public class TestProject321Service {
 			}
 		});
 		
+		lenient().when(cartDao.findByCustomer(CART_TESTING_CUSTOMER)).thenAnswer((InvocationOnMock invocation) -> {
+			if (invocation.getArgument(0).equals(CART_TESTING_CUSTOMER)) {
+				List<Cart> cartList =  new ArrayList<Cart>();
+				Cart testCart = new Cart();
+//				TEST_CART = testCart;
+				testCart.setCustomer(CART_TESTING_CUSTOMER);
+				cartList.add(testCart);
+				return cartList;	
+			} else {
+				return null;
+			}
+		});
+		
+//		lenient().when(orderDao.findByCart(TEST_CART)).thenAnswer((InvocationOnMock invocation) -> {
+//			if (invocation.getArgument(0).equals(TEST_CART)) {
+//				Order testOrder = new Order();
+//				testOrder.setCart(TEST_CART);
+//				cartList.add(testCart);
+//				return cartList;	
+//			} else {
+//				return null;
+//			}
+//		});
+		
+		lenient().when(cartDao.findByTimeSlot(CART_TESTING_TIMESLOT)).thenAnswer((InvocationOnMock invocation) -> {
+			if (invocation.getArgument(0).equals(CART_TESTING_TIMESLOT)) {
+				List<Cart> cartList =  new ArrayList<Cart>();
+				Cart testCart = new Cart();
+				testCart.setTimeSlot(CART_TESTING_TIMESLOT);
+				cartList.add(testCart);
+				return cartList;	
+			} else {
+				return null;
+			}
+		});
+		
+		lenient().when(cartDao.findByType(CART_TESTING_TYPE)).thenAnswer((InvocationOnMock invocation) -> {
+			if (invocation.getArgument(0).equals(CART_TESTING_TYPE)) {
+				List<Cart> cartList =  new ArrayList<Cart>();
+				Cart testCart = new Cart();
+				testCart.setType(CART_TESTING_TYPE);
+				cartList.add(testCart);
+				return cartList;	
+			} else {
+				return null;
+			}
+		});
+		
+		lenient().when(cartDao.findByCustomerAndCreationDateAndCreationTime(CART_TESTING_CUSTOMER,TESTING_DATE, START_TESTING_TIME )).thenAnswer((InvocationOnMock invocation) -> {
+			if (invocation.getArgument(0).equals(CART_TESTING_CUSTOMER)) {
+				Cart testCart = new Cart();
+				testCart.setCustomer(CART_TESTING_CUSTOMER);
+				testCart.setCreationDate(TESTING_DATE);
+				testCart.setCreationTime(START_TESTING_TIME);	
+				return testCart;	
+			} else {
+				return null;
+			}
+		});
+		
+		lenient().when(timeSlotDao.findByDateAndStartTimeAndEndTime(TESTING_DATE, START_TESTING_TIME, END_TESTING_TIME )).thenAnswer((InvocationOnMock invocation) -> {
+			if (invocation.getArgument(0).equals(TESTING_DATE)) {
+				TimeSlot testSlot = new TimeSlot(START_TESTING_TIME, END_TESTING_TIME, TESTING_DATE, 10);	
+				return testSlot;	
+			} else {
+				return null;
+			}
+		});
+			
+		
+			lenient().when(customerDao.findByEmail(anyString())).thenAnswer((InvocationOnMock invocation) -> {
+				if (invocation.getArgument(0).equals(CUSTOMER_KEY)) {
+					User user = new Customer();
+					user.setEmail(CUSTOMER_KEY);
+					return user;
+				} else if(invocation.getArgument(0).equals(SET_CUSTOMER_ADDRESS_KEY)){
+					User user = new Customer();
+					user.setEmail(SET_CUSTOMER_ADDRESS_KEY);
+					return user;
+				}else {
+					return null;
+				}
+			});
+		
 		lenient().when((storeDao.findAll())).thenAnswer((InvocationOnMock invocation) -> {	
 				List<Store> storeList =  new ArrayList<Store>();
 				Store store = new Store();
@@ -118,15 +221,6 @@ public class TestProject321Service {
 				return storeList;	
 		});
 		
-//		lenient().when(storeDao.delete(Store.class).thenAnswer((InvocationOnMock invocation) -> {
-//			if (invocation.getArgument(0).equals(USER_KEY)) {
-//				User user = new Customer();
-//				user.setEmail(USER_KEY);
-//				return user;
-//			} else {
-//				return null;
-//			}
-//		});
 		
 		
 		// Whenever anything is saved, just return the parameter object
@@ -192,7 +286,24 @@ public class TestProject321Service {
 		assertEquals(customer.getAddress().getUnit(),unit);
 		assertEquals(customer.getAddress().getAddressId(),address.getAddressId());
 	}
-	
+
+	@Test
+	public void testCreateExistingCustomer() {
+		String town = "TestTown";
+		String street = "TestStreet";
+		String postalCode = "TestPostalCode";
+		int unit = 321;
+		Address address = new Address(town,street,postalCode,unit);
+		String error = "";
+		try {
+		service.createCustomer(CUSTOMER_KEY,"name","password","phone",address);
+		}catch(IllegalArgumentException e){
+			error = e.getMessage();
+		}
+		
+		assertEquals("Customer with this email already exists", error);
+		
+	}
 	
    @Test
 	private void checkResultCustomer(Customer user, String email, String name, String password, String phone) {
@@ -262,25 +373,31 @@ public class TestProject321Service {
 	
 	@Test
 	public void testSetCustomerAddress() {
-		String email = "customer@mail.com";
-		String name = "Smith";
-		String password = "pw1234";
-		String phone = "000-1234";
-		
-		String town = "TestTown";
-		String street = "TestStreet";
-		String postalCode = "TestPostalCode";
-		int unit = 321;
-		  
-		Address address = new Address(town,street,postalCode,unit);
-		Customer customer = null;
-		
-		customer = service.createCustomer(email,name,password,phone,address);
 		Address newAddress = new Address("newTown", "newStreet", "newPostCode", 123);
-		service.setCustomersAddress(email, "newTown", "newStreet", "newPostCode", 123);
+		Customer toTest = service.setCustomersAddress(SET_CUSTOMER_ADDRESS_KEY, "newTown", "newStreet", "newPostCode", 123);
 		
-		assertEquals(newAddress, service.getCustomer(email).getAddress());
+
+		assertEquals(newAddress.getTown(), toTest.getAddress().getTown());
+		assertEquals(newAddress.getStreet(), toTest.getAddress().getStreet());
+		assertEquals(newAddress.getPostalCode(), toTest.getAddress().getPostalCode());
+		assertEquals(newAddress.getUnit(), toTest.getAddress().getUnit());
 		
+	}
+	
+	@Test 
+	public void testSetNullCustomerAddress() {
+		Customer toTest = service.setCustomersAddress(NONEXISTING_CUSTOMER_KEY, "newTown", "newStreet", "newPostCode", 123);
+		assertNull(toTest);
+	}
+	
+	@Test
+	public void testGetCustomer() {
+		assertEquals(CUSTOMER_KEY, service.getCustomer(CUSTOMER_KEY).getEmail());
+	}
+	
+	@Test
+	public void testNonExistingCustomer() {
+		assertNull(service.getCustomer(NONEXISTING_CUSTOMER_KEY));
 	}
 	
 /*Tests Related to Store Owner Service Methods */
@@ -497,6 +614,7 @@ public class TestProject321Service {
 /* Tests Related to Cart Service Methods*/
 	@Test
 	public void testCreateCart() {
+	assertEquals(0,service.getAllCarts().size());
 		ShoppingType type = ShoppingType.Delivery;
 		
 		String email = "customer@mail.com";
@@ -531,6 +649,49 @@ public class TestProject321Service {
 		assertEquals(cart.getType(),type);
 		
 	}
+	
+	@Test
+	public void testGetCartsByCustomer() {
+		List<Cart> listOfCarts = service.getCartsByCustomer(CART_TESTING_CUSTOMER);
+		assertEquals(CART_TESTING_CUSTOMER, listOfCarts.get(0).getCustomer());
+	}
+	
+	@Test
+	public void testGetCartByCustomerAndDateAndTime() {
+		Cart testCart = service.getCartByCustomerAndDateAndTime(CART_TESTING_CUSTOMER, TESTING_DATE, START_TESTING_TIME);
+		assertEquals(CART_TESTING_CUSTOMER, testCart.getCustomer());
+		assertEquals(TESTING_DATE, testCart.getCreationDate());
+		assertEquals(START_TESTING_TIME, testCart.getCreationTime());
+	}
+	
+	@Test
+	public void testSetTimeSlot() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		int maxOrderPerSlot = 100;	
+		TimeSlot ts = null;
+		ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
+		
+		Cart testCart = new Cart();
+		assertNull(testCart.getTimeSlot());
+		service.setTimeSlot(testCart, ts);
+		assertEquals(ts,testCart.getTimeSlot());
+		
+	}
+	
+	@Test
+	public void testGetByTimeSlot() {
+		List<Cart> listOfCarts = service.getCartsByTimeSlot(CART_TESTING_TIMESLOT);
+		assertEquals(CART_TESTING_TIMESLOT, listOfCarts.get(0).getTimeSlot());
+	}
+	
+	@Test
+	public void testGetByType() {
+		List<Cart> listOfCarts = service.getCartsByType(CART_TESTING_TYPE);
+		assertEquals(CART_TESTING_TYPE, listOfCarts.get(0).getType());
+	}
+	
 	
 	
 /*Tests Related to TimeSlot Service Methods */
@@ -641,6 +802,30 @@ public class TestProject321Service {
 		
 	}
 	
+	@Test
+	public void testDeleteTimeSlotNotThere() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		int maxOrderPerSlot = 100;	
+		TimeSlot ts = null;
+		ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
+		String error = "";
+		try {
+		service.deleteTimeSlot(startTime,endTime,date);
+		}catch(Exception e) {
+			error = e.getMessage();
+		} 
+		assertEquals(error, "Unable to find TimeSlot");
+	}
+	
+	@Test
+	public void testDeleteTimeslot() {
+		TimeSlot tempSlot = service.createTimeSlot(START_TESTING_TIME, END_TESTING_TIME, TESTING_DATE, 10);
+		service.deleteTimeSlot(START_TESTING_TIME, END_TESTING_TIME, TESTING_DATE);
+		assertNull(tempSlot);
+	}
+	
 	
 /*Tests Related to Order Service Methods*/
 	@Test
@@ -712,6 +897,11 @@ public class TestProject321Service {
 		assertNull(order);
 		assertEquals(
 				"Any of the date, payment, and cart of a order cannot be null", error);
+		
+	}
+	
+	@Test
+	public void testGetOrdersByCustomer() {
 		
 	}
 	
@@ -995,18 +1185,15 @@ public class TestProject321Service {
 		String name = "TestOwner";
 		String password = "pw1234";
 		StoreOwner testStoreOwner = service.createStoreOwner(email,name,password);
-	
-		String town = "TestTown";
-		String street = "TestStreet";
-		String postalCode = "TestPostalCode";
-		int unit = 321;	  
-		Address address = service.createAddresses(town,street,postalCode,unit);
-		Store testStore = service.createStore(testPhoneNumber, testEmail, testOpenTime, testCloseTime, testStoreOwner, address, testOutOfTownFee);
-		
-		assertNotNull(testStore);
-		service.deleteStore(testStore);
-		
-		assertNull(testStore);	
+		Store testStore = service.createStore(testPhoneNumber, testEmail, testOpenTime, testCloseTime, testStoreOwner, ADDRESS_KEY_DELETING, testOutOfTownFee);
+		Store testStore2 = new Store(testPhoneNumber, testEmail, testOpenTime, testCloseTime, testStoreOwner, ADDRESS_KEY_DELETING, testOutOfTownFee);	    
+	    
+
+//	    when(storeDao.findByAddress(ADDRESS_KEY_DELETING)).thenReturn(testStore); //expect a fetch, return a "fetched" person;
+
+	    service.deleteStore(testStore);
+
+	    verify(storeDao, times(1)).delete(testStore);
 		
 	}
 	
@@ -1014,8 +1201,11 @@ public class TestProject321Service {
 	public void testGetStore() {
 		assertEquals(ADDRESS_KEY, service.getStore().getAddress());
 	}
-
 	
+	@Test
+	public void testGetNonExistingStore(){
+	
+	}
 	
 	
 	

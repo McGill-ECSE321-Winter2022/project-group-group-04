@@ -78,7 +78,10 @@ public class GroceryStoreService {
     /* Customer-related service methods -------------------------------------------------------------------------- */
     @Transactional
     public Customer createCustomer(String email, String name, String password, String phone, Address address) {
-        if( customerRepository.findByEmail(email) != null ) return null; // Customer already exists
+        if( customerRepository.findByEmail(email) != null ) {
+        	throw new IllegalArgumentException("Customer with this email already exists");
+    
+        }
         
         if (email == null || email.trim().length() == 0 
                 || name == null || name.trim().length() == 0
@@ -92,7 +95,7 @@ public class GroceryStoreService {
                
         Customer customer = new Customer(email, name, password, phone, address);
         userRepository.save(customer);
-        customerRepository.save(customer);
+        customerRepository.save(customer); 
         return customer;
     }
 
@@ -172,12 +175,7 @@ public class GroceryStoreService {
         return cartRepository.findByType(type);
     }
 
-    @Transactional
-    public void deleteTimeSlot(Time startTime, Time endTime, Date date) {
-        TimeSlot t = timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime);
-        if(t == null) return;
-        timeslotRepository.delete(t);
-    }
+ 
 
     /* Order-related service methods ----------------------------------------------------------------------------- */
     @Transactional
@@ -592,6 +590,16 @@ public class GroceryStoreService {
             }
         }
         return finalList.size();
+    }
+    
+    @Transactional
+    public void deleteTimeSlot(Time startTime, Time endTime, Date date) {
+        TimeSlot t = timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime);
+        if(t == null) {
+        	throw new IllegalArgumentException ("Unable to find TimeSlot");
+  
+        }
+        timeslotRepository.delete(t);
     }
     
     /* Helper methods -------------------------------------------------------------------------------------------- */
