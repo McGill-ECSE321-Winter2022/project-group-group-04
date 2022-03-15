@@ -622,7 +622,7 @@ public class GroceryStoreController {
                               @RequestParam(name = "ownerEmail")  String ownerEmail,
                               @RequestParam(name = "ownerPassword")  String ownerPassword) 
                               throws IllegalArgumentException {
-    	checkOwner(ownerEmail, ownerPassword); // Will throw an exception if owner email or password is wrong
+    	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to creatShift");
         Time startTime = new Time(startHour.getTime());
         Time endTime = new Time(endHour.getTime());
         Time storeOpening = service.getStore().getOpeningHour();

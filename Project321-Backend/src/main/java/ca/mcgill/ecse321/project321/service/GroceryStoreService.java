@@ -513,7 +513,7 @@ public class GroceryStoreService {
         List<Shift> extendedList = shiftRepository.findByDate(date);
         List<Shift> finalList = new ArrayList<Shift>();
         for(Shift s : extendedList) {
-            if(timeslotStartTime.after(s.getStartHour()) && timeSlotEndTime.before(s.getEndHour())) {
+            if((timeslotStartTime.after(s.getStartHour()) && timeSlotEndTime.before(s.getEndHour())) || (timeslotStartTime.equals(s.getStartHour()) && timeSlotEndTime.equals(s.getEndHour()))) {
                 finalList.add(s);
             }
         }
