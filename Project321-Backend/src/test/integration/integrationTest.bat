@@ -14,13 +14,13 @@ SET InvalidOwnerEmail=InvalidEmailNotInSystem@email.com
 SET InvalidAdminCode=wrongKey
 
 @REM # Valid employee info
-SET employeeEmail=employeeIntegrationTest3@email.com
+SET employeeEmail=employeeIntegrationTest5@email.com
 SET employeeName=employee
 SET employeePassword=employeePwd
 SET status=Active
 
 @REM #Valid customer info
-SET customerEmail=customerIntegrationTest3@email.com
+SET customerEmail=customerIntegrationTest5@email.com
 SET customerName=customer
 SET customerPassword=customerPwd
 SET phone=4556846985
@@ -28,6 +28,11 @@ SET town=mtl
 SET street=mcgill
 SET postalcode=H1X1X1
 SET unit=806
+
+SET town2=mtl2
+SET street2=mcgill2
+SET postalcode2=H1X1X2
+SET unit2=917
 
 @REM #Valid store info
 SET storePhone=2222222222
@@ -43,11 +48,11 @@ SET storePostalCode=1X1X1X
 @REM #Shared date and hours infor for shift and timeslot tests
 SET startHour=09:00:00
 SET endHour=17:00:00
-SET date=2022-02-05
+SET date=2022-02-06
 
 @REM #Valid product info
 SET type=PER_UNIT
-SET productName=papaya3
+SET productName=papaya5
 SET online=yes
 SET price=3
 SET stock=60
@@ -69,21 +74,27 @@ CALL :storeCreationWrongOwnerInfoTest
 
 CALL :employeeCreationTest
 CALL :employeeCreationWrongOwnerInfoTest
-CALL :listEmployeeTest
+CALL :duplicateEmployeeCreationTest
 CALL :listEmployeeTest
 
 CALL :shiftCreationTest
+CALL :duplicateShiftCreationTest
 CALL :shiftCreationWrongOwnerInfoTest
 
 CALL :customerCreationTest
+CALL :duplicateCustomerCreationTest
+CALL :changeCustomerAddressTest
 
 CALL :cartCreationTest
+CALL :duplicateCartCreationTest
 
 CALL :productCreationTest
+CALL :duplicateProductCreationTest
 
 CALL :instorePurchaseCreationTest
 
 CALL :timeSlotCreationTest
+CALL :duplicateTimeSlotCreationTest
 CALL :listTimeSlotTest
 
 DEL %JSON_DATA%
@@ -174,6 +185,23 @@ if %errorlevel%==0 (
 :endEmployeeCreationTest
 EXIT /B 0
 
+:: Test method safeguard for the creation of a duplcate employee
+:duplicateEmployeeCreationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/employee?employeeEmail=%employeeEmail%&employeeName=%employeeName%&password=%employeePassword%&status=%status%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo duplicateEmployeeCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endDuplicateEmployeeCreation
+)
+SET /p result=<%JSON_DATA%
+findstr /m "500" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   duplicateEmployeeCreationTest: [ PASSED ]
+) else (
+    echo   duplicateEmployeeCreationTest: [ FAILED ] - %result%
+)
+:endDuplicateEmployeeCreation
+EXIT /B 0
+
 :: Test method for the creation of a employee without owner's permission or owner's info is entered incorrectly
 :employeeCreationWrongOwnerInfoTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/employee?employeeEmail=%employeeEmail%&employeeName=%employeeName%&password=%employeePassword%&status=%status%&ownerEmail=%InvalidOwnerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
@@ -225,6 +253,42 @@ if %errorlevel%==0 (
 :endCustomerCreationTest
 EXIT /B 0
 
+:: Test method safeguard for the creation of a duplicate customer
+:duplicateCustomerCreationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/customers?email=%customerEmail%&name=%customerName%&password=%customerPassword%&phone=%phone%&town=%town%&street=%street%&postalcode=%postalcode%&unit=%unit%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo duplicateCustomerCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endDuplicateCustomerCreation
+)
+SET /p result=<%JSON_DATA%
+findstr /m "500" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   duplicateCustomerCreationTest: [ PASSED ]
+) else (
+    echo   duplicateCustomerCreationTest: [ FAILED ] - %result%
+)
+:endDuplicateCustomerCreation
+EXIT /B 0
+
+:: Test method for the creation of a customer
+:changeCustomerAddressTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/customers/address?customeremail=%customerEmail%&customerpassword=%customerPassword%&town=%town2%&street=%street2%&postalcode=%postalcode2%&unit=%unit2%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo changeCustomerAddressTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endChangeCustomerAddressTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "%town2%" %JSON_DATA%
+findstr /m "%street2%" %JSON_DATA%
+findstr /m "%postalcode2%" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   listTimeSlotTest: [ PASSED ] - %result%
+) else (
+    echo   listTimeSlotTest: [ FAILED ] - %result%
+)
+:endChangeCustomerAddressTest
+EXIT /B 0
+
 :: Test method for the creation of a shift
 :shiftCreationTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/shifts?startHour=%startHour%&endHour=%endHour%&date=%date%&employeeEmail=%employeeEmail%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
@@ -240,6 +304,23 @@ if %errorlevel%==0 (
     echo   shiftCreationTest: [ PASSED ] - %result%
 )
 :endShiftCreationTest
+EXIT /B 0
+
+:: Test method safeguard for the creation of a shift with same date and overlapping start and endHour
+:duplicateShiftCreationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/shifts?startHour=%startHour%&endHour=%endHour%&date=%date%&employeeEmail=%employeeEmail%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo duplicateShiftCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endDuplicateShiftCreationTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "500" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   duplicateShiftCreationTest: [ PASSED ]
+) else (
+    echo   duplicateShiftCreationTest: [ FAILED ] - %result%
+)
+:endDuplicateShiftCreationTest
 EXIT /B 0
 
 :: Test method for the creation of a shift
@@ -278,6 +359,23 @@ if %errorlevel%==0 (
 :endCartCreationTest
 EXIT /B 0
 
+:: Test method safeguard for the creation of a additional cart to a customer
+:duplicateCartCreationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/carts?type=%shoppingType%&customeremail=%customerEmail%&customerpassword=%customerPassword%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo duplicateCartCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endDuplicateCartCreationTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "500" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   duplicateCartCreationTest: [ PASSED ]
+) else (
+    echo   duplicateCartCreationTest: [ FAILED ] - %result%
+)
+:endDuplicateCartCreationTest
+EXIT /B 0
+
 :: Test method for the creation of a product
 :productCreationTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/products?type=%type%&productName=%productName%&online=%online%&price=%price%&stock=%stock%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
@@ -293,6 +391,23 @@ if %errorlevel%==0 (
     echo   productCreationTest: [ PASSED ] - %result%
 )
 :endProductCreation
+EXIT /B 0
+
+:: Test method safeguard for the creation of a duplicate product
+:duplicateProductCreationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/products?type=%type%&productName=%productName%&online=%online%&price=%price%&stock=%stock%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo duplicateProductCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endDuplicateProductCreationTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "500" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   duplicateProductCreationTest: [ PASSED ]
+) else (
+    echo   duplicateProductCreationTest: [ FAILED ] - %result%
+)
+:endDuplicateProductCreationTest
 EXIT /B 0
 
 :: Test method for the creation of an instorePurchase
@@ -327,6 +442,23 @@ if %errorlevel%==0 (
     echo   timeSlotCreationTest: [ PASSED ] - %result%
 )
 :endTimeSlotCreation
+EXIT /B 0
+
+:: Test method safeguard for the creation of an duplicate timeSlot
+:duplicateTimeSlotCreationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/timeslot?timeslotdate=%date%&timeslotstarttime=%startHour%&timeslotendtime=%endHour%&timeslotdate=%date%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo duplicateTimeSlotCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endDuplicateTimeSlotCreationTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "500" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   duplicateProductCreationTest: [ PASSED ]
+) else (
+    echo   duplicateProductCreationTest: [ FAILED ] - %result%
+)
+:endDuplicateTimeSlotCreationTest
 EXIT /B 0
 
 :: Test method for list timeSlots
