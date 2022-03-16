@@ -411,7 +411,7 @@ public class GroceryStoreService {
     public Shift createShift(Time startHour, Time endHour, Date date, Employee employee) {
         if(shiftRepository.findByDateAndEmployee(date, employee) != null ) return null; // Customer already exists
         
-        if (date == null || startHour == null || endHour == null || date == null) {
+        if (date == null || startHour == null || endHour == null) {
            	throw new IllegalArgumentException("startHour, endHour and date of a shift cannot be null");
            }     
         

@@ -858,6 +858,12 @@ public class TestProject321Service {
 		String password = "pw1234";
 		EmployeeStatus employeeStatus = EmployeeStatus.Active;
 		
+		assertEquals(0, service.getAllEmployee().size());
+		String email2 = "employee@mail.com";
+		String name2 = "TestEmployee";
+		String password2 = "pw1234";
+		EmployeeStatus employeeStatus2 = EmployeeStatus.Active;
+		
 		Employee employee = null;
 		
 		try {
@@ -866,6 +872,9 @@ public class TestProject321Service {
 			// Check that no error occurred
 			fail();
 		}
+		when(employeeDao.findByEmail(email2)).thenReturn(employee);
+		Employee employee2 = service.createEmployee(email2, name2, password2, employeeStatus2);
+		assertNull(employee2);
 		assertNotNull(employee);
 		checkResultEmployee(employee,email,name,password,employeeStatus);
 	}
@@ -879,11 +888,136 @@ public class TestProject321Service {
 	}
 	
 	@Test
-	public void testCreateEmployeeNull() {
+	public void testCreateEmployeeNullEmail() {
 		
 		String email = null;
 		String name = null;
 		String password = null;
+		EmployeeStatus employeeStatus = null;
+		
+		String error=null;
+		
+		Employee employee=null;
+
+		try {
+			employee = service.createEmployee(email,name,password,employeeStatus);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(employee);
+		// check error
+		assertEquals(
+				"email, name, and password of employee all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateEmployeeNullName() {
+		
+		String email = "email";
+		String name = null;
+		String password = null;
+		EmployeeStatus employeeStatus = null;
+		
+		String error=null;
+		
+		Employee employee=null;
+
+		try {
+			employee = service.createEmployee(email,name,password,employeeStatus);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(employee);
+		// check error
+		assertEquals(
+				"email, name, and password of employee all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateEmployeeNullPassword() {
+		
+		String email = "email";
+		String name = "name";
+		String password = null;
+		EmployeeStatus employeeStatus = null;
+		
+		String error=null;
+		
+		Employee employee=null;
+
+		try {
+			employee = service.createEmployee(email,name,password,employeeStatus);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(employee);
+		// check error
+		assertEquals(
+				"email, name, and password of employee all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateEmployeeEmptyEmail() {
+		
+		String email = "";
+		String name = "name";
+		String password = "password";
+		EmployeeStatus employeeStatus = null;
+		
+		String error=null;
+		
+		Employee employee=null;
+
+		try {
+			employee = service.createEmployee(email,name,password,employeeStatus);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(employee);
+		// check error
+		assertEquals(
+				"email, name, and password of employee all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateEmployeeEmptyName() {
+		
+		String email = "email.com";
+		String name = "";
+		String password = "password";
+		EmployeeStatus employeeStatus = null;
+		
+		String error=null;
+		
+		Employee employee=null;
+
+		try {
+			employee = service.createEmployee(email,name,password,employeeStatus);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(employee);
+		// check error
+		assertEquals(
+				"email, name, and password of employee all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateEmployeeEmptyPassword() {
+		
+		String email = "email.com";
+		String name = "name";
+		String password = "";
 		EmployeeStatus employeeStatus = null;
 		
 		String error=null;
@@ -927,7 +1061,37 @@ public class TestProject321Service {
 				"Employee account password should be longer than 6 alphabet/numbers",
 				error);
 	}
+	
+	@Test
+	public void testGetEmployee() {
+		String email = "email@get.com";
 		
+		String name = "TestEmployee";
+		String password = "pw1234";
+		EmployeeStatus employeeStatus = EmployeeStatus.Active;		
+		Employee employee = service.createEmployee(email,name,password,employeeStatus);
+		
+		when(employeeDao.findByEmail(email)).thenReturn(employee);
+		Employee returned = service.getEmployee(email);
+		verify(employeeDao, times(2)).findByEmail(email); //once for creating, then another for getting
+		
+		assertEquals(employee, returned);
+	}
+	
+	@Test
+	public void testRemoveEmployee() {
+		String email = "email@get.com";
+		String name = "TestEmployee";
+		String password = "pw1234";
+		EmployeeStatus employeeStatus = EmployeeStatus.Active;		
+		Employee employee = service.createEmployee(email,name,password,employeeStatus);
+		service.removeEmployee(employee);
+		
+		
+		verify(employeeDao).delete(employee); //once for creating, then another for getting
+	}
+	
+	
 /*Tests Related to Address Service Methods*/
 	
 	@Test
@@ -938,6 +1102,11 @@ public class TestProject321Service {
 		String street = "TestStreet";
 		String postalCode = "TestPostalCode";
 		int unit = 321;
+		
+		String town1 = "TestTown";
+		String street1 = "TestStreet";
+		String postalCode1 = "TestPostalCode";
+		int unit1 = 321;
 		  
 		Address address = null ;
 		
@@ -947,7 +1116,11 @@ public class TestProject321Service {
 			// Check that no error occurred
 			fail();
 		}
+		
+	when(addressDao.findByUnitAndStreetAndTownAndPostalCode(unit1, street1, town1, postalCode1)).thenReturn(address);
+	Address address2 = service.createAddresses(town1, street1, postalCode1, unit1);
 		assertNotNull(address);
+		assertNull(address2);
 		checkResultAddress(address,town,street,postalCode,unit);
 	}
 
@@ -959,11 +1132,137 @@ public class TestProject321Service {
 	}
 	
 	@Test
-	public void testCreateAddressNull() {
+	public void testCreateAddressNullTown() {
 		
 		String town = null;
 		String street = null;
 		String postalCode = null;
+		int unit = 321;
+		  
+		Address address = null ;
+		String error=null;
+		
+
+		try {
+			address = service.createAddresses(town,street,postalCode,unit);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(address);
+		// check error
+		assertEquals(
+				"town, street, and postalCode of address all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateAddressNullStreet() {
+		
+		String town = "town";
+		String street = null;
+		String postalCode = null;
+		int unit = 321;
+		  
+		Address address = null ;
+		String error=null;
+		
+
+		try {
+			address = service.createAddresses(town,street,postalCode,unit);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(address);
+		// check error
+		assertEquals(
+				"town, street, and postalCode of address all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateAddressNullPostCode() {
+		
+		String town = "town";
+		String street = "street";
+		String postalCode = null;
+		int unit = 321;
+		  
+		Address address = null ;
+		String error=null;
+		
+
+		try {
+			address = service.createAddresses(town,street,postalCode,unit);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(address);
+		// check error
+		assertEquals(
+				"town, street, and postalCode of address all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	
+	@Test
+	public void testCreateAddressEmptyTown() {
+		
+		String town = "";
+		String street = "";
+		String postalCode = "";
+		int unit = 321;
+		  
+		Address address = null ;
+		String error=null;
+		
+
+		try {
+			address = service.createAddresses(town,street,postalCode,unit);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(address);
+		// check error
+		assertEquals(
+				"town, street, and postalCode of address all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateAddressEmptyStreet() {
+		
+		String town = "town";
+		String street = "";
+		String postalCode = "";
+		int unit = 321;
+		  
+		Address address = null ;
+		String error=null;
+		
+
+		try {
+			address = service.createAddresses(town,street,postalCode,unit);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(address);
+		// check error
+		assertEquals(
+				"town, street, and postalCode of address all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateAddressEmptyPostcode() {
+		
+		String town = "town";
+		String street = "street"; 
+		String postalCode = "";
 		int unit = 321;
 		  
 		Address address = null ;
@@ -1099,6 +1398,10 @@ public class TestProject321Service {
 			fail();
 		}
 		
+		when(timeSlotDao.findByDateAndStartTimeAndEndTime(date, startTime, endTime)).thenReturn(ts);
+		TimeSlot ts2 = service.createTimeSlot(startTime, endTime, date, maxOrderPerSlot);
+		
+		assertNull(ts2);
 		assertNotNull(ts);
 		assertEquals(ts.getStartTime(),startTime);
 		assertEquals(ts.getEndTime(),endTime);
@@ -1236,6 +1539,15 @@ public class TestProject321Service {
 		
 	}
 	
+	@Test 
+	public void testDecrementMaxOrderPerslotBelowZero() {
+		TimeSlot ts = new TimeSlot();
+		ts.setMaxOrderPerSlot(0);
+		service.decrementMaxOrderPerslot(ts);
+		verify(timeSlotDao, times(0)).save(ts);
+		
+	}
+	
 	@Test
 	public void testDeleteTimeSlotNotThere() {
 		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
@@ -1251,6 +1563,23 @@ public class TestProject321Service {
 			error = e.getMessage();
 		} 
 		assertEquals(error, "Unable to find TimeSlot");
+	}
+	
+	@Test
+	public void testDeleteTimeSlot() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		
+		TimeSlot ts = new TimeSlot();
+		ts.setDate(date);
+		ts.setEndTime(endTime);
+		ts.setStartTime(startTime);
+		
+		when(timeSlotDao.findByDateAndStartTimeAndEndTime(date, startTime, endTime)).thenReturn(ts);
+		
+		service.deleteTimeSlot(startTime, endTime, date);
+		verify(timeSlotDao).delete(ts);
 	}
 	
 	@Test
@@ -1376,13 +1705,90 @@ public class TestProject321Service {
 		
 	}
 	
+	@Test
+	public void testCreateOrderAlreadyAttachedToCart() {
+
+		 String email = "customer@mail.com";
+		 String name = "TestCustomer";
+		 String password = "Testpassword";
+		 String phone = "000-1111";	  
+		 String town = "TestTown";
+		 String street = "TestStreet";
+		 String postalCode = "TestPostalCode";
+		 int unit = 321;
+		 Address address = new Address(town,street,postalCode,unit); 
+		 Customer customer = new Customer(email, name, password, phone, address);
+
+		 Date creationDate = java.sql.Date.valueOf(LocalDate.of(2022, 12, 31));
+		 Time creationTime = java.sql.Time.valueOf(LocalTime.of(13, 00));
+		Cart testCart = new Cart(ShoppingType.Delivery, customer, creationDate, creationTime);
+
+		boolean comp = false;
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		int total = 500;
+		String payment = "CreditCard";
+		
+		when(orderDao.findByCart(testCart)).thenReturn(TEST_ORDER);
+		
+		Order order = service.createOrder(comp, date, total,  payment, testCart);
+		
+		assertNull(order);
+	}
 	
 	@Test
-	public void testCreateOrderNull() {
+	public void testCreateOrderNullDate() {
 		boolean comp = false;
 		Date date = null;
 		int total = 0;
 		String payment = null;
+		Cart cart = null;
+		
+		String error = null;
+		Order order = null;
+		
+		try {
+			order = service.createOrder(comp, date, total,  payment, cart);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(order);
+		assertEquals(
+				"Any of the date, payment, and cart of a order cannot be null", error);
+		
+	} 
+	
+	@Test
+	public void testCreateOrderNullPayment() {
+		boolean comp = false;
+		Date date = java.sql.Date.valueOf(LocalDate.of(2022, 12, 1));
+		int total = 0;
+		String payment = null;
+		Cart cart = new Cart();
+		
+		String error = null;
+		Order order = null;
+		
+		try {
+			order = service.createOrder(comp, date, total,  payment, cart);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(order);
+		assertEquals(
+				"Any of the date, payment, and cart of a order cannot be null", error);
+		
+	} 
+	
+	@Test
+	public void testCreateOrderNullCart() {
+		boolean comp = false;
+		Date date = java.sql.Date.valueOf(LocalDate.of(2022, 12, 1));
+		int total = 0;
+		String payment = "cash";
 		Cart cart = null;
 		
 		String error = null;
@@ -1437,7 +1843,9 @@ public class TestProject321Service {
 			// Check that no error occurred
 			fail();
 		}
-		
+	when(shiftDao.findByDateAndEmployee(date, employee)).thenReturn(s);
+	Shift s2 = service.createShift(startTime, endTime, date, employee);
+		assertNull(s2);
 		assertNotNull(s);
 		assertEquals(s.getStartHour(),startTime);
 		assertEquals(s.getEndHour(),endTime);
@@ -1449,10 +1857,52 @@ public class TestProject321Service {
 	
 	
 	@Test
-	public void testCreateShiftNullTimeAndDate() {
+	public void testCreateShiftNullDate() {
 		Time startTime = null;
 		Time endTime = null;
 		Date date = null;
+		Employee employee = new Employee("testEmail@gmail.com", "TestName", "TestPsw", EmployeeStatus.Active);
+		Shift s = null;
+		String error = null;
+		
+		try {
+			s = service.createShift(startTime, endTime, date, employee);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(s);
+		assertEquals(
+				"startHour, endHour and date of a shift cannot be null", error);
+	}
+	
+	@Test
+	public void testCreateShiftNullTimeStart() {
+		Time startTime = null;
+		Time endTime = null;
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		Employee employee = new Employee("testEmail@gmail.com", "TestName", "TestPsw", EmployeeStatus.Active);
+		Shift s = null;
+		String error = null;
+		
+		try {
+			s = service.createShift(startTime, endTime, date, employee);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(s);
+		assertEquals(
+				"startHour, endHour and date of a shift cannot be null", error);
+	}
+	
+	@Test
+	public void testCreateShiftNullTimeEnd() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = null;
+		Date date = java.sql.Date.valueOf(LocalDate.now());
 		Employee employee = new Employee("testEmail@gmail.com", "TestName", "TestPsw", EmployeeStatus.Active);
 		Shift s = null;
 		String error = null;
@@ -1527,6 +1977,41 @@ public class TestProject321Service {
 		
 		
 	}
+	
+	@Test 
+	public void testGetEmployeesForTimeSlot(){
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(6, 30));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(10, 15));
+		Date date = java.sql.Date.valueOf(LocalDate.now());	
+		Employee employee = new Employee();
+		Shift shift = service.createShift(startTime, endTime, date, employee);
+		
+		Time startTime1 = java.sql.Time.valueOf(LocalTime.of(7, 55));
+		Time endTime1 = java.sql.Time.valueOf(LocalTime.of(10,05));	
+		Shift shift1 = service.createShift(startTime1, endTime1, date, employee);
+		
+		Time startTime2 = java.sql.Time.valueOf(LocalTime.of(13, 00));
+		Time endTime2 = java.sql.Time.valueOf(LocalTime.of(14, 00));	
+		Shift shift2 = service.createShift(startTime2, endTime2, date, employee);
+		
+		Time startTime3 = java.sql.Time.valueOf(LocalTime.of(7, 00));
+		Time endTime3 = java.sql.Time.valueOf(LocalTime.of(9, 00));	
+		Shift shift3 = service.createShift(startTime3, endTime3, date, employee);
+		
+		List<Shift> all = new ArrayList<Shift>();
+		all.add(shift); 
+		all.add(shift1); 
+		all.add(shift2);
+		all.add(shift3);
+		
+		
+		
+		when(shiftDao.findByDate(date)).thenReturn(all);
+		int returned = service.getEmployeesForTimeSlot(date, java.sql.Time.valueOf(LocalTime.of(8, 00)), java.sql.Time.valueOf(LocalTime.of(10, 00)));
+		verify(shiftDao).findByDate(date); // once for creating and once for getting
+		
+		assertEquals(2, returned);
+	}
 
 /*Tests Related to Product Service Methods*/
 	@Test
@@ -1558,10 +2043,98 @@ public class TestProject321Service {
 	
 	
 	@Test
-	public void testCreateProductNull() {
+	public void testCreateProductNullType() {
 		Product.PriceType type = null; 
+		String productName = "name";
+		String isAviliableOnline = "yes";
+		int price = 5;
+		int stock = 50;
+		Product p = null;
+		String error = null;
+		
+		try {
+			p = service.createProduct(type, productName, isAviliableOnline, price, stock);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(p);
+		assertEquals(
+				"Any of the priceType, productName and isAvailableOnline of a product cannot be null", error);
+	}
+	
+	@Test
+	public void testCreateProductNullName() {
+		Product.PriceType type = Product.PriceType.PER_UNIT; 
 		String productName = null;
+		String isAviliableOnline = "yes";
+		int price = 5;
+		int stock = 50;
+		Product p = null;
+		String error = null;
+		
+		try {
+			p = service.createProduct(type, productName, isAviliableOnline, price, stock);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(p);
+		assertEquals(
+				"Any of the priceType, productName and isAvailableOnline of a product cannot be null", error);
+	}
+	
+	@Test
+	public void testCreateProductNullAvailability() {
+		Product.PriceType type = Product.PriceType.PER_UNIT; 
+		String productName = "name";
 		String isAviliableOnline = null;
+		int price = 5;
+		int stock = 50;
+		Product p = null;
+		String error = null;
+		
+		try {
+			p = service.createProduct(type, productName, isAviliableOnline, price, stock);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(p);
+		assertEquals(
+				"Any of the priceType, productName and isAvailableOnline of a product cannot be null", error);
+	}
+	
+	@Test
+	public void testCreateProductEmptyName() {
+		Product.PriceType type = Product.PriceType.PER_UNIT; 
+		String productName = "";
+		String isAviliableOnline = "yes";
+		int price = 5;
+		int stock = 50;
+		Product p = null;
+		String error = null;
+		
+		try {
+			p = service.createProduct(type, productName, isAviliableOnline, price, stock);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(p);
+		assertEquals(
+				"Any of the priceType, productName and isAvailableOnline of a product cannot be null", error);
+	}
+	
+	@Test
+	public void testCreateProductEmptyAvailbility() {
+		Product.PriceType type = Product.PriceType.PER_UNIT; 
+		String productName = "name";
+		String isAviliableOnline = "";
 		int price = 5;
 		int stock = 50;
 		Product p = null;
@@ -1630,9 +2203,14 @@ public class TestProject321Service {
 		String isAviliableOnline = "yes";
 		int price = 10;
 		int stock = 50;
+		
 		Product p = service.createProduct(type, PRODUCT_KEY, isAviliableOnline, price, stock);
+		
 		 
 		p = service.setProductStock(PRODUCT_KEY, 100);
+		when(productDao.findByProductName("noname")).thenReturn(null);
+		Product p2 = service.setProductStock("noname", stock);
+		assertNull(p2);
 		assertEquals(p.getStock(), 100);
 		
 	}
@@ -1655,6 +2233,43 @@ public class TestProject321Service {
 			error = e.getMessage();
 		}
 		assertEquals(error, "Cannot find Product to delete");
+	}
+	
+	@Test
+	public void testGetProductByName() {
+		Product.PriceType type = Product.PriceType.PER_UNIT; 
+		String isAviliableOnline = "yes";
+		String name = "testName";
+		int price = 10;
+		int stock = 50;
+		Product p = service.createProduct(type, name, isAviliableOnline, price, stock);
+		
+		when(productDao.findByProductName(name)).thenReturn(p);
+		
+		Product returned = service.getProductByName(name);
+		verify(productDao, times(2)).findByProductName(name);
+		assertEquals(p, returned);
+	}
+	
+	@Test
+	public void testGetProductByStockGreaterThan() {
+		Product p = new Product();
+		p.setStock(5);
+		Product p2 = new Product();
+		p2.setStock(5);
+		Product p3 = new Product();
+		p3.setStock(5);
+		
+		List<Product> all = new ArrayList<Product>();
+		all.add(p);
+		all.add(p2);
+		all.add(p3);
+		
+		when(productDao.findByStockGreaterThan(2)).thenReturn(all);
+		
+		List<Product> returned = service.getProductByStockGreaterThan(2);
+		verify(productDao).findByStockGreaterThan(2);
+		assertEquals(all, returned);
 	}
 
 		
@@ -1843,6 +2458,27 @@ public class TestProject321Service {
 		assertEquals(testCartItem.getCart(), TEST_CART);
 		assertEquals(testCartItem.getProduct(), p);
 		assertEquals(testCartItem.getQuantity(), 100);
+	
+	}
+	
+	@Test
+	public void testCreateCartItemProductNull(){
+		assertEquals(0, service.getAllCartItems().size());
+		Product.PriceType type = Product.PriceType.PER_UNIT; 	
+		String isAviliableOnline = "yes";  // Again, it is too deep into the project to fix it into a boolean. So it will stay a String.
+		int price = 5;
+		int stock = 50;
+		InStorePurchase purchase = new InStorePurchase();
+		
+		Product p = new Product(type, PRODUCT_KEY, isAviliableOnline, price, stock);
+		
+		when(productDao.findByProductName(PRODUCT_KEY)).thenReturn(null);
+		
+		CartItem testCartItem = service.createCartItem(100, p, TEST_CART);
+		when(productDao.findByProductName(p.getProductName())).thenReturn(null);
+		CartItem testCartItem2 = service.createCartItem(10, p, purchase);
+		assertNull(testCartItem);
+		assertNull(testCartItem2);
 	
 	}
 	
