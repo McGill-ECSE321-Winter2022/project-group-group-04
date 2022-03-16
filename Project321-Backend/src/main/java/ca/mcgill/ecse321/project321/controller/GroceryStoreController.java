@@ -302,7 +302,7 @@ public class GroceryStoreController {
 
     /**
      * This implements Req. 09
-     * The Grocery software system shall keep track of all the employees who work and have worked at the grocery store with employee accounts
+     * The Grocery software system shall keep track of all the employees who work and have worked at the grocery store with employee accounts.
      * @return returns list of empolyee, current and old
      * @throws IllegalArgumentException if userType is not owner
      */
