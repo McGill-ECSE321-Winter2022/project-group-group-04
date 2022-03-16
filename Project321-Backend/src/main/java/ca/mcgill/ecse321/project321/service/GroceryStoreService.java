@@ -42,8 +42,8 @@ public class GroceryStoreService {
 
 	@Autowired
 	private TimeslotRepository timeslotRepository;
-	@Autowired
-	private StoreRepository storeRepository;
+	@Autowired 
+	StoreRepository storeRepository;
     @Autowired
     private StoreOwnerRepository storeOwnerRepository;
     @Autowired
@@ -78,9 +78,24 @@ public class GroceryStoreService {
     /* Customer-related service methods -------------------------------------------------------------------------- */
     @Transactional
     public Customer createCustomer(String email, String name, String password, String phone, Address address) {
-        if( customerRepository.findByEmail(email) != null ) return null; // Customer already exists
+        if( customerRepository.findByEmail(email) != null ) {
+        	throw new IllegalArgumentException("Customer with this email already exists");
+    
+        }
+        
+        if (email == null || email.trim().length() == 0 
+                || name == null || name.trim().length() == 0
+                || password == null || password.trim().length() == 0) {
+               	throw new IllegalArgumentException("email, name, and password of customer all needs to be associated with a non-empty string");
+               }
+               
+        if (password.length() < 6) {
+            throw new IllegalArgumentException("Customer account password should be longer than 6 alphabet/numbers");
+            }
+               
         Customer customer = new Customer(email, name, password, phone, address);
-        customerRepository.save(customer);
+        userRepository.save(customer);
+        customerRepository.save(customer); 
         return customer;
     }
 
@@ -110,15 +125,7 @@ public class GroceryStoreService {
         cartRepository.save(cart);
         return cart;
     }
-
-    @Transactional
-    public Cart createCart(Cart.ShoppingType type, Customer customer, Date creationDate, Time creationTime, TimeSlot timeSlot) {
-        Cart cart = new Cart(type, customer, creationDate, creationTime);
-        cart.setTimeSlot(timeSlot);
-        cartRepository.save(cart);
-        return cart;
-    }
-
+    
     @Transactional
     public List<Cart> getCartsByCustomer(Customer customer) {
         return cartRepository.findByCustomer(customer);
@@ -159,17 +166,15 @@ public class GroceryStoreService {
         return cartRepository.findByType(type);
     }
 
-    @Transactional
-    public void deleteTimeSlot(Time startTime, Time endTime, Date date) {
-        TimeSlot t = timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime);
-        if(t == null) return;
-        timeslotRepository.delete(t);
-    }
-
     /* Order-related service methods ----------------------------------------------------------------------------- */
     @Transactional
     public Order createOrder(boolean completed, Date date, int total, String payment, Cart cart) {
         if( orderRepository.findByCart(cart) != null ) return null; // An order is already attached to this cart
+        
+        if (date == null || payment == null || cart == null) {
+           	throw new IllegalArgumentException("Any of the date, payment, and cart of a order cannot be null");
+           }
+        
         Order order = new Order(completed, date, total, payment, cart);
         orderRepository.save(order);
         return order;
@@ -264,7 +269,9 @@ public class GroceryStoreService {
 
     @Transactional
     public void deleteCartItem(CartItem item) {
-        if(item == null) return;
+        if(item == null) {
+        	throw new IllegalArgumentException ("Item you are trying to delete is null");
+        }
         cartItemRepository.delete(item);
     }
 
@@ -282,6 +289,13 @@ public class GroceryStoreService {
     @Transactional
     public Address createAddresses(String town, String street, String postalCode, int unit) {
     	if( addressRepository.findByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalCode) != null ) return null; // Customer already exists
+    	
+        if (town == null || town.trim().length() == 0 
+                || street == null || street.trim().length() == 0
+                || postalCode == null || postalCode.trim().length() == 0) {
+               	throw new IllegalArgumentException("town, street, and postalCode of address all needs to be associated with a non-empty string");
+               }
+        
         Address a = new Address(town, street, postalCode, unit);
         addressRepository.save(a);
         return a;
@@ -291,7 +305,19 @@ public class GroceryStoreService {
     @Transactional
     public Employee createEmployee(String email, String name, String password, Employee.EmployeeStatus status) {
         if( employeeRepository.findByEmail(email) != null ) return null; // Customer already exists
+        
+        if (email == null || email.trim().length() == 0 
+         || name == null || name.trim().length() == 0
+         || password == null || password.trim().length() == 0) {
+        	throw new IllegalArgumentException("email, name, and password of employee all needs to be associated with a non-empty string");
+        }
+        
+        if (password.length() < 6) {
+        	throw new IllegalArgumentException("Employee account password should be longer than 6 alphabet/numbers");
+        }
+        
         Employee employee = new Employee(email, name, password, status);
+        userRepository.save(employee);
         employeeRepository.save(employee);
         return employee;
     }
@@ -351,6 +377,19 @@ public class GroceryStoreService {
     @Transactional
     public Product createProduct(PriceType priceType, String productName, String isAvailableOnline, int price, int stock) {
         if(productRepository.findByProductName(productName) != null ) return null; // Product already exists
+        
+        if (priceType == null || productName == null || productName.trim().length() == 0 || isAvailableOnline == null || isAvailableOnline.trim().length() == 0) {
+           	throw new IllegalArgumentException("Any of the priceType, productName and isAvailableOnline of a product cannot be null");
+        }  
+        
+        if (price < 0) {
+        	throw new IllegalArgumentException("price cannot be negative");
+        }
+        
+        if (stock < 0) {
+        	throw new IllegalArgumentException("stock cannot be negative");
+        }
+        
         Product product = new Product(priceType, productName, isAvailableOnline, price, stock);
         productRepository.save(product);
         return product;
@@ -359,9 +398,13 @@ public class GroceryStoreService {
     @Transactional
     public Product deleteProduct(String productName) {
     	Product p = productRepository.findByProductName(productName);
-        if(p == null ) return null; // Product do not exists
-        productRepository.delete(p);
-        return p;
+        if(p == null ) {
+        	throw new IllegalArgumentException ("Cannot find Product to delete"); // Product do not exists
+        }else {
+        	 productRepository.delete(p);
+             return p;
+        }
+       
     }
 
     @Transactional
@@ -378,6 +421,15 @@ public class GroceryStoreService {
     @Transactional
     public Shift createShift(Time startHour, Time endHour, Date date, Employee employee) {
         if(shiftRepository.findByDateAndEmployee(date, employee) != null ) return null; // Customer already exists
+        
+        if (date == null || startHour == null || endHour == null) {
+           	throw new IllegalArgumentException("startHour, endHour and date of a shift cannot be null");
+           }     
+        
+        if (employee == null) {
+           	throw new IllegalArgumentException("the employee that the shift is assigned to cannot be null");
+           }   
+        
         Shift shift = new Shift(startHour, endHour, date, employee);
         shiftRepository.save(shift);
         return shift;
@@ -399,7 +451,7 @@ public class GroceryStoreService {
     public Store getStore() {
         List<Store> storeList = toList(storeRepository.findAll());
         if(storeList.size() == 0) {
-            return null;
+           throw new IllegalArgumentException ("There is no Store in Repository");
         } else {
             return storeList.get(0);
         }
@@ -414,7 +466,10 @@ public class GroceryStoreService {
     @Transactional
     public Store createStore(String telephone, String email, Time openingHour, 
                              Time closingHour, StoreOwner storeOwner, Address address, int outOfTownFee) {
-    	if (storeRepository.findByAddress(address) != null) return null;
+    	if (storeRepository.findByAddress(address) != null) {
+    		return null;
+    	}
+    		
     	Store store = new Store(telephone, email, openingHour, closingHour, storeOwner, address, outOfTownFee);
     	storeRepository.save(store);
         return store;
@@ -437,8 +492,22 @@ public class GroceryStoreService {
 
     @Transactional
     public StoreOwner createStoreOwner(String email, String name, String password) {
-        if( storeOwnerRepository.findByEmail(email) != null ) return null; 
+        if( storeOwnerRepository.findByEmail(email) != null ) {
+        	throw new IllegalArgumentException ("A StoreOwner exists already");
+        }
+        
+        if (email == null || email.trim().length() == 0 
+                || name == null || name.trim().length() == 0
+                || password == null || password.trim().length() == 0) {
+               	throw new IllegalArgumentException("email, name, and password of storeOwner all needs to be associated with a non-empty string");
+               }
+               
+        if (password.length() < 6) {
+            throw new IllegalArgumentException("Owner account password should be longer than 6 alphabet/numbers");
+            }
+        
         StoreOwner storeOwner = new StoreOwner(email, name, password);
+        userRepository.save(storeOwner);
         storeOwnerRepository.save(storeOwner);
         return storeOwner;
     }
@@ -457,7 +526,7 @@ public class GroceryStoreService {
     public StoreOwner setStoreOwnerInfo(String email, String name, String password) {
         List<StoreOwner> list = toList(storeOwnerRepository.findAll());
         if(list.size() == 0) {
-            return null;
+           throw new IllegalArgumentException ("No Store Owner Account found");
         } else {
             StoreOwner owner = list.get(0);
             owner.setEmail(email);
@@ -469,6 +538,30 @@ public class GroceryStoreService {
     }
     
     /* Time Slot-related service methods ------------------------------------------------------------------------- */
+    
+    @Transactional
+    public TimeSlot createTimeSlot(Time startTime, Time endTime, Date date, int maxOrderPerSlot) {
+        if(timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime) != null) return null; // Already exists
+        
+        if (startTime == null || endTime == null || date == null) {
+               	throw new IllegalArgumentException("Any of the startTime, endTime, and date of a timeSlot cannot be null");
+               }
+        if (startTime.after(endTime)){
+           	throw new IllegalArgumentException("Event end time cannot be before start time!");
+           }
+        
+    	TimeSlot ts = new TimeSlot(startTime, endTime, date, maxOrderPerSlot);
+    	timeslotRepository.save(ts);
+        return ts;
+    }
+    
+    @Transactional
+    public Cart setTimeSlot(Cart cart, TimeSlot timeSlot) {
+        cart.setTimeSlot(timeSlot);
+        cartRepository.save(cart);
+        return cart;
+    }
+    
     @Transactional
     public List<TimeSlot> getAllTimeSlots() {
         return toList(timeslotRepository.findAll());
@@ -518,6 +611,16 @@ public class GroceryStoreService {
             }
         }
         return finalList.size();
+    }
+    
+    @Transactional
+    public void deleteTimeSlot(Time startTime, Time endTime, Date date) {
+        TimeSlot t = timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime);
+        if(t == null) {
+        	throw new IllegalArgumentException ("Unable to find TimeSlot");
+  
+        }
+        timeslotRepository.delete(t);
     }
     
     /* Helper methods -------------------------------------------------------------------------------------------- */
