@@ -279,7 +279,7 @@ public class GroceryStoreController {
     }
     
     @PostMapping(value = {"/timeslot/delete", "/timeslot/delete/"})
-    public void deleteTimeSlot(@RequestParam(name = "timeslotdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date timeSlotDate,
+    public TimeSlotDTO deleteTimeSlot(@RequestParam(name = "timeslotdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date timeSlotDate,
                                 @RequestParam(name = "timeslotstarttime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotStartTime,
                                 @RequestParam(name = "timeslotendtime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotEndTime,
                                 @RequestParam(name = "ownerEmail") String email,
@@ -288,7 +288,7 @@ public class GroceryStoreController {
         Time startTime = new Time(timeSlotStartTime.getTime());
         Time endTime = new Time(timeSlotEndTime.getTime());
         Date date = new Date(timeSlotDate.getTime());
-        service.deleteTimeSlot(startTime, endTime, date);                           
+        return (convertToDTO(service.deleteTimeSlot(startTime, endTime, date)));                         
     }
 
     @PostMapping(value = {"/timeslot", "/timeslot/"})
