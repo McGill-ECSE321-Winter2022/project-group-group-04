@@ -84,6 +84,9 @@ public class GroceryStoreController {
             a = service.createAddresses(town, street, postalcode, unit);
         }
         Customer c = service.createCustomer(email, name, password, phone, a);
+        if(c == null) {
+            throw new IllegalArgumentException("Customer already exsist");
+        }
         //System.out.println(c.getName());
         return convertToDTO(c);
     }
@@ -118,7 +121,7 @@ public class GroceryStoreController {
     		throw new IllegalAccessException("You need the correct admin code to create owner");
     	}
         if(service.getStoreOwner() != null) {
-            throw new IllegalAccessException("A store owner already exits! Cannot create another");
+        	return setStoreOwnerInfo(email, name, password, code);
         }
         StoreOwner c = service.createStoreOwner(email, name, password);
         System.out.println(c.getName());
@@ -169,9 +172,9 @@ public class GroceryStoreController {
         }
         Date creationDate = java.sql.Date.valueOf(LocalDate.now());
         Time creationTime = java.sql.Time.valueOf(LocalTime.now());
-        if(creationDate != null) {
-            System.out.println("creation date not null");
-        }
+        //if(creationDate != null) {
+            //System.out.println("creation date not null");
+        //}
         Customer customer = service.getCustomer(customerEmail);
         cart = service.createCart(translateEnum(type), customer, creationDate, creationTime);
         return convertToDTO(cart);
@@ -299,7 +302,7 @@ public class GroceryStoreController {
 
     /**
      * This implements Req. 09
-     * The Grocery software system shall keep track of all the employees who work and have worked at the grocery store with employee accounts
+     * The Grocery software system shall keep track of all the employees who work and have worked at the grocery store with employee accounts.
      * @return returns list of empolyee, current and old
      * @throws IllegalArgumentException if userType is not owner
      */
@@ -424,7 +427,7 @@ public class GroceryStoreController {
     @PostMapping(value = {"/products", "/products/"})
     public ProductDTO createProduct(@RequestParam(name = "type")   PriceTypeDTO type,
                               @RequestParam(name = "productName")  String productName,
-                              @RequestParam(name = "Online")  String isAviliableOnline,
+                              @RequestParam(name = "online")  String isAviliableOnline,
     						  @RequestParam(name = "price")  int price,
     					      @RequestParam(name = "stock")  int stock,
     					      @RequestParam(name = "ownerEmail") String ownerEmail,
@@ -619,7 +622,7 @@ public class GroceryStoreController {
                               @RequestParam(name = "ownerEmail")  String ownerEmail,
                               @RequestParam(name = "ownerPassword")  String ownerPassword) 
                               throws IllegalArgumentException {
-    	checkOwner(ownerEmail, ownerPassword); // Will throw an exception if owner email or password is wrong
+    	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to creatShift");
         Time startTime = new Time(startHour.getTime());
         Time endTime = new Time(endHour.getTime());
         Time storeOpening = service.getStore().getOpeningHour();
@@ -679,13 +682,13 @@ public class GroceryStoreController {
     								  @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
     									  
     	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to create a store");
-        if(service.getStore() != null) {
-            throw new IllegalStateException("A store already exits! Cannot create another");
-        }
     	Address address = service.getAddresseByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalcode);
         StoreOwner owner = service.getStoreOwner();
         if(owner == null) {
             throw new IllegalStateException("No store owner in the system, cannot create a store");
+        }
+        if(service.getStore() != null) {
+            deleteStore(ownerEmail, ownerPassword);
         }
     	AddressDTO addressDto;
     	if (address == null) {

@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.6.3'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'jacoco'
 }
 
 group = 'ca.mcgill.ecse321'
@@ -19,12 +20,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	runtimeOnly 'org.postgresql:postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	
+
 	testImplementation 'org.mockito:mockito-core:2.+'
 	testImplementation 'org.mockito:mockito-junit-jupiter:2.18.3'
-	testImplementation 'org.junit.platform:junit-platform-launcher:1.4.1'
 
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+	testImplementation 'org.junit.platform:junit-platform-launcher:1.4.1'
 }
 
 tasks.named('test') {
@@ -33,14 +34,41 @@ tasks.named('test') {
 
 task integrationTestExecution() {
 	exec {
+		workingDir 'src/test/integration'
 		if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-    		commandLine 'cmd', '/c', "./src/test/integration/integrationTest.bat"
+    		commandLine 'cmd.exe' ,'@cmd' , '/k', 'integrationTest.bat'
 		} else {
-    		commandLine './src/test/integration/integrationTest.sh'
+    		commandLine './integrationTest.sh'
 		}
 	}
 }
 
 task integrationTests(type:Test) {
 	dependsOn integrationTestExecution
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			limit {
+				minimum = 0.01 // Temporary
+			}
+		}
+	}
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = false
+        csv.required = false
+		html.enabled = true
+        html.destination file("${buildDir}/jacocoHtml") 
+    }
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+jacocoTestReport {
+    dependsOn test
 }
