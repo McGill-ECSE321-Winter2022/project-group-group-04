@@ -539,7 +539,7 @@ public class GroceryStoreService {
     	timeslotRepository.save(ts);
         return ts;
     }
-    
+
     @Transactional
     public Cart setTimeSlot(Cart cart, TimeSlot timeSlot) {
         cart.setTimeSlot(timeSlot);
