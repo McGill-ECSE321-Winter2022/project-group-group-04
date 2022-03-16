@@ -142,21 +142,6 @@ public class GroceryStoreService {
     }
 
     @Transactional
-    public TimeSlot createTimeSlot(Time startTime, Time endTime, Date date, int maxOrderPerSlot) {
-        if(timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime) != null) return null; // Already exists
-    	TimeSlot ts = new TimeSlot(startTime, endTime, date, maxOrderPerSlot);
-    	timeslotRepository.save(ts);
-        return ts;
-    }
-    
-    @Transactional
-    public Cart setTimeSlot(Cart cart, TimeSlot timeSlot) {
-        cart.setTimeSlot(timeSlot);
-        cartRepository.save(cart);
-        return cart;
-    }
-
-    @Transactional
     public List<Cart> getCartsByTimeSlot(TimeSlot timeSlot) {
         return cartRepository.findByTimeSlot(timeSlot);
     }
