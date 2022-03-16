@@ -599,13 +599,14 @@ public class GroceryStoreService {
     }
     
     @Transactional
-    public void deleteTimeSlot(Time startTime, Time endTime, Date date) {
+    public TimeSlot deleteTimeSlot(Time startTime, Time endTime, Date date) {
         TimeSlot t = timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime);
         if(t == null) {
         	throw new IllegalArgumentException ("Unable to find TimeSlot");
   
         }
         timeslotRepository.delete(t);
+        return t;
     }
     
     /* Helper methods -------------------------------------------------------------------------------------------- */
