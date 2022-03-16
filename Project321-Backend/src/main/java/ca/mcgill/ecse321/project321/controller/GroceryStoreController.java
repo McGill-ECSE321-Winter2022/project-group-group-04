@@ -155,6 +155,7 @@ public class GroceryStoreController {
      * Method partly related to Req.03 (1/3): As a user of the Grocery software system with a customer account, I 
      * would like to add items into a cart if they are online shopperable and checkout when I am ready for payment 
      * Use to create a new cart under the customer account
+     * URL: localhost:8080/carts?type=aType&customeremail=aEmail&customerpassword=aPassword
      * @param type Type of shopping, either Delivery or Pick-up
      * @param customerEmail Email of customer for identification
      * @param customerPassword Password of customer for identification
@@ -194,6 +195,7 @@ public class GroceryStoreController {
      * Method partly related to Req.03 (1/3): As a user of the Grocery software system with a customer account, I 
      * would like to add items into a cart if they are online shopperable and checkout when I am ready for payment
      * Use to clear all items in the cart
+     * URL: localhost:8080/carts/clear?customeremail=aEmail&customerpassword=aPassword
      * @param customerEmail Email of customer for identification
      * @param customerPassword Password of customer for identification
      * @throws IllegalStateException
@@ -218,6 +220,7 @@ public class GroceryStoreController {
      * employee available to tend to the delivery or pick-up during that time slot
      * It is also related to Req.02-As a user of the Grocery software system with a customer account, I would like to schedule
      * a delivery or pick-up time among a variety of available time slots
+     * URL: localhost:8080/carts/timeslot?customeremail=aEmail&customerpassword=aPassword&timeslotdate=yyyy-MM-dd&timeslotstarttime=HH:mm:ss&timeslotendtime=HH:mm:ss
      * @param customerEmail Email of customer for identification
      * @param customerPassword Password of customer for identification
      * @param timeslotdate for the date of the timeslot being chosen for this cart
@@ -251,6 +254,7 @@ public class GroceryStoreController {
      * employee available to tend to the delivery or pick-up during that time slot
      * It is also related to Req.02-As a user of the Grocery software system with a customer account, I would like to schedule
      * a delivery or pick-up time among a variety of available time slots
+     * URL: localhost:8080/availabletimeslots
      * @return returns list of timeslots that are available
      * @throws IllegalArgumentException
      */
@@ -308,6 +312,7 @@ public class GroceryStoreController {
     /**
      * This implements Req. 09
      * The Grocery software system shall keep track of all the employees who work and have worked at the grocery store with employee accounts.
+     * URL: localhost:8080/employees?ownerEmail=aEmail&ownerPassword=aPassword
      * @return returns list of empolyee, current and old
      * @throws IllegalArgumentException if userType is not owner
      */
@@ -322,10 +327,11 @@ public class GroceryStoreController {
      * This implements Req. 10
      * The Grocery Store System shall allow the owner to remove or add employees on the employment list.
      * Deleting employ does not return anything. Just outputs string "Employee deleted" upon success.
+     * URL: localhost:8080/employee?employeeEmail=aEmail&employeeName=aName&password=aPassword&status=aStatus&ownerEmail=aEmail&ownerPassword=aPassword
      * @param employeeEmail is the Email of the new employee being created
      * @param employeeName is the Name of new employee 
      * @param password is the Password of the new employee being created
-     * @param status is the Status of the new employee being created
+     * @param status is the Status of the new employee being created (Sick, Inactive, Active)
      * @param ownerEmail is the Email of the Owner for identification
      * @param ownerPassword is the Password of the Owner for identification
      * @return returns the newly added employee
@@ -363,6 +369,7 @@ public class GroceryStoreController {
      * customer account with the customer email and physical address.
      * All this method does is check if it is the employee making the customer account. We assume when a customer is making
      * an account the userType will not be set
+     * URL: localhost:8080/helpcustomer?email=aEmail&name=aName&password=aPassword&phone=aPhoneNumber&town=aTown&street=aStreet&postalcode=aPostalCode&unit=aUnitNumber&employeeEmail=aEmail&employeePassword=aPassword
      * @param email is the Email of the new customer being added
      * @param name is the Name of the new customer being added
      * @param password is the Password of the new customer being added
@@ -401,6 +408,7 @@ public class GroceryStoreController {
      * This implements Req. 12
      * The Grocery Store System shall give the customer with a local address free shipping on online 
      * delivery orders and charge an extra fee for customers outside town limits
+     * URL: localhost:8080/shipping?customeremail=aEmail&customerpassword=aPassword
      * @return returns true if free-shipping requirements are met, false otherwise.
      * @throws IllegalArgumentException
      */
@@ -423,6 +431,8 @@ public class GroceryStoreController {
      * This is an implementation for Req.04
      * Req.04-As a user of the Grocery software system with a customer account, I would like to browse all products 
      * available in-stock and identify their availability for pick-up or delivery and their price
+     * URL: localhost:8080/products?customerPage=aBoolean
+     * @param customerPage boolean indicator if you are on customer perspective (true or false)
      * @return all product if user is owner or employee OR all product with stock greater than one if user is a customer
      * @throws IllegalArgumentException
      */
@@ -442,6 +452,7 @@ public class GroceryStoreController {
      * This is an partial implementation of Req.13(1/3), covering the "create" aspect of the Req.
      * Req.13-The Grocery Store System shall allow the owner to add or remove items from 
      * the store inventory and set the number of that item in stock
+     * URL: localhost:8080/products?type=aType&productName=aProductName&online=aBoolean&price=aPrice&stock=aStockNumber&ownerEmail=aEmail&ownerPassword=aPassword
      * @param type is the Type of the new product being added
      * @param productName is the Product Name of the new product being added
      * @param  online is the indicator of availability online of the new product being added
@@ -487,6 +498,7 @@ public class GroceryStoreController {
     
     /**
      * This is an partial implementation of Req.13(3/3), Covering the "set stock" aspect of the Req.
+     * localhost:8080/products/changestock?productName=aProductName&stock=aStockNumber&ownerEmail=aEmail&ownerPassword=aPassword
      * @param productName is the Name of the product you wish to change the stock of
      * @param stock  is the Stock number of the product you wish to change the stock of
      * @param ownerEmail is the Email of Owner for identification
@@ -518,6 +530,7 @@ public class GroceryStoreController {
      * Req.15-The Grocery Store System shall allow the owner to choose what items are available for delivery and pickup online.
      * Note the isAviliableOnline is supposed to be a boolean but it is too risky to change this field for the entire project structure 
      * So it will be passed in as string by "yes" or "no".
+     * localhost:8080/products/changeAvailability?productName=aProductName&isAviliableOnline=aBoolean&ownerEmail=aEmail&ownerPassword=aPassword
      * @param productName is the Name of the product you want to change the Availability of 
      * @param isAviliableOnline is the Status of the availability ("yes" or "no)
      * @param ownerEmail is the Email of Owner for identification
@@ -546,6 +559,7 @@ public class GroceryStoreController {
     /**
      * This is an implementation of Req.14.
      * Req.14-The Grocery Store System shall allow the owner to create a sales report containing all orders and their respective totals 
+     * URL: localhost:8080/orders?ownerEmail=aEmail&ownerPassword=aPassword
      * @param ownerEmail is the Email of Owner for identification
      * @param ownerPassword is the Password of Owner for identification
      * @return all orders
@@ -565,6 +579,7 @@ public class GroceryStoreController {
     /**
      * This is an enhancement to Req.14, which generates the sales total for the owner.
      * Req.14-The Grocery Store System shall allow the owner to create a sales report containing all orders and their respective totals 
+     * URL: localhost:8080/orders/total?ownerEmail=aEmail&ownerPassword=aPassword
      * @param ownerEmail is the Email of Owner for identification
      * @param ownerPassword is the Password of Owner for identification
      * @return online sales total
@@ -585,6 +600,7 @@ public class GroceryStoreController {
     	return sum;
     }
     /**gets The total price of the cart that is currently open for the customer
+     * URL: localhost:8080/cart/total?customeremail=aEmail&customerpassword=aPassword
      * @param customeremail is the Email of the Customer for identification
      * @param customerpassword is the Password of the Customer for identification
      */
@@ -603,6 +619,7 @@ public class GroceryStoreController {
      * Method partly related to Req.03 (1/3): As a user of the Grocery software system with a customer account, I
      * would like to add items into a cart if they are online shopperable and checkout when I am ready for payment 
      * Use to pay the cart 
+     * URL: localhost:8080/cart/pay?paymentcode=aPaymentCode&customeremail=aEmail&customerpassword=aPassword
      * @param paymentCode Payment code used to confirm the transaction
      * @param customerEmail Email of the customer for identification
      * @param customerPassword Password of the customer for identification
@@ -636,6 +653,7 @@ public class GroceryStoreController {
     /**
      * This is an implementation of the Req.01 
      * Req.01-"As a user of the Grocery software system with an employee account, I would like to be able to visualize my weekly work schedules."
+     * URL: localhost:8080/shifts/myshifts?email=aEmail&password=aPassword
      * @param email is the Email of the employee for identification
      * @param password is the Password of the employee for identification
      * @return list of shifts belongs to the current user(employee).
@@ -653,6 +671,7 @@ public class GroceryStoreController {
      * Method related to Req.08-The Grocery software system shall allow the owner to schedule 
      * employees with active accounts to work within the daily opening hours of the store
      * Use to create a new shift and assign a specific employee to the shift
+     * URL: localhost:8080/shifts?startHour=HH:mm:ss&endHour=HH:mm:ss&date=yyyy-MM-dd&employeeEmail=aEmail&ownerEmail=aEmail&ownerPassword=aPassword
      * @param startHour Starting time of the shift
      * @param endHour Ending time of the shift
      * @param date Date of the shift
@@ -754,6 +773,7 @@ public class GroceryStoreController {
     /**
      * This is an implementation of the Req.07
      * Req.07-The Grocery software system shall allow the owner to modify the opening date and opening hours.
+     * URL: localhost:8080/store/changeHours?openingHour=HH:mm:ss&closingHour=HH:mm:ss&ownerEmail=aEmail&ownerPassword=aPassword
      * @param openingHour is the new Opening Hour for the store
      * @param closingHour is the new Closing Hour for the store
      * @param ownerEmail Email of the owner for identification
