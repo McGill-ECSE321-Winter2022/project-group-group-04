@@ -16,13 +16,13 @@ SET InvalidOwnerEmail=InvalidEmailNotInSystem@email.com
 SET InvalidAdminCode=wrongKey
 
 @REM # Valid employee info
-SET employeeEmail=employeeIntegrationTest18@email.com
+SET employeeEmail=employeeIntegrationTest@email.com
 SET employeeName=employee
 SET employeePassword=employeePwd
 SET status=Active
 
 @REM #Valid customer info
-SET customerEmail=customerIntegrationTest18@email.com
+SET customerEmail=customerIntegrationTest@email.com
 SET customerName=customer
 SET customerPassword=customerPwd
 SET phone=4556846985
@@ -52,12 +52,12 @@ SET storePostalCode=1X1X1X
 @REM #Shared date and hours infor for shift and timeslot tests
 SET startHour=09:00:00
 SET endHour=17:00:00
-SET date=2022-02-19
+SET date=2022-03-1
 
 @REM #Valid product info
 SET type=PER_UNIT
-SET productName=papaya18
-SET productName2=cloudBerry7
+SET productName=papaya
+SET productName2=cloudBerry
 SET online=no
 SET online2=yes
 SET newOnline=yes

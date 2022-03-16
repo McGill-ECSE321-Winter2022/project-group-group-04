@@ -436,7 +436,7 @@ public class GroceryStoreService {
     public Store getStore() {
         List<Store> storeList = toList(storeRepository.findAll());
         if(storeList.size() == 0) {
-           throw new IllegalArgumentException ("There is no Store in Repository");
+           return null;
         } else {
             return storeList.get(0);
         }
