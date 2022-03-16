@@ -2430,14 +2430,14 @@ public class TestProject321Service {
 		List<Store> all = new ArrayList<Store>();
 		when(storeDao.findAll()).thenReturn(all);
 		String error = null;
-		
+		Store foundStore = null;
 		try{
-			Store foundStore = service.getStore();
+			foundStore = service.getStore();
 		}catch(Exception e) {
 			error = e.getMessage();
 		}
-		verify(storeDao).findAll();
-		assertEquals(error, "There is no Store in Repository");
+		assertNull(foundStore);
+
 		
 	}
 	
