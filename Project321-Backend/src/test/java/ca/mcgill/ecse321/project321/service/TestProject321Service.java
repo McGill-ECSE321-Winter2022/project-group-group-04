@@ -1982,11 +1982,11 @@ public class TestProject321Service {
 	public void testGetEmployeesForTimeSlot(){
 		Time startTime = java.sql.Time.valueOf(LocalTime.of(6, 30));
 		Time endTime = java.sql.Time.valueOf(LocalTime.of(10, 15));
-		Date date = java.sql.Date.valueOf(LocalDate.now());	
-		Employee employee = new Employee();
+		Date date = java.sql.Date.valueOf(LocalDate.now());	 
+		Employee employee = new Employee(); 
 		Shift shift = service.createShift(startTime, endTime, date, employee);
 		
-		Time startTime1 = java.sql.Time.valueOf(LocalTime.of(7, 55));
+		Time startTime1 = java.sql.Time.valueOf(LocalTime.of(8, 00));
 		Time endTime1 = java.sql.Time.valueOf(LocalTime.of(10,05));	
 		Shift shift1 = service.createShift(startTime1, endTime1, date, employee);
 		
@@ -1994,23 +1994,43 @@ public class TestProject321Service {
 		Time endTime2 = java.sql.Time.valueOf(LocalTime.of(14, 00));	
 		Shift shift2 = service.createShift(startTime2, endTime2, date, employee);
 		
-		Time startTime3 = java.sql.Time.valueOf(LocalTime.of(7, 00));
-		Time endTime3 = java.sql.Time.valueOf(LocalTime.of(9, 00));	
+		Time startTime3 = java.sql.Time.valueOf(LocalTime.of(13, 00));
+		Time endTime3 = java.sql.Time.valueOf(LocalTime.of(16, 00));	
 		Shift shift3 = service.createShift(startTime3, endTime3, date, employee);
+		
+		Time startTime4 = java.sql.Time.valueOf(LocalTime.of(8, 00));
+		Time endTime4 = java.sql.Time.valueOf(LocalTime.of(15, 00));	
+		Shift shift4 = service.createShift(startTime4, endTime4, date, employee);
+		
+		Time startTime5 = java.sql.Time.valueOf(LocalTime.of(15, 00));
+		Time endTime5 = java.sql.Time.valueOf(LocalTime.of(20, 00));	
+		Shift shift5 = service.createShift(startTime5, endTime5, date, employee);
+		
+		Time startTime6 = java.sql.Time.valueOf(LocalTime.of(13, 00));
+		Time endTime6 = java.sql.Time.valueOf(LocalTime.of(15, 00));	
+		Shift shift6 = service.createShift(startTime6, endTime6, date, employee);
+		
+		Time startTime7 = java.sql.Time.valueOf(LocalTime.of(6, 00));
+		Time endTime7 = java.sql.Time.valueOf(LocalTime.of(15, 00));	
+		Shift shift7 = service.createShift(startTime7, endTime7, date, employee);
 		
 		List<Shift> all = new ArrayList<Shift>();
 		all.add(shift); 
 		all.add(shift1); 
 		all.add(shift2);
 		all.add(shift3);
+		all.add(shift4);
+		all.add(shift5);
+		all.add(shift6);
+		all.add(shift7);
 		
-		
+		 
 		
 		when(shiftDao.findByDate(date)).thenReturn(all);
-		int returned = service.getEmployeesForTimeSlot(date, java.sql.Time.valueOf(LocalTime.of(8, 00)), java.sql.Time.valueOf(LocalTime.of(10, 00)));
+		int returned = service.getEmployeesForTimeSlot(date, java.sql.Time.valueOf(LocalTime.of(8, 00)), java.sql.Time.valueOf(LocalTime.of(15, 00)));
 		verify(shiftDao).findByDate(date); // once for creating and once for getting
 		
-		assertEquals(2, returned);
+		assertEquals(7, returned);
 	}
 
 /*Tests Related to Product Service Methods*/
