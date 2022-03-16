@@ -9,6 +9,10 @@ SET ownerName=owner
 SET ownerPassword=ownerPwd
 SET adminCode=admin
 
+SET ownerEmail2=ownerIntegrationTest5@email.com
+SET ownerName2=owner5
+SET ownerPassword2=ownerPwd5
+
 @REM # InValid store owner info
 SET InvalidOwnerEmail=InvalidEmailNotInSystem@email.com
 SET InvalidAdminCode=wrongKey
@@ -18,6 +22,10 @@ SET employeeEmail=employeeIntegrationTest5@email.com
 SET employeeName=employee
 SET employeePassword=employeePwd
 SET status=Active
+SET employeeStartHour = 11:00:00
+SET employeeEnddHour =  13:00:00
+
+
 
 @REM #Valid customer info
 SET customerEmail=customerIntegrationTest5@email.com
@@ -45,6 +53,9 @@ SET storeUnit=10
 SET storeOutOfTownFee=10
 SET storePostalCode=1X1X1X
 
+SET storeOpeningHours2 = 10:00:00
+SET storeClosingHours2 = 16:00:00
+
 @REM #Shared date and hours infor for shift and timeslot tests
 SET startHour=09:00:00
 SET endHour=17:00:00
@@ -63,14 +74,24 @@ SET shoppingType=Delivery
 @REM #Valid timeSlotinfo
 SET quantity=1
 
+@REM #Valid address
+SET town3=mtl3
+SET street3=mcgill3
+SET postalcode3=H1X1X3
+SET unit3=900
+
+
 echo INITIATING INTEGRATION TESTS...
 echo       *Make sure the application is running and connected to localhost:8080 to run the integration tests*
 :: Call the test methods here in order here
 CALL :storeOwnerCreationTest
 CALL :storeOwnerCreationWrongAdminKeyTest
+CALL :storeOwnerChangeInfoTest
+
 
 CALL :storeCreationTest
 CALL :storeCreationWrongOwnerInfoTest
+CALL :storeHoursModificationTest
 
 CALL :employeeCreationTest
 CALL :employeeCreationWrongOwnerInfoTest
@@ -80,6 +101,7 @@ CALL :listEmployeeTest
 CALL :shiftCreationTest
 CALL :duplicateShiftCreationTest
 CALL :shiftCreationWrongOwnerInfoTest
+
 
 CALL :customerCreationTest
 CALL :duplicateCustomerCreationTest
@@ -96,6 +118,9 @@ CALL :instorePurchaseCreationTest
 CALL :timeSlotCreationTest
 CALL :duplicateTimeSlotCreationTest
 CALL :listTimeSlotTest
+
+CALL :addressCreationTest
+CALL :listAddressTest
 
 DEL %JSON_DATA%
 EXIT /B %ERRORLEVEL%
@@ -134,6 +159,25 @@ if %errorlevel%==0 (
 :endStoreOwnerCreationWrongAdminKey
 EXIT /B 0
 
+:: Test method for the modification of owner info
+:storeOwnerChangeInfoTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/storeOwners?email=%ownerEmail2%&name=%ownerName2%&password=%ownerPassword2%&adminCode=%adminCode%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo storeOwnerChangeInfoTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endStoreOwnerChangeInfoTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "%ownerEmail2%" %JSON_DATA%
+findstr /m "%ownerName2%" %JSON_DATA%
+findstr /m "%ownerPassword2%" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   storeOwnerChangeInfoTest: [ PASSED ] - %result%
+) else (
+    echo   storeOwnerChangeInfoTest: [ FAILED ] - %result%
+)
+:endStoreOwnerChangeInfoTest
+EXIT /B 0
+
 :: Test method for the creation of a store
 :storeCreationTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/store?ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%&telephone=%storePhone%&email=%storeEmail%&openingHour=%storeOpeningHours%&closingHour=%storeClosingHours%&town=%storeTown%&street=%storeStreet%&postalcode=%storePostalCode%&unit=%storeUnit%&outoftownfee=%storeOutOfTownFee%" > %JSON_DATA%
@@ -166,6 +210,25 @@ if %errorlevel%==0 (
     echo   storeCreationWrongOwnerInfoTest: [ FAILED ] - %result%
 )
 :endStoreCreationWrongOwnerInfo
+EXIT /B 0
+
+:: Test method for modification of store hours 
+:storeHoursModificationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/store?ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%&telephone=%storePhone%&email=%storeEmail%&openingHour=%storeOpeningHours2%&closingHour=%storeClosingHours2%&town=%storeTown%&street=%storeStreet%&postalcode=%storePostalCode%&unit=%storeUnit%&outoftownfee=%storeOutOfTownFee%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo storeHoursModificationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endStoreHoursModificationTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "%storeOpeningHours2%" %JSON_DATA%
+findstr /m "%storeClosingHours2%" %JSON_DATA%
+
+if %errorlevel%==0 (
+    echo   storeHoursModificationTest: [ FAILED ] - %result%
+) else (
+    echo   storeHoursModificationTest: [ PASSED ] - %result%
+)
+:endStoreHoursModificationTest
 EXIT /B 0
 
 :: Test method for the creation of a employee
@@ -270,7 +333,7 @@ if %errorlevel%==0 (
 :endDuplicateCustomerCreation
 EXIT /B 0
 
-:: Test method for the creation of a customer
+:: Test method for the modification of a customer address
 :changeCustomerAddressTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/customers/address?customeremail=%customerEmail%&customerpassword=%customerPassword%&town=%town2%&street=%street2%&postalcode=%postalcode2%&unit=%unit2%" > %JSON_DATA%
 for %%A in (%JSON_DATA%) do if %%~zA==0  (
@@ -282,9 +345,9 @@ findstr /m "%town2%" %JSON_DATA%
 findstr /m "%street2%" %JSON_DATA%
 findstr /m "%postalcode2%" %JSON_DATA%
 if %errorlevel%==0 (
-    echo   listTimeSlotTest: [ PASSED ] - %result%
+    echo   changeCustomerAddressTest: [ PASSED ] - %result%
 ) else (
-    echo   listTimeSlotTest: [ FAILED ] - %result%
+    echo   changeCustomerAddressTest: [ FAILED ] - %result%
 )
 :endChangeCustomerAddressTest
 EXIT /B 0
@@ -340,6 +403,27 @@ if %errorlevel%==0 (
 )
 :shiftCreationWrongOwnerInfo
 EXIT /B 0
+
+:: Test method for list of shifts for an Employee
+:listTimeSlotTestForEmployee
+curl -s -H "Content-Type: application/json" -X GET "http://localhost:8080/availabletimeslots" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo listTimeSlotTestForEmployee: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endListTimeSlotTestForEmployee
+)
+SET /p result=<%JSON_DATA%
+findstr /m "%date%" %JSON_DATA%
+findstr /m "%startHour%" %JSON_DATA%
+findstr /m "%endHour%" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   listTimeSlotTestForEmployee: [ PASSED ] - %result%
+) else (
+    echo   listTimeSlotTestForEmployee: [ FAILED ] - %result%
+)
+:endListTimeSlotTestForEmployee
+EXIT /B 0
+
+
 
 
 :: Test method for the creation of a cart
@@ -479,3 +563,41 @@ if %errorlevel%==0 (
 )
 :endListTimeSlot
 EXIT /B 0
+
+:: Test method for the creation of an address
+:addressCreationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/address?town=%town3%&street=%street3%&postalcode=%postalcode3%&unit=%unit3%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo addressCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endAddressCreationTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "error" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   addressCreationTest: [ FAILED ] - %result%
+) else (
+    echo   addressCreationTest: [ PASSED ] - %result%
+)
+:endAddressCreationTest
+EXIT /B 0
+
+:: Test method for list address
+:listAddressTest
+curl -s -H "Content-Type: application/json" -X GET "http://localhost:8080/address" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo listAddressTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endListAddressTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "%town3%" %JSON_DATA%
+findstr /m "%street3%" %JSON_DATA%
+findstr /m "%postalcode3%" %JSON_DATA%
+findstr /m "%unit3%" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   listAddressTest: [ PASSED ] - %result%
+) else (
+    echo   listAddressTest: [ FAILED ] - %result%
+)
+:endListAddressTest
+EXIT /B 0
+
