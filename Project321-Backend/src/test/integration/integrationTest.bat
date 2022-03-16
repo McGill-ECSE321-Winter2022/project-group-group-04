@@ -16,13 +16,13 @@ SET InvalidOwnerEmail=InvalidEmailNotInSystem@email.com
 SET InvalidAdminCode=wrongKey
 
 @REM # Valid employee info
-SET employeeEmail=employeeIntegrationTest10@email.com
+SET employeeEmail=employeeIntegrationTest18@email.com
 SET employeeName=employee
 SET employeePassword=employeePwd
 SET status=Active
 
 @REM #Valid customer info
-SET customerEmail=customerIntegrationTest10@email.com
+SET customerEmail=customerIntegrationTest18@email.com
 SET customerName=customer
 SET customerPassword=customerPwd
 SET phone=4556846985
@@ -52,14 +52,17 @@ SET storePostalCode=1X1X1X
 @REM #Shared date and hours infor for shift and timeslot tests
 SET startHour=09:00:00
 SET endHour=17:00:00
-SET date=2022-02-11
+SET date=2022-02-19
 
 @REM #Valid product info
 SET type=PER_UNIT
-SET productName=papaya10
+SET productName=papaya18
+SET productName2=cloudBerry7
 SET online=no
+SET online2=yes
 SET newOnline=yes
 SET price=3
+SET price2=5
 SET stock=60
 SET newStock=100
 
@@ -72,11 +75,18 @@ SET shoppingType=Delivery
 @REM #Valid timeSlotinfo
 SET quantity=1
 
+@REM #Valid cartItem Info
+SET purchaseQuantity=10
+SET purchaseQuantity2=20
+
+@REM #Valid purcase/Order Info
+SET /a sum="purchaseQuantity * price + purchaseQuantity2 * price2 + storeOutOfTownFee"
+
 echo INITIATING INTEGRATION TESTS...
 echo       *Make sure the application is running and connected to localhost:8080 to run the integration tests*
 :: Call the test methods here in order here
-CALL :storeOwnerCreationTest
 CALL :storeOwnerCreationWrongAdminKeyTest
+CALL :storeOwnerCreationTest
 
 CALL :storeCreationTest
 CALL :storeCreationWrongOwnerInfoTest
@@ -100,6 +110,7 @@ CALL :cartCreationTest
 CALL :duplicateCartCreationTest
 
 CALL :productCreationTest
+CALL :productCreationTest2
 CALL :duplicateProductCreationTest
 CALL :changeProductStockTest
 CALL :changeProductStockNegativeTest
@@ -111,8 +122,13 @@ CALL :timeSlotCreationTest
 CALL :duplicateTimeSlotCreationTest
 CALL :listTimeSlotTest
 
+CALL :addItemToCartTest
+CALL :addItemToCartTest2
+CALL :getCartToalTest
+
 DEL %JSON_DATA%
 EXIT /B %ERRORLEVEL%
+
 
 :: Test method for the creation of a store owner
 :storeOwnerCreationTest
@@ -132,6 +148,23 @@ if %errorlevel%==0 (
 :endStoreOwnerCreation
 EXIT /B 0
 
+:: Test method for the creation of a store
+:storeCreationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/store?ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%&telephone=%storePhone%&email=%storeEmail%&openingHour=%storeOpeningHours%&closingHour=%storeClosingHours%&town=%storeTown%&street=%storeStreet%&postalcode=%storePostalCode%&unit=%storeUnit%&outoftownfee=%storeOutOfTownFee%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo storeCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endStoreCreation
+)
+SET /p result=<%JSON_DATA%
+findstr /m "error" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   storeCreationTest: [ FAILED ] - %result%
+) else (
+    echo   storeCreationTest: [ PASSED ] - %result%
+)
+:endStoreCreation
+EXIT /B 0
+
 :: Test method for the creation of a store owner with wrong admin code
 :storeOwnerCreationWrongAdminKeyTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/storeOwners?email=%ownerEmail%&name=%ownerName%&password=%ownerPassword%&adminCode=%InvalidAdminCode%" > %JSON_DATA%
@@ -148,23 +181,6 @@ if %errorlevel%==0 (
     echo   storeOwnerCreationWrongAdminKeyTest: [ FAILED ] - %result%
 )
 :endStoreOwnerCreationWrongAdminKey
-EXIT /B 0
-
-:: Test method for the creation of a store
-:storeCreationTest
-curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/store?ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%&telephone=%storePhone%&email=%storeEmail%&openingHour=%storeOpeningHours%&closingHour=%storeClosingHours%&town=%storeTown%&street=%storeStreet%&postalcode=%storePostalCode%&unit=%storeUnit%&outoftownfee=%storeOutOfTownFee%" > %JSON_DATA%
-for %%A in (%JSON_DATA%) do if %%~zA==0  (
-    echo storeCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
-    goto endStoreCreation
-)
-SET /p result=<%JSON_DATA%
-findstr /m "error" %JSON_DATA%
-if %errorlevel%==0 (
-    echo   storeCreationTest: [ FAILED ] - %result%
-) else (
-    echo   storeCreationTest: [ PASSED ] - %result%
-)
-:endStoreCreation
 EXIT /B 0
 
 :: Test method for the creation of a store with wrong owner info
@@ -394,7 +410,6 @@ if %errorlevel%==0 (
 :shiftCreationWrongOwnerInfo
 EXIT /B 0
 
-
 :: Test method for the creation of a cart
 :cartCreationTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/carts?type=%shoppingType%&customeremail=%customerEmail%&customerpassword=%customerPassword%" > %JSON_DATA%
@@ -464,6 +479,23 @@ if %errorlevel%==0 (
 EXIT /B 0
 
 :: Test method for the creation of a product
+:productCreationTest2
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/products?type=%type%&productName=%productName2%&online=%online2%&price=%price2%&stock=%stock%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo productCreationTest2: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endProductCreation2
+)
+SET /p result=<%JSON_DATA%
+findstr /m "error" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   productCreationTest2: [ FAILED ] - %result%
+) else (
+    echo   productCreationTest2: [ PASSED ] - %result%
+)
+:endProductCreation2
+EXIT /B 0
+
+:: Test method for change a product's stock
 :changeProductStockTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/products/changestock?type=%type%&productName=%productName%&stock=%newStock%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
 for %%A in (%JSON_DATA%) do if %%~zA==0  (
@@ -480,7 +512,7 @@ if %errorlevel%==0 (
 :endChangeProductStockTest
 EXIT /B 0
 
-:: Test method for the creation of a product
+:: Test method for the safeguard to prevent a product's stock changed to negative
 :changeProductStockNegativeTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/products/changestock?type=%type%&productName=%productName%&stock=%invalidStock%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
 for %%A in (%JSON_DATA%) do if %%~zA==0  (
@@ -514,7 +546,7 @@ if %errorlevel%==0 (
 :endInstorePurchaseCreation
 EXIT /B 0
 
-:: Test method for the creation of a product
+:: Test method for the change product's aviilability
 :changeProductAvailabilityTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/products/changeAvailability?type=%type%&productName=%productName%&isAviliableOnline=%newOnline%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
 for %%A in (%JSON_DATA%) do if %%~zA==0  (
@@ -530,7 +562,6 @@ if %errorlevel%==0 (
 )
 :endChangeProductAvailabilityTest
 EXIT /B 0
-
 
 :: Test method for the creation of an timeSlot
 :timeSlotCreationTest
@@ -583,4 +614,57 @@ if %errorlevel%==0 (
     echo   listTimeSlotTest: [ FAILED ] - %result%
 )
 :endListTimeSlot
+EXIT /B 0
+
+:: Test method for add item to cart
+:addItemToCartTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/cart/item?useremail=%customerEmail%&userpassword=%customerPassword%&productname=%productName%&quantity=%purchaseQuantity%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo addItemToCartTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endAddItemToCartTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "%productname%" %JSON_DATA%
+findstr /m "%purchaseQuantity%" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   addItemToCartTest: [ PASSED ] - %result%
+) else (
+    echo   addItemToCartTest: [ FAILED ] - %result%
+)
+:endAddItemToCartTest
+EXIT /B 0
+
+:: Test method for add item to cart
+:addItemToCartTest2
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/cart/item?useremail=%customerEmail%&userpassword=%customerPassword%&productname=%productName2%&quantity=%purchaseQuantity2%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo addItemToCartTest2: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endAddItemToCartTest2
+)
+SET /p result=<%JSON_DATA%
+findstr /m "%productname2%" %JSON_DATA%
+findstr /m "%purchaseQuantity2%" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   addItemToCartTest2: [ PASSED ] - %result%
+) else (
+    echo   addItemToCartTest2: [ FAILED ] - %result%
+)
+:endAddItemToCartTest2
+EXIT /B 0
+
+:: Test method for get total of the cart
+:getCartToalTest
+curl -s -H "Content-Type: application/json" -X GET "http://localhost:8080/cart/total?customeremail=%customerEmail%&customerpassword=%customerPassword%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo getCartToalTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endGetCartToalTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "%sum%" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   getCartToalTest: [ PASSED ] - %result%
+) else (
+    echo   getCartToalTest: [ FAILED ] - %result%
+)
+:endGetCartToalTest
 EXIT /B 0
