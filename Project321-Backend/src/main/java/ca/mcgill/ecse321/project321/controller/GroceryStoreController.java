@@ -218,6 +218,11 @@ public class GroceryStoreController {
      * employee available to tend to the delivery or pick-up during that time slot
      * It is also related to Req.02-As a user of the Grocery software system with a customer account, I would like to schedule
      * a delivery or pick-up time among a variety of available time slots
+     * @param customerEmail Email of customer for identification
+     * @param customerPassword Password of customer for identification
+     * @param timeslotdate for the date of the timeslot being chosen for this cart
+     * @param timeslotstarttime for the start time of the timeslot being chosen for this cart
+     * @param timeslotendtime for the end time of the timeslot being chosen for this cart
      * @return returns list of timeslots that are available
      * @throws IllegalArgumentException
      */
@@ -268,7 +273,7 @@ public class GroceryStoreController {
     	
     	return convertTimeSlotListToDTO(availableTimeSlots);
     }
-
+    
     @PostMapping(value = {"/timeslot/delete", "/timeslot/delete/"})
     public void deleteTimeSlot(@RequestParam(name = "timeslotdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date timeSlotDate,
                                 @RequestParam(name = "timeslotstarttime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotStartTime,
@@ -317,6 +322,12 @@ public class GroceryStoreController {
      * This implements Req. 10
      * The Grocery Store System shall allow the owner to remove or add employees on the employment list.
      * Deleting employ does not return anything. Just outputs string "Employee deleted" upon success.
+     * @param employeeEmail is the Email of the new employee being created
+     * @param employeeName is the Name of new employee 
+     * @param password is the Password of the new employee being created
+     * @param status is the Status of the new employee being created
+     * @param ownerEmail is the Email of the Owner for identification
+     * @param ownerPassword is the Password of the Owner for identification
      * @return returns the newly added employee
      * @throws IllegalArgumentException if userType is not owner
      */
@@ -352,6 +363,16 @@ public class GroceryStoreController {
      * customer account with the customer email and physical address.
      * All this method does is check if it is the employee making the customer account. We assume when a customer is making
      * an account the userType will not be set
+     * @param email is the Email of the new customer being added
+     * @param name is the Name of the new customer being added
+     * @param password is the Password of the new customer being added
+     * @param phone is the Phone number of the new customer being added
+     * @param town is the Town of the address of new customer
+     * @param street is the Street of the address of new customer
+     * @param postalcode is the Postalcode of the address of new customer
+     * @param unit is the Unit of the address of new customer
+     * @param employeeEmail is the Email of the Employee adding the customer for identification
+     * @param employeePassword is the Password of the Employee adding the customer for identification
      * @return returns the newly added customer
      * @throws IllegalArgumentException
      */
@@ -421,6 +442,13 @@ public class GroceryStoreController {
      * This is an partial implementation of Req.13(1/3), covering the "create" aspect of the Req.
      * Req.13-The Grocery Store System shall allow the owner to add or remove items from 
      * the store inventory and set the number of that item in stock
+     * @param type is the Type of the new product being added
+     * @param productName is the Product Name of the new product being added
+     * @param  online is the indicator of availability online of the new product being added
+     * @param price is the Price of the new product being added
+     * @param stock is the Stock of the new product being added
+     * @param ownerEmail is the Email of Owner for identification
+     * @param ownerPassword is the Password of Owner for identification
      * @return the created product
      * @throws IllegalArgumentException
      */
@@ -442,6 +470,9 @@ public class GroceryStoreController {
     
     /**
      * This is an partial implementation of Req.13(2/3), Covering the "delete" aspect of the Req.
+     * @param productName is the Name of the product that you want to delete
+     * @param ownerEmail is the Email of Owner for identification
+     * @param ownerPassword is the Password of Owner for identification
      * @return the deleted product
      * @throws IllegalArgumentException
      */
@@ -456,6 +487,10 @@ public class GroceryStoreController {
     
     /**
      * This is an partial implementation of Req.13(3/3), Covering the "set stock" aspect of the Req.
+     * @param productName is the Name of the product you wish to change the stock of
+     * @param stock  is the Stock number of the product you wish to change the stock of
+     * @param ownerEmail is the Email of Owner for identification
+     * @param ownerPassword is the Password of Owner for identification
      * @return the changed product
      * @throws IllegalArgumentException
      */
@@ -483,6 +518,10 @@ public class GroceryStoreController {
      * Req.15-The Grocery Store System shall allow the owner to choose what items are available for delivery and pickup online.
      * Note the isAviliableOnline is supposed to be a boolean but it is too risky to change this field for the entire project structure 
      * So it will be passed in as string by "yes" or "no".
+     * @param productName is the Name of the product you want to change the Availability of 
+     * @param isAviliableOnline is the Status of the availability ("yes" or "no)
+     * @param ownerEmail is the Email of Owner for identification
+     * @param ownerPassword is the Password of Owner for identification
      * @return the changed product
      * @throws IllegalArgumentException
      */
@@ -507,6 +546,8 @@ public class GroceryStoreController {
     /**
      * This is an implementation of Req.14.
      * Req.14-The Grocery Store System shall allow the owner to create a sales report containing all orders and their respective totals 
+     * @param ownerEmail is the Email of Owner for identification
+     * @param ownerPassword is the Password of Owner for identification
      * @return all orders
      * @throws IllegalArgumentException
      */
@@ -524,6 +565,8 @@ public class GroceryStoreController {
     /**
      * This is an enhancement to Req.14, which generates the sales total for the owner.
      * Req.14-The Grocery Store System shall allow the owner to create a sales report containing all orders and their respective totals 
+     * @param ownerEmail is the Email of Owner for identification
+     * @param ownerPassword is the Password of Owner for identification
      * @return online sales total
      * @throws IllegalArgumentException
      */
@@ -541,7 +584,10 @@ public class GroceryStoreController {
     	}
     	return sum;
     }
-
+    /**gets The total price of the cart that is currently open for the customer
+     * @param customeremail is the Email of the Customer for identification
+     * @param customerpassword is the Password of the Customer for identification
+     */
     @GetMapping(value = {"/cart/total", "/cart/total/"})
     public int getCartTotal(@RequestParam(name = "customeremail") String customerEmail,
                             @RequestParam(name = "customerpassword") String customerPassword) throws IllegalArgumentException{
@@ -590,6 +636,8 @@ public class GroceryStoreController {
     /**
      * This is an implementation of the Req.01 
      * Req.01-"As a user of the Grocery software system with an employee account, I would like to be able to visualize my weekly work schedules."
+     * @param email is the Email of the employee for identification
+     * @param password is the Password of the employee for identification
      * @return list of shifts belongs to the current user(employee).
      * @throws IllegalArgumentException
      */
@@ -706,6 +754,10 @@ public class GroceryStoreController {
     /**
      * This is an implementation of the Req.07
      * Req.07-The Grocery software system shall allow the owner to modify the opening date and opening hours.
+     * @param openingHour is the new Opening Hour for the store
+     * @param closingHour is the new Closing Hour for the store
+     * @param ownerEmail Email of the owner for identification
+     * @param ownerPassword Password of the owner for identification
      * @return the modified store
      * @throws IllegalArgumentException
      */
