@@ -142,28 +142,6 @@ public class GroceryStoreService {
         return toList(cartRepository.findAll());
     }
 
-    @Transactional
-    public TimeSlot createTimeSlot(Time startTime, Time endTime, Date date, int maxOrderPerSlot) {
-        if(timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime) != null) return null; // Already exists
-        
-        if (startTime == null || endTime == null || date == null) {
-               	throw new IllegalArgumentException("Any of the startTime, endTime, and date of a timeSlot cannot be null");
-               }
-        if (startTime.after(endTime)){
-           	throw new IllegalArgumentException("Event end time cannot be before start time!");
-           }
-        
-    	TimeSlot ts = new TimeSlot(startTime, endTime, date, maxOrderPerSlot);
-    	timeslotRepository.save(ts);
-        return ts;
-    }
-    
-    @Transactional
-    public Cart setTimeSlot(Cart cart, TimeSlot timeSlot) {
-        cart.setTimeSlot(timeSlot);
-        cartRepository.save(cart);
-        return cart;
-    }
 
     @Transactional
     public List<Cart> getCartsByTimeSlot(TimeSlot timeSlot) {
@@ -409,9 +387,13 @@ public class GroceryStoreService {
     @Transactional
     public Product deleteProduct(String productName) {
     	Product p = productRepository.findByProductName(productName);
-        if(p == null ) return null; // Product do not exists
-        productRepository.delete(p);
-        return p;
+        if(p == null ) {
+        	throw new IllegalArgumentException ("Cannot find Product to delete"); // Product do not exists
+        }else {
+        	 productRepository.delete(p);
+             return p;
+        }
+       
     }
 
     @Transactional
@@ -458,7 +440,7 @@ public class GroceryStoreService {
     public Store getStore() {
         List<Store> storeList = toList(storeRepository.findAll());
         if(storeList.size() == 0) {
-            return null;
+           throw new IllegalArgumentException ("There is no Store in Repository");
         } else {
             return storeList.get(0);
         }
@@ -474,7 +456,7 @@ public class GroceryStoreService {
     public Store createStore(String telephone, String email, Time openingHour, 
                              Time closingHour, StoreOwner storeOwner, Address address, int outOfTownFee) {
     	if (storeRepository.findByAddress(address) != null) {
-    		throw new IllegalArgumentException("Store with this address, already exists");
+    		return null;
     	}
     		
     	Store store = new Store(telephone, email, openingHour, closingHour, storeOwner, address, outOfTownFee);
@@ -499,7 +481,9 @@ public class GroceryStoreService {
 
     @Transactional
     public StoreOwner createStoreOwner(String email, String name, String password) {
-        if( storeOwnerRepository.findByEmail(email) != null ) return null; 
+        if( storeOwnerRepository.findByEmail(email) != null ) {
+        	throw new IllegalArgumentException ("A StoreOwner exists already");
+        }
         
         if (email == null || email.trim().length() == 0 
                 || name == null || name.trim().length() == 0
@@ -531,7 +515,7 @@ public class GroceryStoreService {
     public StoreOwner setStoreOwnerInfo(String email, String name, String password) {
         List<StoreOwner> list = toList(storeOwnerRepository.findAll());
         if(list.size() == 0) {
-            return null;
+           throw new IllegalArgumentException ("No Store Owner Account found");
         } else {
             StoreOwner owner = list.get(0);
             owner.setEmail(email);
@@ -543,6 +527,30 @@ public class GroceryStoreService {
     }
     
     /* Time Slot-related service methods ------------------------------------------------------------------------- */
+    
+    @Transactional
+    public TimeSlot createTimeSlot(Time startTime, Time endTime, Date date, int maxOrderPerSlot) {
+        if(timeslotRepository.findByDateAndStartTimeAndEndTime(date, startTime, endTime) != null) return null; // Already exists
+        
+        if (startTime == null || endTime == null || date == null) {
+               	throw new IllegalArgumentException("Any of the startTime, endTime, and date of a timeSlot cannot be null");
+               }
+        if (startTime.after(endTime)){
+           	throw new IllegalArgumentException("Event end time cannot be before start time!");
+           }
+        
+    	TimeSlot ts = new TimeSlot(startTime, endTime, date, maxOrderPerSlot);
+    	timeslotRepository.save(ts);
+        return ts;
+    }
+    
+    @Transactional
+    public Cart setTimeSlot(Cart cart, TimeSlot timeSlot) {
+        cart.setTimeSlot(timeSlot);
+        cartRepository.save(cart);
+        return cart;
+    }
+    
     @Transactional
     public List<TimeSlot> getAllTimeSlots() {
         return toList(timeslotRepository.findAll());

@@ -125,7 +125,7 @@ public class TestProject321Service {
 	private static final String PRODUCT_KEY_NEG_PRICE = "testNegPrice";
 	private static final String PRODUCT_KEY_CREATE = "testCreate"; 
 	private static final String PRODUCT_KEY_NEG_STOCK = "testNegStock";
-	private static final String PRODUCT_KEY_SET = "testSet";
+	private static final String PRODUCT_KEY_DELETE = "testSet";
 	
 	@BeforeEach
 	public void setMockOutput() {
@@ -145,7 +145,7 @@ public class TestProject321Service {
 				Product product = new Product();
 				product.setProductName(PRODUCT_KEY);
 				product.setPrice(50);
-				product.setStock(50);
+				product.setStock(50); 
 				return product;
 			} else if(invocation.getArgument(0).equals(PRODUCT_KEY_CREATE)){
 				
@@ -155,6 +155,12 @@ public class TestProject321Service {
 				return null;
 			}else if(invocation.getArgument(0).equals(PRODUCT_KEY_NEG_STOCK)) {
 				return null;
+			}else if (invocation.getArgument(0).equals(PRODUCT_KEY_DELETE)){
+				Product product = new Product();
+				product.setProductName(PRODUCT_KEY_DELETE);
+				product.setPrice(50);
+				product.setStock(50);
+				return product;
 			}else {
 				return null;
 			}
@@ -247,13 +253,15 @@ public class TestProject321Service {
 				}
 			});
 		
-		lenient().when((storeDao.findAll())).thenAnswer((InvocationOnMock invocation) -> {	
-				List<Store> storeList =  new ArrayList<Store>();
-				Store store = new Store();
-				store.setAddress(ADDRESS_KEY);
-				storeList.add(store);
-				return storeList;	
-		});
+//		lenient().when((storeDao.findAll())).thenAnswer((InvocationOnMock invocation) -> {	
+//				List<Store> storeList =  new ArrayList<Store>();
+//				Store store = new Store();
+//				store.setAddress(ADDRESS_KEY);
+//				storeList.add(store);
+//				return storeList;	
+//		});
+		
+
 		
 		lenient().when((orderDao.findAll())).thenAnswer((InvocationOnMock invocation) -> {	
 			List<Order> orderList =  new ArrayList<Order>();	
@@ -588,6 +596,26 @@ public class TestProject321Service {
 		assertNotNull(storeOwner);
 		checkResultOwner(storeOwner,email,name,password);
 	}
+	 
+	@Test
+	public void testCreateStoreOwnerExists() {	
+		String email = "owner@mail.com";
+		String name = "TestOwner";
+		String password = "pw1234";
+		StoreOwner storeOwner = new StoreOwner(email, name, password);
+		String error = null;
+		
+		when(storeOwnerDao.findByEmail(email)).thenReturn(storeOwner);
+		
+		try {
+			service.createStoreOwner(email, name, password);
+		}catch(Exception e) {
+			error = e.getMessage();
+		}
+		verify(storeOwnerDao).findByEmail(email);
+		assertEquals(error, "A StoreOwner exists already"); 
+		
+	}
 
 	private void checkResultOwner(StoreOwner user, String email, String name, String password) {
 		assertNotNull(user);
@@ -597,7 +625,7 @@ public class TestProject321Service {
 	}
 	
 	@Test
-	public void testCreateStoreOwnerNull() {
+	public void testCreateStoreOwnerNullEmail() {
 		
 		String email = null;
 		String name = null;
@@ -605,7 +633,7 @@ public class TestProject321Service {
 		
 		String error=null;
 		
-		StoreOwner owner=null;
+		StoreOwner owner=null; 
 
 		try {
 			owner = service.createStoreOwner(email,name,password);
@@ -619,6 +647,128 @@ public class TestProject321Service {
 				"email, name, and password of storeOwner all needs to be associated with a non-empty string",
 				error);
 	}
+	
+	@Test
+	public void testCreateStoreOwnerEmptyEmail() {
+		
+		String email = "";
+		String name = "";
+		String password = "";
+		
+		String error=null;
+		
+		StoreOwner owner=null; 
+
+		try {
+			owner = service.createStoreOwner(email,name,password);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(owner);
+		// check error
+		assertEquals(
+				"email, name, and password of storeOwner all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateStoreOwnerNullName() {
+		
+		String email = "123@mail.com";
+		String name = null;
+		String password = null;
+		
+		String error=null;
+		
+		StoreOwner owner=null; 
+
+		try {
+			owner = service.createStoreOwner(email,name,password);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(owner);
+		// check error
+		assertEquals(
+				"email, name, and password of storeOwner all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateStoreOwnerEmptyName() {
+		
+		String email = "test@mail.com";
+		String name = "";
+		String password = "";
+		
+		String error=null;
+		
+		StoreOwner owner=null; 
+
+		try {
+			owner = service.createStoreOwner(email,name,password);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(owner);
+		// check error
+		assertEquals(
+				"email, name, and password of storeOwner all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateStoreOwnerNullPassword() {
+		
+		String email = "test@mail.com";
+		String name = "testName";
+		String password = null;
+		
+		String error=null;
+		
+		StoreOwner owner=null; 
+
+		try {
+			owner = service.createStoreOwner(email,name,password);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(owner);
+		// check error
+		assertEquals(
+				"email, name, and password of storeOwner all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateStoreOwnerEmptyPassword() {
+		
+		String email = "test@mail.com";
+		String name = "testName";
+		String password = "";
+		
+		String error=null;
+		
+		StoreOwner owner=null; 
+
+		try {
+			owner = service.createStoreOwner(email,name,password);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(owner);
+		// check error
+		assertEquals(
+				"email, name, and password of storeOwner all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	
 	
 		
 	@Test
@@ -642,6 +792,60 @@ public class TestProject321Service {
 		assertEquals(
 				"Owner account password should be longer than 6 alphabet/numbers",
 				error); 
+	}
+	
+	@Test
+	public void testSetStoreOwnerInfoEmptyOwner() {
+		List all = new ArrayList<StoreOwner>();
+		when(storeOwnerDao.findAll()).thenReturn(all);
+		String error = null;
+		
+		try {
+			service.setStoreOwnerInfo("test@mail.com", "testName", "testPassword");
+		}catch(Exception e) {
+			error = e.getMessage();
+		}
+		verify(storeOwnerDao).findAll();
+		assertEquals(error, "No Store Owner Account found");
+	}
+	
+	@Test
+	public void testSetStoreOwnerInfo() {
+		StoreOwner testOwner = new StoreOwner("test@mail.com", "testName", "testPassword");
+		List all =  new ArrayList<StoreOwner>();
+		all.add(testOwner);
+		
+		when(storeOwnerDao.findAll()).thenReturn(all);
+		
+		testOwner = service.setStoreOwnerInfo("newMail@mail.com", "newName", "newPassword");
+		
+		verify(storeOwnerDao).findAll();
+		assertEquals(testOwner.getEmail(),"newMail@mail.com");
+		assertEquals(testOwner.getName(),"newName");
+		assertEquals(testOwner.getPassword(), "newPassword");
+
+	}
+	
+	@Test
+	public void testGetStoreOwner() {
+		StoreOwner owner = new StoreOwner();
+		List<StoreOwner> all = new ArrayList<StoreOwner>();
+		all.add(owner);
+		when(storeOwnerDao.findAll()).thenReturn(all);
+		StoreOwner returned = service.getStoreOwner();
+		verify(storeOwnerDao).findAll();
+		assertEquals(owner, returned);
+	}
+	
+	@Test
+	public void testGetStoreOwnerNull() {
+		
+		List<StoreOwner> all = new ArrayList<StoreOwner>();
+		
+		when(storeOwnerDao.findAll()).thenReturn(all);
+		StoreOwner returned = service.getStoreOwner();
+		verify(storeOwnerDao).findAll();
+		assertNull(returned);
 	}
 	
 /* Tests Related to Employee Service Methods*/
@@ -777,6 +981,20 @@ public class TestProject321Service {
 		assertEquals(
 				"town, street, and postalCode of address all needs to be associated with a non-empty string",
 				error);
+	}
+	
+	@Test
+	public void testGetAddresseByUnitAndStreetAndTownAndPostalCode() {
+		String town = "TestTown";
+		String street = "TestStreet";
+		String postalCode = "TestPostalCode";
+		int unit = 321;
+		Address	address = service.createAddresses(town,street,postalCode,unit);
+		
+		when(addressDao.findByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalCode)).thenReturn(address);
+		Address returned = service.getAddresseByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalCode);
+		verify(addressDao, times(2)).findByUnitAndStreetAndTownAndPostalCode(unit, street, town, postalCode); //one time when creating, then one time when getting
+		assertEquals(address, returned);
 	}
 
 
@@ -1035,6 +1253,71 @@ public class TestProject321Service {
 		assertEquals(error, "Unable to find TimeSlot");
 	}
 	
+	@Test
+	public void testGetAllTimeSlots() {
+		TimeSlot slot = new TimeSlot();
+		List<TimeSlot> all = new ArrayList<TimeSlot>();
+		all.add(slot);
+		
+		when(timeSlotDao.findAll()).thenReturn(all);
+		List<TimeSlot> returned = service.getAllTimeSlots();
+		verify(timeSlotDao).findAll();
+		
+		assertEquals(all, returned);
+	}
+	
+	@Test
+	public void testGetTimeSlot() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		
+		TimeSlot slot = service.createTimeSlot(startTime, endTime, date, 10);
+		
+		when(timeSlotDao.findByDateAndStartTimeAndEndTime(date, startTime, endTime)).thenReturn(slot);
+		TimeSlot returned = service.getTimeSlot(date, startTime, endTime);
+		verify(timeSlotDao, times(2)).findByDateAndStartTimeAndEndTime(date, startTime, endTime); // once for creating and once for getting
+		
+		assertEquals(slot, returned);
+	}
+	
+	@Test
+	public void testGetTimeSlotsBetween() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(13, 00));
+		Date date = java.sql.Date.valueOf(LocalDate.now());	
+		TimeSlot slot = service.createTimeSlot(startTime, endTime, date, 10);
+		
+		Time startTime1 = java.sql.Time.valueOf(LocalTime.of(8, 00));
+		Time endTime1 = java.sql.Time.valueOf(LocalTime.of(10, 00));	
+		TimeSlot slot1 = service.createTimeSlot(startTime1, endTime1, date, 10);
+		
+		Time startTime2 = java.sql.Time.valueOf(LocalTime.of(13, 00));
+		Time endTime2 = java.sql.Time.valueOf(LocalTime.of(14, 00));	
+		TimeSlot slot2 = service.createTimeSlot(startTime2, endTime2, date, 10);
+		
+		Time startTime3 = java.sql.Time.valueOf(LocalTime.of(15, 00));
+		Time endTime3 = java.sql.Time.valueOf(LocalTime.of(17, 00));	
+		TimeSlot slot3 = service.createTimeSlot(startTime3, endTime3, date, 10);
+		
+		List<TimeSlot> all = new ArrayList<TimeSlot>();
+		all.add(slot);
+		all.add(slot1); 
+		all.add(slot2);
+		all.add(slot3);
+		
+		
+		
+		when(timeSlotDao.findByDate(date)).thenReturn(all);
+		List<TimeSlot> returned = service.getTimeSlotsBetween(date, java.sql.Time.valueOf(LocalTime.of(11, 00)), java.sql.Time.valueOf(LocalTime.of(15, 00)));
+		verify(timeSlotDao).findByDate(date); // once for creating and once for getting
+		
+		assertTrue(returned.contains(slot));
+		assertTrue(returned.contains(slot2));
+		assertTrue(!returned.contains(slot1));
+		assertTrue(!returned.contains(slot3));
+	}
+	
 	
 	
 /*Tests Related to Order Service Methods*/
@@ -1207,6 +1490,43 @@ public class TestProject321Service {
 		assertEquals(
 				"the employee that the shift is assigned to cannot be null", error);
 	}
+	
+	@Test
+	public void testGetShiftByEmployee() {
+		Employee employee = new Employee();
+		Shift shift1 = new Shift();
+		Shift shift2 = new Shift();
+		List<Shift> all = new ArrayList<Shift>();
+		
+		all.add(shift1);
+		all.add(shift2);
+		
+		when(shiftDao.findByEmployee(employee)).thenReturn(all);
+		List<Shift> returned = service.getShiftByEmployee(employee);
+		
+		verify(shiftDao).findByEmployee(employee);
+		assertEquals(all, returned);
+		
+		
+	}
+	
+	@Test
+	public void testGetAllShifts() {
+		Shift shift1 = new Shift();
+		Shift shift2 = new Shift();
+		List<Shift> all = new ArrayList<Shift>();
+		
+		all.add(shift1);
+		all.add(shift2);
+		
+		when(shiftDao.findAll()).thenReturn(all);
+		List<Shift> returned = service.getAllShifts();
+		
+		verify(shiftDao).findAll();
+		assertEquals(all, returned);
+		
+		
+	}
 
 /*Tests Related to Product Service Methods*/
 	@Test
@@ -1299,7 +1619,7 @@ public class TestProject321Service {
 			error = e.getMessage();
 		}
 		
-		assertNull(p);
+		assertNull(p); 
 		assertEquals(
 				"price cannot be negative", error);
 	}
@@ -1315,6 +1635,26 @@ public class TestProject321Service {
 		p = service.setProductStock(PRODUCT_KEY, 100);
 		assertEquals(p.getStock(), 100);
 		
+	}
+	
+	@Test 
+	public void testDeleteProduct() {
+		Product p = service.deleteProduct(PRODUCT_KEY_DELETE);
+		assertEquals(p.getProductName(), PRODUCT_KEY_DELETE);
+	    verify(productDao, times(1)).delete(p);
+	}
+	
+	@Test
+	public void testDeleteNullProduct(){
+		Product p = new Product();
+		p.setProductName("PRODUCT_DNE");
+		String error = null;
+		try {
+			service.deleteProduct(p.getProductName());
+		}catch(Exception e) {
+			error = e.getMessage();
+		}
+		assertEquals(error, "Cannot find Product to delete");
 	}
 
 		
@@ -1348,6 +1688,7 @@ public class TestProject321Service {
 			fail();
 		}
 		
+		
 		assertNotNull(testStore);
 		assertEquals(testStore.getTelephone(), testPhoneNumber);
 		assertEquals(testStore.getEmail(), testEmail);
@@ -1355,7 +1696,20 @@ public class TestProject321Service {
 		assertEquals(testStore.getClosingHour(), testCloseTime);
 		assertEquals(testStore.getStoreOwner(), testStoreOwner);
 		assertEquals(testStore.getAddress(), address);
-		assertEquals(testStore.getOutOfTownFee(), testOutOfTownFee);	
+		assertEquals(testStore.getOutOfTownFee(), testOutOfTownFee);
+		
+		service.deleteStore(testStore);
+		service.createStore(testStore);
+		
+		assertNotNull(testStore);
+		assertEquals(testStore.getTelephone(), testPhoneNumber);
+		assertEquals(testStore.getEmail(), testEmail);
+		assertEquals(testStore.getOpeningHour(),testOpenTime);
+		assertEquals(testStore.getClosingHour(), testCloseTime);
+		assertEquals(testStore.getStoreOwner(), testStoreOwner);
+		assertEquals(testStore.getAddress(), address);
+		assertEquals(testStore.getOutOfTownFee(), testOutOfTownFee);
+		
 		
 	}
 	
@@ -1379,16 +1733,13 @@ public class TestProject321Service {
 		int unit = 321;	  
 		Address address = service.createAddresses(town,street,postalCode,unit);
 		Store testStore = service.createStore(testPhoneNumber, testEmail, testOpenTime, testCloseTime, testStoreOwner, address, testOutOfTownFee);
-		String error = null;
-		//now testing duplicate store
+		//now testing duplicate store 
 		
-		try {
- 		Store testStore2 = service.createStore(testStore);
-		} catch (IllegalArgumentException e) {
-			// Check that error occurred
-			error = e.getMessage();
-			assertEquals(error, "Store with this address, already exists");
-		}
+		when(storeDao.findByAddress(address)).thenReturn(testStore);
+		
+ 		Store testStore2 = service.createStore(testPhoneNumber, testEmail, testOpenTime, testCloseTime, testStoreOwner, address, testOutOfTownFee);	
+	
+		assertNull(testStore2);
 	}
 	
 	
@@ -1449,12 +1800,30 @@ public class TestProject321Service {
 	
 	@Test
 	public void testGetStore() {
-		assertEquals(ADDRESS_KEY, service.getStore().getAddress());
-	}
+		List<Store> all = new ArrayList<Store>();
+		Store store = new Store();
+		store.setAddress(ADDRESS_KEY);
+		all.add(store);
+		when(storeDao.findAll()).thenReturn(all);
+		Store foundStore = service.getStore();
+		verify(storeDao).findAll();
+		assertEquals(store.getAddress(), foundStore.getAddress());
+		}
 	
 	@Test
 	public void testGetNonExistingStore(){
-	
+		List<Store> all = new ArrayList<Store>();
+		when(storeDao.findAll()).thenReturn(all);
+		String error = null;
+		
+		try{
+			Store foundStore = service.getStore();
+		}catch(Exception e) {
+			error = e.getMessage();
+		}
+		verify(storeDao).findAll();
+		assertEquals(error, "There is no Store in Repository");
+		
 	}
 	
 /*Tests Related to CartItem Service Methods*/
@@ -1518,6 +1887,118 @@ public class TestProject321Service {
 			error = e.getMessage();
 		}
 		assertEquals(error, "Item you are trying to delete is null");
+	}
+	
+	@Test
+	public void testGetCartItemsByCart() {
+		Cart cart = new Cart();
+		CartItem item1 = new CartItem();
+		CartItem item2 = new CartItem();
+		item1.setCart(cart);
+		item2.setCart(cart);
+	List<CartItem> all = new ArrayList<CartItem>();
+	all.add(item1);
+	all.add(item2);
+	
+	when(cartItemDao.findByCart(cart)).thenReturn(all);
+	List<CartItem> newAll;
+	newAll = service.getCartItemsByCart(cart);
+	
+	verify(cartItemDao).findByCart(cart);
+	assertEquals(all, newAll);
+	}
+	
+	@Test
+	public void testGetCartItemsByByInStorePurchase() {
+		InStorePurchase purchase = new InStorePurchase();
+		CartItem item1 = new CartItem();
+		CartItem item2 = new CartItem();
+		item1.setInStorePurchase(purchase);
+		item2.setInStorePurchase(purchase);
+	List<CartItem> all = new ArrayList<CartItem>();
+	all.add(item1);
+	all.add(item2);
+	
+	when(cartItemDao.findByInStorePurchase(purchase)).thenReturn(all);
+	List<CartItem> newAll;
+	newAll = service.getCartItemsByInStorePurchase(purchase);
+	
+	verify(cartItemDao).findByInStorePurchase(purchase);
+	assertEquals(all, newAll);
+	}
+	
+	@Test
+	public void testGetCartItemsByProductAndCart() {
+		Cart cart = new Cart();
+		CartItem item1 = new CartItem();
+		CartItem item2 = new CartItem();
+		item1.setCart(cart);
+		item2.setCart(cart);
+		
+		Product product1 = new Product();
+		Product product2 = new Product();
+		item1.setProduct(product1);
+		item2.setProduct(product2);
+		
+	List<CartItem> all = new ArrayList<CartItem>();
+	all.add(item1);
+	all.add(item2);
+	
+	when(cartItemDao.findByCartAndProduct(cart, product1)).thenReturn(all.get(0));
+	
+	CartItem returned = service.getCartItemByProductAndCart(product1, cart);
+	
+	verify(cartItemDao).findByCartAndProduct(cart, product1);
+	assertEquals(item1, returned);
+	}
+	
+	@Test
+	public void testGetCartItemByProductAndInStorePurchase() {
+		Product product = new Product();
+		InStorePurchase purchase = new InStorePurchase();
+		CartItem item = new CartItem();
+		item.setProduct(product);
+		item.setInStorePurchase(purchase);
+		
+	when(cartItemDao.findByInStorePurchaseAndProduct(purchase, product)).thenReturn(item);
+	CartItem returned = service.getCartItemByProductAndInStorePurchase(product, purchase);
+	
+	verify(cartItemDao).findByInStorePurchaseAndProduct(purchase, product);
+	assertEquals(item, returned);
+	assertEquals(item.getProduct(), returned.getProduct());
+	assertEquals(item.getInStorePurchase(), returned.getInStorePurchase());
+		
+	}
+	
+	@Test
+	public void testGetCartItemByProductAndQuantity() {
+		Product product1 = new Product();
+		
+		CartItem item = new CartItem();
+		item.setQuantity(5);
+		item.setProduct(product1);
+		
+		CartItem item1 = new CartItem();
+		item1.setProduct(product1);
+		item1.setQuantity(5);
+		
+		CartItem item2 = new CartItem();
+		item2.setProduct(product1);
+		item2.setQuantity(5);
+		
+	List<CartItem> all = new ArrayList<CartItem>();
+	all.add(item);
+	all.add(item1);
+	all.add(item2);
+	
+	when(cartItemDao.findByProductAndQuantity(product1, 5)).thenReturn(all);
+	List<CartItem> newAll;
+	newAll = service.getCartItemsByProductAndQuantity(product1, 5);
+	
+	verify(cartItemDao).findByProductAndQuantity(product1, 5);
+	assertEquals(all, newAll);
+		
+		
 	}
 	
 /*Tests Related to InStorePurchase Service Methods*/
