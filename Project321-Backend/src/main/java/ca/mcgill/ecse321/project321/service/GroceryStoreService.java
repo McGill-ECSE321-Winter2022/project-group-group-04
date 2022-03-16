@@ -587,11 +587,11 @@ public class GroceryStoreService {
     }
 
     @Transactional
-    public int getEmployeesForTimeSlot(Date date, Time timeslotStartTime, Time timeSlotEndTime) {
+    public int getEmployeesForTimeSlot(Date date, Time timeSlotStartTime, Time timeSlotEndTime) {
         List<Shift> extendedList = shiftRepository.findByDate(date);
         List<Shift> finalList = new ArrayList<Shift>();
         for(Shift s : extendedList) {
-            if((timeslotStartTime.after(s.getStartHour()) && timeSlotEndTime.before(s.getEndHour())) || (timeslotStartTime.equals(s.getStartHour()) && timeSlotEndTime.equals(s.getEndHour()))) {
+            if(timeSlotEndTime.after(s.getStartHour()) && timeSlotStartTime.before(s.getEndHour())) {
                 finalList.add(s);
             }
         }
