@@ -280,7 +280,9 @@ public class GroceryStoreService {
 
     @Transactional
     public void deleteCartItem(CartItem item) {
-        if(item == null) return;
+        if(item == null) {
+        	throw new IllegalArgumentException ("Item you are trying to delete is null");
+        }
         cartItemRepository.delete(item);
     }
 

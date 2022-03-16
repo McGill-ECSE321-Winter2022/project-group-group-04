@@ -91,6 +91,8 @@ public class TestProject321Service {
 	private OrderRepository orderDao; 
 	@Mock
 	private StoreRepository storeDao;
+	@Mock 
+	private InStorePurchaseRepository inStorePurchaseDao;
 	
 
 	@InjectMocks
@@ -114,7 +116,16 @@ public class TestProject321Service {
 	private static final Time END_TESTING_TIME = java.sql.Time.valueOf(LocalTime.of(16, 00));
 	private static final TimeSlot CART_TESTING_TIMESLOT = new TimeSlot(); 
 	private static final ShoppingType CART_TESTING_TYPE = ShoppingType.Delivery;
-//	private static Cart TEST_CART = new Cart;
+	private static final Cart TEST_CART = new Cart();
+	private static final Order TEST_ORDER = new Order();
+	private static final Order TEST_ORDER2 = new Order();
+	private static final Cart TEST_CART2 = new Cart();
+	
+	private static final String PRODUCT_KEY = "testProduct";
+	private static final String PRODUCT_KEY_NEG_PRICE = "testNegPrice";
+	private static final String PRODUCT_KEY_CREATE = "testCreate"; 
+	private static final String PRODUCT_KEY_NEG_STOCK = "testNegStock";
+	private static final String PRODUCT_KEY_SET = "testSet";
 	
 	@BeforeEach
 	public void setMockOutput() {
@@ -129,29 +140,52 @@ public class TestProject321Service {
 			}
 		});
 		
+		lenient().when(productDao.findByProductName(anyString())).thenAnswer((InvocationOnMock invocation) -> {
+			if (invocation.getArgument(0).equals(PRODUCT_KEY)) {
+				Product product = new Product();
+				product.setProductName(PRODUCT_KEY);
+				product.setPrice(50);
+				product.setStock(50);
+				return product;
+			} else if(invocation.getArgument(0).equals(PRODUCT_KEY_CREATE)){
+				
+				return null;
+			}else if(invocation.getArgument(0).equals(PRODUCT_KEY_NEG_PRICE)){
+				
+				return null;
+			}else if(invocation.getArgument(0).equals(PRODUCT_KEY_NEG_STOCK)) {
+				return null;
+			}else {
+				return null;
+			}
+		});
+		
 		lenient().when(cartDao.findByCustomer(CART_TESTING_CUSTOMER)).thenAnswer((InvocationOnMock invocation) -> {
 			if (invocation.getArgument(0).equals(CART_TESTING_CUSTOMER)) {
 				List<Cart> cartList =  new ArrayList<Cart>();
-				Cart testCart = new Cart();
-//				TEST_CART = testCart;
-				testCart.setCustomer(CART_TESTING_CUSTOMER);
-				cartList.add(testCart);
+				
+				TEST_CART.setCustomer(CART_TESTING_CUSTOMER);		
+				TEST_CART2.setCustomer(CART_TESTING_CUSTOMER);
+				cartList.add(TEST_CART);
+				cartList.add(TEST_CART2);
 				return cartList;	
 			} else {
 				return null;
 			}
 		});
 		
-//		lenient().when(orderDao.findByCart(TEST_CART)).thenAnswer((InvocationOnMock invocation) -> {
-//			if (invocation.getArgument(0).equals(TEST_CART)) {
-//				Order testOrder = new Order();
-//				testOrder.setCart(TEST_CART);
-//				cartList.add(testCart);
-//				return cartList;	
-//			} else {
-//				return null;
-//			}
-//		});
+		lenient().when(orderDao.findByCart(TEST_CART)).thenAnswer((InvocationOnMock invocation) -> {
+			if (invocation.getArgument(0).equals(TEST_CART)) {
+				TEST_ORDER.setCart(TEST_CART);
+				return TEST_ORDER;	
+			} else if (invocation.getArgument(0).equals(TEST_CART2)) {
+				TEST_ORDER2.setCart(TEST_CART2);
+				return TEST_ORDER2;
+			}else {
+				return null;
+			}
+		});
+	
 		
 		lenient().when(cartDao.findByTimeSlot(CART_TESTING_TIMESLOT)).thenAnswer((InvocationOnMock invocation) -> {
 			if (invocation.getArgument(0).equals(CART_TESTING_TIMESLOT)) {
@@ -220,6 +254,13 @@ public class TestProject321Service {
 				storeList.add(store);
 				return storeList;	
 		});
+		
+		lenient().when((orderDao.findAll())).thenAnswer((InvocationOnMock invocation) -> {	
+			List<Order> orderList =  new ArrayList<Order>();	
+			orderList.add(TEST_ORDER);
+			orderList.add(TEST_ORDER2);
+			return orderList;	
+	});
 		
 		
 		
@@ -315,12 +356,12 @@ public class TestProject321Service {
 	}
 	
 	@Test
-	public void testCreateCustomerNull() {
+	public void testCreateCustomerNullEmail() {
 		
 		String email = null;
-		String name = null;
-		String password = null;
-		String phone = null;
+		String name = "test";
+		String password = "123abcde";
+		String phone = "123";
 		Address address = null;
 		
 		String error=null;
@@ -339,6 +380,134 @@ public class TestProject321Service {
 				"email, name, and password of customer all needs to be associated with a non-empty string",
 				error);
 	}
+	
+	@Test
+	public void testCreateCustomerNullName() {
+		
+		String email = "test@email.com";
+		String name = null;
+		String password = "123abcde";
+		String phone = "123";
+		Address address = null;
+		
+		String error=null;
+		
+		Customer customer=null;
+
+		try {
+			customer = service.createCustomer(email,name,password,phone,address);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(customer);
+		// check error
+		assertEquals(
+				"email, name, and password of customer all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateCustomerNullPassword() {
+		
+		String email = "test@mail.com";
+		String name = "test";
+		String password = null;
+		String phone = "123";
+		Address address = null;
+		
+		String error=null;
+		
+		Customer customer=null;
+
+		try {
+			customer = service.createCustomer(email,name,password,phone,address);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(customer);
+		// check error
+		assertEquals(
+				"email, name, and password of customer all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateCustomerEmptyStringEmail() {
+		String email = "";
+		String name = "";
+		String password = "";
+		String phone = "";
+		Address address = null;
+		
+		String error=null;
+		
+		Customer customer=null;
+
+		try {
+			customer = service.createCustomer(email,name,password,phone,address);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(customer);
+		// check error
+		assertEquals(
+				"email, name, and password of customer all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateCustomerEmptyStringName() {
+		String email = "test@mail.com";
+		String name = "";
+		String password = "";
+		String phone = "";
+		Address address = null;
+		
+		String error=null;
+		
+		Customer customer=null;
+
+		try {
+			customer = service.createCustomer(email,name,password,phone,address);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(customer);
+		// check error
+		assertEquals(
+				"email, name, and password of customer all needs to be associated with a non-empty string",
+				error);
+	}
+	
+	@Test
+	public void testCreateCustomerEmptyStringPassword() {
+		String email = "test@mail.com";
+		String name = "test";
+		String password = "";
+		String phone = "";
+		Address address = null;
+		
+		String error=null;
+		
+		Customer customer=null; 
+
+		try {
+			customer = service.createCustomer(email,name,password,phone,address);
+		} catch (IllegalArgumentException e) {
+			error = e.getMessage();
+		}
+
+		assertNull(customer);
+		// check error
+		assertEquals(
+				"email, name, and password of customer all needs to be associated with a non-empty string",
+				error);
+	}
+	
 		
 	@Test
 	public void testCreateCustomerShortPassWord() {
@@ -472,14 +641,14 @@ public class TestProject321Service {
 		// check error
 		assertEquals(
 				"Owner account password should be longer than 6 alphabet/numbers",
-				error);
+				error); 
 	}
 	
 /* Tests Related to Employee Service Methods*/
 	
 	@Test
 	public void testCreateEmployee() {
-		
+		assertEquals(0, service.getAllEmployee().size());
 		String email = "employee@mail.com";
 		String name = "TestEmployee";
 		String password = "pw1234";
@@ -638,7 +807,7 @@ public class TestProject321Service {
 			cart = service.createCart(type, customer,creationDate, creationTime);
 		} catch (IllegalArgumentException e) {
 			// Check that no error occurred
-			fail();
+			fail(); 
 		}
 		
 		assertNotNull(cart);
@@ -721,9 +890,56 @@ public class TestProject321Service {
 	
 	
 	@Test
-	public void testCreateTimeSlotNull() {
+	public void testCreateTimeSlotStartTimeNull() {
 		Time startTime = null;
 		Time endTime = null;
+		Date date = null;
+		int maxOrderPerSlot = 100;
+		
+		TimeSlot ts = null;
+		String error = null;
+		
+		try {
+			ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(ts);
+		assertEquals(
+				"Any of the startTime, endTime, and date of a timeSlot cannot be null",
+				error);
+	}
+	
+
+	@Test
+	public void testCreateTimeSlotEndTimeNull() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = null;
+		Date date = java.sql.Date.valueOf(LocalDate.now());
+		int maxOrderPerSlot = 100;
+		
+		TimeSlot ts = null;
+		String error = null;
+		
+		try {
+			ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
+		} catch (IllegalArgumentException e) {
+			// Check that no error occurred
+			error = e.getMessage();
+		}
+		
+		assertNull(ts);
+		assertEquals(
+				"Any of the startTime, endTime, and date of a timeSlot cannot be null",
+				error);
+	}
+	
+	@Test
+	public void testCreateTimeSlotDateNull() {
+		Time startTime = java.sql.Time.valueOf(LocalTime.of(12, 00));
+		Time endTime = java.sql.Time.valueOf(LocalTime.of(20, 00));
 		Date date = null;
 		int maxOrderPerSlot = 100;
 		
@@ -819,17 +1035,11 @@ public class TestProject321Service {
 		assertEquals(error, "Unable to find TimeSlot");
 	}
 	
-	@Test
-	public void testDeleteTimeslot() {
-		TimeSlot tempSlot = service.createTimeSlot(START_TESTING_TIME, END_TESTING_TIME, TESTING_DATE, 10);
-		service.deleteTimeSlot(START_TESTING_TIME, END_TESTING_TIME, TESTING_DATE);
-		assertNull(tempSlot);
-	}
 	
 	
 /*Tests Related to Order Service Methods*/
 	@Test
-	public void testCreateOrder() {
+	public void testCreateOrderAndSetPaymentAndSetCompleted() {
 
 		 String email = "customer@mail.com";
 		 String name = "TestCustomer";
@@ -873,8 +1083,16 @@ public class TestProject321Service {
 		checkResultAddress(order.getCart().getCustomer().getAddress(),
 				town,street,postalCode,unit);
 		
+		service.setPayment(order, "Cash");
+		service.setCompleted(order);
+		
+		assertEquals(order.getPayment(), "Cash");
+		assertEquals(order.getCompleted(), true);
+
+		
 		
 	}
+	
 	
 	@Test
 	public void testCreateOrderNull() {
@@ -898,12 +1116,27 @@ public class TestProject321Service {
 		assertEquals(
 				"Any of the date, payment, and cart of a order cannot be null", error);
 		
-	}
+	} 
 	
 	@Test
 	public void testGetOrdersByCustomer() {
-		
+		List<Order> testList = service.getOrdersByCustomer(CART_TESTING_CUSTOMER);
+		assertEquals(TEST_ORDER, testList.get(0));
 	}
+	
+	@Test
+	public void testGetOrderByCart() {
+		assertEquals(TEST_ORDER, service.getOrderByCart(TEST_CART));
+	}
+	
+	@Test
+	public void testGetAllOrders() {
+		List<Order> testList = service.getAllOrders();
+		assertEquals(TEST_ORDER, testList.get(0));
+		assertEquals(TEST_ORDER2, testList.get(1));
+
+	}	
+	
 	
 /*Tests Related to Shift Service Methods*/
 	@Test
@@ -928,6 +1161,8 @@ public class TestProject321Service {
 		assertEquals(s.getDate(),date);
 		assertEquals(s.getEmployee(), employee);
 	}
+	
+	
 	
 	
 	@Test
@@ -976,8 +1211,9 @@ public class TestProject321Service {
 /*Tests Related to Product Service Methods*/
 	@Test
 	public void testCreateProduct() {
+		assertEquals(0, service.getAllProduct().size());
 		Product.PriceType type = Product.PriceType.PER_UNIT; 
-		String productName = "testProduct";
+		String productName = PRODUCT_KEY_CREATE;
 		String isAviliableOnline = "yes";  // Again, it is too deep into the project to fix it into a boolean. So it will stay a String.
 		int price = 5;
 		int stock = 50;
@@ -996,7 +1232,9 @@ public class TestProject321Service {
 		assertEquals(p.getIsAvailableOnline(),isAviliableOnline);
 		assertEquals(p.getPrice(),price);
 		assertEquals(p.getStock(), stock);
+		
 	}
+	
 	
 	
 	@Test
@@ -1025,7 +1263,6 @@ public class TestProject321Service {
 	@Test
 	public void testCreateProductNegativeStock() {
 		Product.PriceType type = Product.PriceType.PER_UNIT; 
-		String productName = "testProduct";
 		String isAviliableOnline = "yes";
 		int price = 5;
 		int stock = -50;
@@ -1033,7 +1270,7 @@ public class TestProject321Service {
 		String error = null;
 		
 		try {
-			p = service.createProduct(type, productName, isAviliableOnline, price, stock);
+			p = service.createProduct(type, PRODUCT_KEY_NEG_STOCK, isAviliableOnline, price, stock);
 		} catch (IllegalArgumentException e) {
 			// Check that no error occurred
 			error = e.getMessage();
@@ -1045,10 +1282,10 @@ public class TestProject321Service {
 	}
 	
 	
+	
 	@Test
 	public void testCreateProductNegativePrice() {
 		Product.PriceType type = Product.PriceType.PER_UNIT; 
-		String productName = "testProduct";
 		String isAviliableOnline = "yes";
 		int price = -5;
 		int stock = 50;
@@ -1056,7 +1293,7 @@ public class TestProject321Service {
 		String error = null;
 		
 		try {
-			p = service.createProduct(type, productName, isAviliableOnline, price, stock);
+			p = service.createProduct(type, PRODUCT_KEY_NEG_PRICE, isAviliableOnline, price, stock);
 		} catch (IllegalArgumentException e) {
 			// Check that no error occurred
 			error = e.getMessage();
@@ -1067,7 +1304,20 @@ public class TestProject321Service {
 				"price cannot be negative", error);
 	}
 	
-	
+	@Test
+	public void testSetProductStock() {
+		Product.PriceType type = Product.PriceType.PER_UNIT; 
+		String isAviliableOnline = "yes";
+		int price = 10;
+		int stock = 50;
+		Product p = service.createProduct(type, PRODUCT_KEY, isAviliableOnline, price, stock);
+		 
+		p = service.setProductStock(PRODUCT_KEY, 100);
+		assertEquals(p.getStock(), 100);
+		
+	}
+
+		
 	
 /*Tests Related to Store Service Methods*/ 
 
@@ -1207,6 +1457,83 @@ public class TestProject321Service {
 	
 	}
 	
+/*Tests Related to CartItem Service Methods*/
+	
+	@Test
+	public void testCreateCartItem(){
+		assertEquals(0, service.getAllCartItems().size());
+		Product.PriceType type = Product.PriceType.PER_UNIT; 	
+		String isAviliableOnline = "yes";  // Again, it is too deep into the project to fix it into a boolean. So it will stay a String.
+		int price = 5;
+		int stock = 50;
+		
+		Product p = new Product(type, PRODUCT_KEY, isAviliableOnline, price, stock);
+		
+		CartItem testCartItem = service.createCartItem(100, p, TEST_CART);
+		
+		assertEquals(testCartItem.getCart(), TEST_CART);
+		assertEquals(testCartItem.getProduct(), p);
+		assertEquals(testCartItem.getQuantity(), 100);
+	
+	}
+	
+	@Test
+	public void testCreateCartItemWithInstore() {
+		Product.PriceType type = Product.PriceType.PER_UNIT; 	
+		String isAviliableOnline = "yes";  // Again, it is too deep into the project to fix it into a boolean. So it will stay a String.
+		int price = 5;
+		int stock = 50;	
+		Product p = new Product(type, PRODUCT_KEY, isAviliableOnline, price, stock);
+		
+		InStorePurchase testPurchase = service.createInStorePurchase(150, TESTING_DATE);
+		
+		CartItem testCartItem = service.createCartItem(100, p, testPurchase);
+		
+		assertEquals(testCartItem.getInStorePurchase(), testPurchase);
+		assertEquals(testCartItem.getProduct(), p);
+		assertEquals(testCartItem.getQuantity(), 100);
+	} 
+	
+	@Test
+	public void testDeleteCartItem() {
+		Product.PriceType type = Product.PriceType.PER_UNIT; 	
+		String isAviliableOnline = "yes";  // Again, it is too deep into the project to fix it into a boolean. So it will stay a String.
+		int price = 5;
+		int stock = 50;
+		
+		Product p = new Product(type, PRODUCT_KEY, isAviliableOnline, price, stock);
+		CartItem testCartItem = service.createCartItem(100, p, TEST_CART);
+		
+		service.deleteCartItem(testCartItem);
+		verify(cartItemDao, times(1)).delete(testCartItem);
+	}
+	
+	@Test
+	public void testDeleteNullCartItem() {
+		CartItem testItem = null; 
+		String error = null;
+		try {
+			service.deleteCartItem(testItem);
+		}catch(Exception e) {
+			error = e.getMessage();
+		}
+		assertEquals(error, "Item you are trying to delete is null");
+	}
+	
+/*Tests Related to InStorePurchase Service Methods*/
+	
+	@Test
+	public void testCreateInStorePurchaseAndSetAndGet() {
+		assertEquals(0, service.getAllInStorePurchases().size());
+		InStorePurchase testPurchase = service.createInStorePurchase(150, TESTING_DATE);
+		
+		assertEquals(testPurchase.getPurchaseDate(), TESTING_DATE);
+		assertEquals(testPurchase.getTotal(), 150);
+		
+		service.setInStorePurchaseTotal(1000, testPurchase);
+		
+		assertEquals(testPurchase.getTotal(), 1000);
+	}
 	
 	
 }
