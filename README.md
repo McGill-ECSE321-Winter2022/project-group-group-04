@@ -23,6 +23,6 @@ This repository holds the source code for the Grocery System
 | Jed  |  Hours|  |
 | John  |  26 | Backend/Integration tests/Meeting minutes |
 | Karim  |  Hours |  |
-| Thomas  |  A life time  | Backend/Success Spectrum |
+| Thomas  |  21  | Backend/Success Spectrum |
 | Youjin  |  Hours |  |
 ### Deliverable Two Report
