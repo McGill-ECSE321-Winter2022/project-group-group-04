@@ -19,7 +19,7 @@ This repository holds the source code for the Grocery System
 ### Hours
 | Members  | Hours | Tasks |
 | ------------- | ------------- | ------------- |
-| Cedric  |  Hours  |  |
+| Cedric  |  26  | Backend / Integration Tests / Build System Automation / Software Quality Assurance Plan and Report |
 | Jed  |  Hours|  |
 | John  |  26 | Backend/Integration tests/Meeting minutes |
 | Karim  |  20 | Unit Testing/ Software Quality Assurance Plan and Report/ Debugging |
