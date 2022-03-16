@@ -1,5 +1,7 @@
 @echo off
 
+:: All the tests will pass if there are no duplicate objct in side the database.
+:: repetitive running of this script without change the primary key of the objct will trigger our safeguard in controller to prevent duplicated object being created and thus fail some tests.
 @REM # Received data file
 SET JSON_DATA=results.json
 
@@ -14,13 +16,13 @@ SET InvalidOwnerEmail=InvalidEmailNotInSystem@email.com
 SET InvalidAdminCode=wrongKey
 
 @REM # Valid employee info
-SET employeeEmail=employeeIntegrationTest5@email.com
+SET employeeEmail=employeeIntegrationTest10@email.com
 SET employeeName=employee
 SET employeePassword=employeePwd
 SET status=Active
 
 @REM #Valid customer info
-SET customerEmail=customerIntegrationTest5@email.com
+SET customerEmail=customerIntegrationTest10@email.com
 SET customerName=customer
 SET customerPassword=customerPwd
 SET phone=4556846985
@@ -29,7 +31,7 @@ SET street=mcgill
 SET postalcode=H1X1X1
 SET unit=806
 
-SET town2=mtl2
+SET town2=mtl
 SET street2=mcgill2
 SET postalcode2=H1X1X2
 SET unit2=917
@@ -39,6 +41,8 @@ SET storePhone=2222222222
 SET storeEmail=store@email.com
 SET storeOpeningHours=09:00:00
 SET storeClosingHours=17:00:00
+SET newStoreOpeningHours=08:00:00
+SET newStoreClosingHours=19:00:00
 SET storeTown=TOWN
 SET storeStreet=STREET
 SET storeUnit=10
@@ -48,14 +52,19 @@ SET storePostalCode=1X1X1X
 @REM #Shared date and hours infor for shift and timeslot tests
 SET startHour=09:00:00
 SET endHour=17:00:00
-SET date=2022-02-06
+SET date=2022-02-11
 
 @REM #Valid product info
 SET type=PER_UNIT
-SET productName=papaya5
-SET online=yes
+SET productName=papaya10
+SET online=no
+SET newOnline=yes
 SET price=3
 SET stock=60
+SET newStock=100
+
+@REM #Invalid product info
+SET invalidStock=-10
 
 @REM #Valid cart info
 SET shoppingType=Delivery
@@ -71,6 +80,7 @@ CALL :storeOwnerCreationWrongAdminKeyTest
 
 CALL :storeCreationTest
 CALL :storeCreationWrongOwnerInfoTest
+CALL :changeStoreHoursTest
 
 CALL :employeeCreationTest
 CALL :employeeCreationWrongOwnerInfoTest
@@ -78,6 +88,7 @@ CALL :duplicateEmployeeCreationTest
 CALL :listEmployeeTest
 
 CALL :shiftCreationTest
+CALL :employeeViewShiftTest
 CALL :duplicateShiftCreationTest
 CALL :shiftCreationWrongOwnerInfoTest
 
@@ -90,6 +101,9 @@ CALL :duplicateCartCreationTest
 
 CALL :productCreationTest
 CALL :duplicateProductCreationTest
+CALL :changeProductStockTest
+CALL :changeProductStockNegativeTest
+CALL :changeProductAvailabilityTest
 
 CALL :instorePurchaseCreationTest
 
@@ -107,6 +121,7 @@ for %%A in (%JSON_DATA%) do if %%~zA==0  (
     echo storeOwnerCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
     goto endStoreOwnerCreation
 )
+:: If String error is found in the database's response, the test fails.
 SET /p result=<%JSON_DATA%
 findstr /m "error" %JSON_DATA%
 if %errorlevel%==0 (
@@ -124,6 +139,7 @@ for %%A in (%JSON_DATA%) do if %%~zA==0  (
     echo storeOwnerCreationWrongAdminKeyTest: [ FAILED ] - Application does not seem to be running on localhost:8080
     goto endStoreOwnerCreationWrongAdminKey
 )
+:: If error 500 is found in the database's response when we only change the admin key, test passed as the safeguard works.
 SET /p result=<%JSON_DATA%
 findstr /m "500" %JSON_DATA%
 if %errorlevel%==0 (
@@ -166,6 +182,25 @@ if %errorlevel%==0 (
     echo   storeCreationWrongOwnerInfoTest: [ FAILED ] - %result%
 )
 :endStoreCreationWrongOwnerInfo
+EXIT /B 0
+
+:: Test method for the change in store hours
+:changeStoreHoursTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/store/changeHours?ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%&openingHour=%newStoreOpeningHours%&closingHour=%newStoreClosingHours%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo changeStoreHoursTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endChangeStoreHoursTest
+)
+:: If the new hours are contained in the DTO returned by the database, change is done correctly and test is passed
+SET /p result=<%JSON_DATA%
+findstr /m "%newStoreOpeningHours%" %JSON_DATA%
+findstr /m "%newStoreClosingHours%" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   changeStoreHoursTest: [ PASSED ] - %result%
+) else (
+    echo   changeStoreHoursTest: [ FAILED ] - %result%
+)
+:endChangeStoreHoursTest
 EXIT /B 0
 
 :: Test method for the creation of a employee
@@ -289,7 +324,7 @@ if %errorlevel%==0 (
 :endChangeCustomerAddressTest
 EXIT /B 0
 
-:: Test method for the creation of a shift
+:: Test method for the creation of a shift for a employee
 :shiftCreationTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/shifts?startHour=%startHour%&endHour=%endHour%&date=%date%&employeeEmail=%employeeEmail%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
 for %%A in (%JSON_DATA%) do if %%~zA==0  (
@@ -304,6 +339,25 @@ if %errorlevel%==0 (
     echo   shiftCreationTest: [ PASSED ] - %result%
 )
 :endShiftCreationTest
+EXIT /B 0
+
+:: Test method for employee to view his/her shift
+:employeeViewShiftTest
+curl -s -H "Content-Type: application/json" -X GET "http://localhost:8080/shifts/myshifts?password=%employeePassword%&email=%employeeEmail%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo employeeViewShiftTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endEmployeeViewShiftTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "%date%" %JSON_DATA%
+findstr /m "%startHour%" %JSON_DATA%
+findstr /m "%endHour%" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   employeeViewShiftTest: [ PASSED ] - %result%
+) else (
+    echo   employeeViewShiftTest: [ FAILED ] - %result%
+)
+:endEmployeeViewShiftTest
 EXIT /B 0
 
 :: Test method safeguard for the creation of a shift with same date and overlapping start and endHour
@@ -331,7 +385,6 @@ for %%A in (%JSON_DATA%) do if %%~zA==0  (
     goto shiftCreationWrongOwnerInfo
 )
 SET /p result=<%JSON_DATA%
-findstr /m "error" %JSON_DATA%
 findstr /m "500" %JSON_DATA%
 if %errorlevel%==0 (
     echo   shiftCreationWrongOwnerInfoTest: [ PASSED ]
@@ -357,23 +410,6 @@ if %errorlevel%==0 (
     echo   cartCreationTest: [ PASSED ] - %result%
 )
 :endCartCreationTest
-EXIT /B 0
-
-:: Test method safeguard for the creation of a additional cart to a customer
-:duplicateCartCreationTest
-curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/carts?type=%shoppingType%&customeremail=%customerEmail%&customerpassword=%customerPassword%" > %JSON_DATA%
-for %%A in (%JSON_DATA%) do if %%~zA==0  (
-    echo duplicateCartCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
-    goto endDuplicateCartCreationTest
-)
-SET /p result=<%JSON_DATA%
-findstr /m "500" %JSON_DATA%
-if %errorlevel%==0 (
-    echo   duplicateCartCreationTest: [ PASSED ]
-) else (
-    echo   duplicateCartCreationTest: [ FAILED ] - %result%
-)
-:endDuplicateCartCreationTest
 EXIT /B 0
 
 :: Test method for the creation of a product
@@ -410,6 +446,57 @@ if %errorlevel%==0 (
 :endDuplicateProductCreationTest
 EXIT /B 0
 
+:: Test method safeguard for the creation of a additional cart to a customer
+:duplicateCartCreationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/carts?type=%shoppingType%&customeremail=%customerEmail%&customerpassword=%customerPassword%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo duplicateCartCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endDuplicateCartCreationTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "500" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   duplicateCartCreationTest: [ PASSED ]
+) else (
+    echo   duplicateCartCreationTest: [ FAILED ] - %result%
+)
+:endDuplicateCartCreationTest
+EXIT /B 0
+
+:: Test method for the creation of a product
+:changeProductStockTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/products/changestock?type=%type%&productName=%productName%&stock=%newStock%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo changeProductStockTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endChangeProductStockTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "%newStock%" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   changeProductStockTest: [ PASSED ] - %result%
+) else (
+    echo   changeProductStockTest: [ FAILED ] - %result%
+)
+:endChangeProductStockTest
+EXIT /B 0
+
+:: Test method for the creation of a product
+:changeProductStockNegativeTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/products/changestock?type=%type%&productName=%productName%&stock=%invalidStock%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo changeProductStockNegativeTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endChangeProductStockNegativeTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "500" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   changeProductStockNegativeTest: [ PASSED ]
+) else (
+    echo   changeProductStockNegativeTest: [ FAILED ] - %result%
+)
+:endChangeProductStockNegativeTest
+EXIT /B 0
+
 :: Test method for the creation of an instorePurchase
 :instorePurchaseCreationTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/instorepurchase?useremail=%employeeEmail%&userpassword=%employeePassword%&productname=%productname%&quantity=%quantity%" > %JSON_DATA%
@@ -426,6 +513,24 @@ if %errorlevel%==0 (
 )
 :endInstorePurchaseCreation
 EXIT /B 0
+
+:: Test method for the creation of a product
+:changeProductAvailabilityTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/products/changeAvailability?type=%type%&productName=%productName%&isAviliableOnline=%newOnline%&ownerEmail=%ownerEmail%&ownerPassword=%ownerPassword%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo changeProductAvailabilityTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endChangeProductAvailabilityTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "%newOnline%" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   changeProductAvailabilityTest: [ PASSED ] - %result%
+) else (
+    echo   changeProductAvailabilityTest: [ FAILED ] - %result%
+)
+:endChangeProductAvailabilityTest
+EXIT /B 0
+
 
 :: Test method for the creation of an timeSlot
 :timeSlotCreationTest
