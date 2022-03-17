@@ -24,6 +24,6 @@ This repository holds the source code for the Grocery System
 | John  |  26 | Backend/Integration tests/Meeting minutes |
 | Karim  |  20 | Unit Testing/ Software Quality Assurance Plan and Report/ Debugging |
 | Thomas  |  21  | Backend/Success Spectrum |
-| Youjin  |  Hours |  |
+| Youjin  |  10 |  Unit Testing  |
 ### Deliverable Two Report
 * [Report](https://github.com/McGill-ECSE321-Winter2022/project-group-group-04/wiki)
