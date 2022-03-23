@@ -2,14 +2,14 @@
   <div id="login">
     <h2 style="text-align:center">Welcome to the Technologically Superior Grocery Store!</h2>
     <p style="text-align:center"> Enter your credentials bellow to login </p>
-    <table class="center">
+    <table class="table_style">
         <tr> <td> <p style="text-align:left"> Email Address </p> </td> </tr>
         <tr> <td> <input type="text" class="input_text" v-model="newUsername" placeholder="Email Address"> </td> </tr>
         <tr> <td> <p style="text-align:left"> Password </p> </td> </tr>
         <tr> <td> <input type="password" class="input_text" v-model="newPassword" placeholder="Password"> </td> </tr>
         <tr> <td> <button class="login_button" v-bind:disabled="!newUsername || !newPassword" @click="login(newUsername, newPassword)">Login</button> </td> </tr>
     </table> 
-    <p style="text-align:center">Don't have an account yet? <a href="/employee">Sign up now!</a></p>
+    <p style="text-align:center">Don't have an account yet? <a href="#/signup">Sign up now!</a></p>
     <span v-if="error.length > 0" class="error_message">Error: {{error}} </span>
   </div> 
 </template>
@@ -30,7 +30,7 @@
     margin-bottom: none;
     margin-top: none;
   }
-  .center {
+  .table_style {
       margin-left: auto;
       margin-right: auto;
       border-collapse: collapse;

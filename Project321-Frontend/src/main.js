@@ -14,6 +14,20 @@ Vue.prototype.$useremail = ''
 Vue.prototype.$userpassword = ''
 Vue.prototype.$usertype = ''
 
+const authentification = {
+  isAuthentificated() {
+    // if(this.$useremail) {
+    //   return true
+    // }
+    // return false
+    return this.status
+  },
+  setAuthentification(status) {
+    this.status = status
+  }
+}
+export default authentification
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

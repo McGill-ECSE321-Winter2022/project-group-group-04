@@ -1,4 +1,5 @@
 import axios from 'axios'
+import authentification from '@/main'
 var config = require('../../../config')
 
 var frontendUrl = 'http://' + config.dev.host + ':' + config.dev.port
@@ -24,6 +25,7 @@ export default {
             this.$useremail = ''
             this.$userpassword = ''
             this.$usertype = ''
+            authentification.setAuthentification(false)
             this.$router.push('/')
         }
     }

@@ -66,6 +66,9 @@ public class GroceryStoreController {
         if( u == null) {
             throw new IllegalArgumentException("Failed to find user with email or username " + email + " in database");
         }
+        if(!u.getPassword().equals(password)) {
+            throw new IllegalArgumentException("Wrong password!");
+        }
         UserDTO user = convertToDTO(u);
         if(u instanceof Customer) {
             user.setType("customer");
@@ -77,6 +80,14 @@ public class GroceryStoreController {
             throw new IllegalStateException("Internal model failure: user is neither customer, employee nor owner");
         }
         return user;
+    }
+
+    @GetMapping(value = {"/userexists", "/userexists/"})
+    public boolean userExists(@RequestParam(name = "email")     String email) {
+        if(service.getUser(email) == null) {
+            return false;
+        }
+        return true;
     }
 
     @GetMapping(value = {"/customers", "/customers/"})
