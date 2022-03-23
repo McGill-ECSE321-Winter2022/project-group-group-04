@@ -10,6 +10,10 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 Vue.use(BootstrapVue)
 Vue.config.productionTip = false
 
+Vue.prototype.$useremail = ''
+Vue.prototype.$userpassword = ''
+Vue.prototype.$usertype = ''
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
