@@ -59,6 +59,37 @@ public class GroceryStoreController {
     @Autowired
     private GroceryStoreService service;
 
+    @GetMapping(value = {"/login", "/login/"})
+    public UserDTO login(@RequestParam(name = "email")     String email,
+                            @RequestParam(name = "password")  String password) throws IllegalArgumentException, IllegalStateException {
+        User u = service.getUser(email);
+        if( u == null) {
+            throw new IllegalArgumentException("Failed to find user with email or username " + email + " in database");
+        }
+        if(!u.getPassword().equals(password)) {
+            throw new IllegalArgumentException("Wrong password!");
+        }
+        UserDTO user = convertToDTO(u);
+        if(u instanceof Customer) {
+            user.setType("customer");
+        } else if(u instanceof Employee) {
+            user.setType("employee");
+        } else if(u instanceof StoreOwner) {
+            user.setType("owner");
+        } else {
+            throw new IllegalStateException("Internal model failure: user is neither customer, employee nor owner");
+        }
+        return user;
+    }
+
+    @GetMapping(value = {"/userexists", "/userexists/"})
+    public boolean userExists(@RequestParam(name = "email")     String email) {
+        if(service.getUser(email) == null) {
+            return false;
+        }
+        return true;
+    }
+
     @GetMapping(value = {"/customers", "/customers/"})
     public List<CustomerDTO> getAllCustomers() throws IllegalArgumentException{
         return convertCustomerListToDTO(service.getAllCustomers());
@@ -979,6 +1010,12 @@ public class GroceryStoreController {
         CustomerDTO c = new CustomerDTO(customer.getEmail(), customer.getName(), customer.getPassword(), 
                                         customer.getPhone(), address);
         c.setCarts(createCartList(customer));
+        return c;
+    }
+
+    private UserDTO convertToDTO(User user) {
+        if(user == null) throw new IllegalArgumentException("Customer does not exist");
+        UserDTO c = new UserDTO(user.getEmail(), user.getName(), user.getPassword());
         return c;
     }
 
