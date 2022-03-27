@@ -1,13 +1,12 @@
 <template>
-  <div id="owner_page">
+  <div id="store_info_page">
       <button class="logout_button" @click="logout()">Logout</button>
-      <h2 style="text-align:center">This is the owner page</h2>
-      <button class="store_info_page_button" @click="gotoStoreInfo()">Store Info Page</button>
+      <h2 style="text-align:center">This is the store information page</h2>
   </div> 
 </template>
 
 <style>
-  #owner_page {
+  #store_info_page {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     color: #2c3e50;
     background: white;
@@ -23,4 +22,4 @@
 
 </style>
 
-<script src="./scripts/owner_page.js"></script>
+<script src="./scripts/store_info_page.js"></script>

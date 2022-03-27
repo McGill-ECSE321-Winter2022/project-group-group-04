@@ -11,7 +11,7 @@ var AXIOS = axios.create({
 })
 
 export default {
-    name: 'owner_page',
+    name: 'store_info_page',
     data () {
       return {
         response: [],
@@ -31,10 +31,7 @@ export default {
             window.localStorage.setItem('password', '')
             window.localStorage.setItem('usertype', '')
             window.localStorage.setItem('status', 'false')
-        },
-        gotoStoreInfo : function (){
-          this.$router.push('/store_info_page')
-      }
+        }
     }
     //...
 }
