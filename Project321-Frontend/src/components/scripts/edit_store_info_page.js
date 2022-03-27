@@ -11,7 +11,7 @@ var AXIOS = axios.create({
 })
 
 export default {
-    name: 'store_info_page',
+    name: 'edit_store_info_page',
     data () {
       return {
         response: [],

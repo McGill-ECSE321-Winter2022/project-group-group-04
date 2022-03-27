@@ -1,12 +1,12 @@
 <template>
-  <div id="store_info_page">
+  <div id="edit_store_info_page">
       <button class="logout_button" @click="logout()">Logout</button>
       <h2 style="text-align:center">This is the store information page</h2>
   </div> 
 </template>
 
 <style>
-  #store_info_page {
+  #edit_store_info_page {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     color: #2c3e50;
     background: white;
@@ -22,4 +22,4 @@
 
 </style>
 
-<script src="./scripts/store_info_page.js"></script>
+<script src="./scripts/edit_store_info_page.js"></script>
