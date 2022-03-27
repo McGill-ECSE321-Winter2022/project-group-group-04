@@ -33,7 +33,7 @@ export default {
             window.localStorage.setItem('status', 'false')
         },
         gotoStoreInfo : function (){
-          this.$router.push('/store_info_page')
+          this.$router.push('/edit_store_info_page')
       }
     }
     //...

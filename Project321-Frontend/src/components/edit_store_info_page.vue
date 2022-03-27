@@ -1,7 +1,7 @@
 <template>
   <div id="edit_store_info_page">
       <button class="logout_button" @click="logout()">Logout</button>
-      <h2 style="text-align:center">This is the store information page</h2>
+      <h2 style="text-align:center">This is the edit store page</h2>
   </div> 
 </template>
 
