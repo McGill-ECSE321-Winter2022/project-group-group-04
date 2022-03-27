@@ -27,6 +27,10 @@ export default {
             this.$usertype = ''
             authentification.setAuthentification(false)
             this.$router.push('/')
+            window.localStorage.setItem('email', '')
+            window.localStorage.setItem('password', '')
+            window.localStorage.setItem('usertype', '')
+            window.localStorage.setItem('status', 'false')
         }
     }
     //...

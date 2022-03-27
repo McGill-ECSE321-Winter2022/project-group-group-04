@@ -19,6 +19,10 @@ export default {
       }
     },
     created: function () {
+      console.log(localStorage.getItem('email'))
+      console.log(localStorage.getItem('password'))
+      console.log(localStorage.getItem('usertype'))
+      console.log(localStorage.getItem('status'))
     },
     methods: {
         logout: function () {
@@ -27,6 +31,10 @@ export default {
             this.$usertype = ''
             authentification.setAuthentification(false)
             this.$router.push('/')
+            window.localStorage.setItem('email', '')
+            window.localStorage.setItem('password', '')
+            window.localStorage.setItem('usertype', '')
+            window.localStorage.setItem('status', 'false')
         }
     }
     //...

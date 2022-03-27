@@ -34,6 +34,10 @@ export default {
                       this.$useremail = response.data.email
                       this.$userpassword = response.data.password
                       this.$usertype = response.data.type
+                      window.localStorage.setItem('email', response.data.email)
+                      window.localStorage.setItem('password', response.data.password)
+                      window.localStorage.setItem('usertype', response.data.type)
+                      window.localStorage.setItem('status', 'true')
                       authentification.setAuthentification(true)
                       this.newUsername = ''
                       this.newPassword = ''
@@ -46,6 +50,7 @@ export default {
                       }
                   })
                   .catch(e => {
+                      console.log(e)
                       console.log(JSON.stringify(e))
                       this.error = "Failed to login, password is wrong"
                   })
