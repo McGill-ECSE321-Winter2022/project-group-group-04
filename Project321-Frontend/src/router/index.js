@@ -5,6 +5,7 @@ import employee_page from '@/components/employee_page'
 import customer_page from '@/components/customer_page'
 import owner_page from '@/components/owner_page'
 import signup from '@/components/signup'
+import edit_store_info_page from '@/components/edit_store_info_page'
 import signup_success from '@/components/signup_success'
 import authentification from '@/main'
 
@@ -25,6 +26,14 @@ function routeLoginGuardian(to, from, next) {
 
 function routeSignupSuccessGuardian(to, from, next) {
   if (from.name === 'signup') {
+    next()
+  } else {
+    next({ name: 'login' })
+  }
+}
+
+function routeOwnerGuardian(to, from, next) {
+  if (from.name === 'owner_page') {
     next()
   } else {
     next({ name: 'login' })
@@ -66,6 +75,12 @@ export default new Router({
       name: 'signup_success',
       component: signup_success,
       beforeEnter: routeSignupSuccessGuardian,
+    },
+    {
+      path: '/edit_store_info_page',
+      name: 'edit_store_info_page',
+      component: edit_store_info_page,
+      beforeEnter: routeOwnerGuardian,
     }
   ]
 })

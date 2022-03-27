@@ -32,7 +32,7 @@ export default {
             window.localStorage.setItem('usertype', '')
             window.localStorage.setItem('status', 'false')
         },
-        gotoStoreInfo : function (){
+        gotoStoreInfo : function() {
           this.$router.push('/edit_store_info_page')
       }
     }
