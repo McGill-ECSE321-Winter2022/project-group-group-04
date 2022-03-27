@@ -16,9 +16,21 @@ export default {
       return {
         response: [],
         error: '',
+        shifts: []
       }
     },
     created: function () {
+      // Get all shiftes from backEnd
+      console.log(localStorage.getItem('email'))
+      console.log(localStorage.getItem('password'))
+      AXIOS.get('/shifts/myshifts', { params: {"email" : window.localStorage.getItem('email'), "password" : window.localStorage.getItem('password')}})
+      .then(response => {
+        // JSON responses are automatically parsed.
+        this.shifts = response.data
+      })
+      .catch(e => {
+        console.log(e)
+      })
     },
     methods: {
         logout: function () {
