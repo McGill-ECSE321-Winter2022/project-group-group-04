@@ -7,14 +7,16 @@ import owner_page from '@/components/owner_page'
 import signup from '@/components/signup'
 import edit_store_info_page from '@/components/edit_store_info_page'
 import signup_success from '@/components/signup_success'
+import orders from '@/components/orders'
 import authentification from '@/main'
+
 
 Vue.use(Router)
 
 function routeLoginGuardian(to, from, next) {
   var status = true
-  if(authentification.isAuthentificated()) {
-    if (from.name === 'login') {
+  if(localStorage.getItem('status') === 'true') {
+    if (from.name === 'login' || from.name === 'orders') {
       status = false
       next()
     } 
@@ -81,6 +83,12 @@ export default new Router({
       name: 'edit_store_info_page',
       component: edit_store_info_page,
       beforeEnter: routeOwnerGuardian,
+    },
+    {
+      path: '/orders',
+      name: 'orders',
+      component: orders,
+      routeLoginGuardian,
     }
   ]
 })

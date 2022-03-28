@@ -16,10 +16,21 @@ export default {
       return {
         response: [],
         error: '',
+        orders: [],
+        orderTotal: ''
       }
     },
     created: function () {
-    },
+        // Get order total from backEnd
+        AXIOS.get('/orders/total', { params: {"ownerEmail" : window.localStorage.getItem('email'), "ownerPassword" : window.localStorage.getItem('password')}})
+        .then(response => {
+          // JSON responses are automatically parsed.
+          this.orderTotal = response.data
+        })
+        .catch(e => {
+          console.log(e)
+        })
+      },
     methods: {
         logout: function () {
             this.$useremail = ''
@@ -34,7 +45,10 @@ export default {
         },
         gotoStoreInfo : function() {
           this.$router.push('/edit_store_info_page')
-      }
+      },
+      gotoOrders : function (){
+        this.$router.push('/orders')
+     }
     }
     //...
 }
