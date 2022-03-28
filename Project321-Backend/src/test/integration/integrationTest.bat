@@ -6,7 +6,7 @@
 SET JSON_DATA=results.json
 
 @REM # Valid store owner info
-SET ownerEmail=ownerIntegrationTest@email.com
+SET ownerEmail=owner@email.com
 SET ownerName=owner
 SET ownerPassword=ownerPwd
 SET adminCode=admin
@@ -16,13 +16,13 @@ SET InvalidOwnerEmail=InvalidEmailNotInSystem@email.com
 SET InvalidAdminCode=wrongKey
 
 @REM # Valid employee info
-SET employeeEmail=employeeIntegrationTest@email.com
+SET employeeEmail=employee@email.com
 SET employeeName=employee
 SET employeePassword=employeePwd
 SET status=Active
 
 @REM #Valid customer info
-SET customerEmail=customerIntegrationTest@email.com
+SET customerEmail=customer@email.com
 SET customerName=customer
 SET customerPassword=customerPwd
 SET phone=4556846985
@@ -43,9 +43,9 @@ SET storeOpeningHours=09:00:00
 SET storeClosingHours=17:00:00
 SET newStoreOpeningHours=08:00:00
 SET newStoreClosingHours=19:00:00
-SET storeTown=TOWN
-SET storeStreet=STREET
-SET storeUnit=10
+SET storeTown=Test
+SET storeStreet=Test
+SET storeUnit=101
 SET storeOutOfTownFee=10
 SET storePostalCode=1X1X1X
 
@@ -63,9 +63,9 @@ SET endHour3=15:00:00
 
 @REM #Valid product info
 SET type=PER_UNIT
-SET productName=papaya
-SET productName2=cloudBerry
-SET productName3=chips
+SET productName=chocolate
+SET productName2=Butter
+SET productName3=Rice
 SET online=no
 SET online2=yes
 SET newOnline=yes
@@ -141,8 +141,9 @@ CALL :addTimeSlotToCartTest
 CALL :addItemToCartTest
 CALL :addItemToCartTest2
 CALL :getCartToalTest
+CALL :checkoutTest
 
-CALL :deleteStoreTest
+
 
 DEL %JSON_DATA%
 EXIT /B %ERRORLEVEL%
@@ -328,23 +329,6 @@ if %errorlevel%==0 (
 :endCustomerCreationTest
 EXIT /B 0
 
-:: Test method safeguard for the creation of a duplicate customer
-:duplicateCustomerCreationTest
-curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/customers?email=%customerEmail%&name=%customerName%&password=%customerPassword%&phone=%phone%&town=%town%&street=%street%&postalcode=%postalcode%&unit=%unit%" > %JSON_DATA%
-for %%A in (%JSON_DATA%) do if %%~zA==0  (
-    echo duplicateCustomerCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
-    goto endDuplicateCustomerCreation
-)
-SET /p result=<%JSON_DATA%
-findstr /m "500" %JSON_DATA%
-if %errorlevel%==0 (
-    echo   duplicateCustomerCreationTest: [ PASSED ]
-) else (
-    echo   duplicateCustomerCreationTest: [ FAILED ] - %result%
-)
-:endDuplicateCustomerCreation
-EXIT /B 0
-
 :: Test method for the creation of a customer
 :changeCustomerAddressTest
 curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/customers/address?customeremail=%customerEmail%&customerpassword=%customerPassword%&town=%town2%&street=%street2%&postalcode=%postalcode2%&unit=%unit2%" > %JSON_DATA%
@@ -371,6 +355,24 @@ if %errorlevel%==0 (
 )
 :endChangeCustomerAddressTest
 EXIT /B 0
+
+:: Test method safeguard for the creation of a duplicate customer
+:duplicateCustomerCreationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/customers?email=%customerEmail%&name=%customerName%&password=%customerPassword%&phone=%phone%&town=%town%&street=%street%&postalcode=%postalcode%&unit=%unit%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo duplicateCustomerCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endDuplicateCustomerCreation
+)
+SET /p result=<%JSON_DATA%
+findstr /m "500" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   duplicateCustomerCreationTest: [ PASSED ]
+) else (
+    echo   duplicateCustomerCreationTest: [ FAILED ] - %result%
+)
+:endDuplicateCustomerCreation
+EXIT /B 0
+
 
 :: Test method for the creation of a shift for a employee
 :shiftCreationTest
@@ -662,22 +664,6 @@ if %errorlevel%==0 (
 :endChangeProductStockNegativeTest
 EXIT /B 0
 
-:: Test method for the creation of an instorePurchase
-:instorePurchaseCreationTest
-curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/instorepurchase?useremail=%employeeEmail%&userpassword=%employeePassword%&productname=%productname%&quantity=%quantity%" > %JSON_DATA%
-for %%A in (%JSON_DATA%) do if %%~zA==0  (
-    echo instorePurchaseCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
-    goto endInstorePurchaseCreation
-)
-SET /p result=<%JSON_DATA%
-findstr /m "error" %JSON_DATA%
-if %errorlevel%==0 (
-    echo   instorePurchaseCreationTest: [ FAILED ] - %result%
-) else (
-    echo   instorePurchaseCreationTest: [ PASSED ] - %result%
-)
-:endInstorePurchaseCreation
-EXIT /B 0
 
 :: Test method for the change product's aviilability
 :changeProductAvailabilityTest
@@ -694,6 +680,23 @@ if %errorlevel%==0 (
     echo   changeProductAvailabilityTest: [ FAILED ] - %result%
 )
 :endChangeProductAvailabilityTest
+EXIT /B 0
+
+:: Test method for the creation of an instorePurchase
+:instorePurchaseCreationTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/instorepurchase?useremail=%employeeEmail%&userpassword=%employeePassword%&productname=%productname%&quantity=%quantity%" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo instorePurchaseCreationTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endInstorePurchaseCreation
+)
+SET /p result=<%JSON_DATA%
+findstr /m "error" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   instorePurchaseCreationTest: [ FAILED ] - %result%
+) else (
+    echo   instorePurchaseCreationTest: [ PASSED ] - %result%
+)
+:endInstorePurchaseCreation
 EXIT /B 0
 
 :: Test method for the creation of an timeSlot
@@ -894,6 +897,23 @@ if %errorlevel%==0 (
     echo   getCartToalTest: [ FAILED ] - %result%
 )
 :endGetCartToalTest
+EXIT /B 0
+
+:: Test method for checkout
+:checkoutTest
+curl -s -H "Content-Type: application/json" -X POST "http://localhost:8080/cart/pay?customeremail=%customerEmail%&customerpassword=%customerPassword%&paymentcode=fromThirdPartyPaymentSolution" > %JSON_DATA%
+for %%A in (%JSON_DATA%) do if %%~zA==0  (
+    echo checkoutTest: [ FAILED ] - Application does not seem to be running on localhost:8080
+    goto endcheckoutTest
+)
+SET /p result=<%JSON_DATA%
+findstr /m "error" %JSON_DATA%
+if %errorlevel%==0 (
+    echo   checkoutTest: [ FAILED ] - %result%
+) else (
+    echo   checkoutTest: [ PASSED ] - %result%
+)
+:endcheckoutTest
 EXIT /B 0
 
 :: Test method for the delete of a store, the deleted store will only be returned after a sucessful delection so we can do pattern maching from the database's response
