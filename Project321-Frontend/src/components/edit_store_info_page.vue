@@ -47,7 +47,7 @@
                       <p style="text-align=left">Phone Number</p>
                       <input
                         type="tel"
-                        v-model="newPhone"
+                        v-model="newTelephone"
                         class="big_input"
                         placeholder="Phone Number"
                       />
@@ -57,7 +57,7 @@
                     <td class="table_cell">
                       <p style="text-align=left">Opening Hours</p>
                       <input
-                        type="password"
+                        type="tel"
                         v-model="newOpeningHour"
                         class="small_input"
                         placeholder="HH:mm:ss"
@@ -68,8 +68,8 @@
                     <td class="table_cell">
                       <p style="text-align=left">Closing Hours</p>
                       <input
-                        type="password"
-                        v-model="newclosingHour"
+                        type="tel"
+                        v-model="newClosingHour"
                         class="small_input"
                         placeholder="HH:mm:ss"
                       />
@@ -157,6 +157,9 @@
           </table>
         </td>
       </tr>
+      <table> 
+        <button class="create_store_button" @click="createStore()">Create Store</button>
+      </table>
     </table>
     </div>
   </div>

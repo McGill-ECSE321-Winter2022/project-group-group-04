@@ -16,10 +16,10 @@ export default {
       return {
         response: [],
         store:[],
-        newPhone: '',
+        newTelephone: '',
         newEmail: '',
         newOpeningHour: '',
-        newclosingHour: '',
+        newClosingHour: '',
         newUnit: '',
         newStreet: '',
         newTown: '',
@@ -53,6 +53,37 @@ export default {
             window.localStorage.setItem('password', '')
             window.localStorage.setItem('usertype', '')
             window.localStorage.setItem('status', 'false')
+        },
+        createStore: function (newTelephone,newEmail,newOpeningHour,newClosingHour,newUnit,newStreet,newTown,newPostalCode,newOutOfTownFee){
+          const params = new URLSearchParams();
+                    params.append('telephone', this.newPhone);
+                    params.append('email', this.newEmail);
+                    params.append('openingHour', this.newOpeningHour);
+                    params.append('closingHour', this.newClosingHour);
+                    params.append('town', this.newTown);
+                    params.append('street', this.newStreet);
+                    params.append('postalcode', this.newPostalCode);
+                    params.append('unit', this.newUnit);
+                    params.append('outoftownfee', this.newOutOfTownFee);
+                    params.append('ownerEmail', window.localStorage.getItem('email'));
+                    params.append('ownerPassword', window.localStorage.getItem('password'));
+          AXIOS.post('/store', params)
+          .then(response=>{
+            this.newTelephone = ''
+            this.newEmail = ''
+            this.newOpeningHour = ''
+            this.newClosingHour = ''
+            this.newTown = ''
+            this.newStreet = ''
+            this.newPostalCode = ''
+            this.newUnit = ''
+            this.newOutOfTownFee = ''
+            window.location.reload()
+          })
+          .catch(e=>{
+            console.log(JSON.stringify(e))
+            this.error = "Failed to create store, Please try again!"
+          })
         }
     }
     //...
