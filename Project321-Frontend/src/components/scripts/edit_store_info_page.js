@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { Axios } from 'axios'
 import authentification from '@/main'
 var config = require('../../../config')
 
@@ -15,10 +15,32 @@ export default {
     data () {
       return {
         response: [],
+        store:[],
+        newPhone: '',
+        newEmail: '',
+        newOpeningHour: '',
+        newclosingHour: '',
+        newUnit: '',
+        newStreet: '',
+        newTown: '',
+        newPostalCode: '',
+        newOutOfTownFee: '',
         error: '',
       }
     },
     created: function () {
+      AXIOS.get('store')
+      .then(response => {
+        // JSON responses are automatically parsed.
+        this.store = response.data
+        console.log("Store Exists")
+        document.getElementById("createStore").style.display="none";
+      })
+      .catch(e => {
+        this.error = "Must create Store first"
+        console.log("Store Doesn't Exists")
+        document.getElementById("createStore").style.display="block";
+      })
     },
     methods: {
         logout: function () {
