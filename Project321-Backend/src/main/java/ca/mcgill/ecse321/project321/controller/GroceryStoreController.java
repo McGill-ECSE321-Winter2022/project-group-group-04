@@ -622,7 +622,7 @@ public class GroceryStoreController {
     	CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is ably to generate online sales total");
     	List<Order> list = service.getAllOrders();
     	if (list == null) {
-    		throw new IllegalArgumentException("currently no orders in the system");
+    		return 0;
     	}
     	int sum = 0;
     	for (Order o: list) {
@@ -658,7 +658,7 @@ public class GroceryStoreController {
      * @throws IllegalArgumentException
      */
     @PostMapping(value = {"/cart/pay", "/cart/pay/"})
-    public void payCart(@RequestParam(name = "paymentcode") String paymentCode, 
+    public OrderDTO payCart(@RequestParam(name = "paymentcode") String paymentCode, 
                             @RequestParam(name = "customeremail") String customerEmail,
                             @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException, IllegalArgumentException{
         Cart cart = retrieveOpenCart(customerEmail, customerPassword);
@@ -674,6 +674,7 @@ public class GroceryStoreController {
         if(o == null) {
             throw new IllegalStateException("An order is already attached to this cart!");
         }
+        return convertToDTO(o);
     }
     
     @GetMapping(value = {"/shifts", "/shifts/"})
