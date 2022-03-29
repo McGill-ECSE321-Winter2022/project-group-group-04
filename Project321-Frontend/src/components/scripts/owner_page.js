@@ -48,7 +48,10 @@ export default {
       },
       gotoOrders : function (){
         this.$router.push('/orders')
-     }
+     },
+     gotoViewEmployee: function (){
+      this.$router.push('/view_employee')
+   }
     }
     //...
 }

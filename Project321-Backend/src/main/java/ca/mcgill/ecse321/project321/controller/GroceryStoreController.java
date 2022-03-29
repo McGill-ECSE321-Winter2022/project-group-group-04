@@ -5,6 +5,7 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1034,7 +1035,18 @@ public class GroceryStoreController {
     
     private EmployeeDTO convertToDTO(Employee employee) {
         if(employee == null) throw new IllegalArgumentException("Employee does not exist");
-        EmployeeDTO e = new EmployeeDTO(employee.getEmail(), employee.getName(), employee.getPassword(), translateEnum(employee.getStatus()));
+        List<Shift> l = service.getShiftByEmployee(employee);
+        EmployeeDTO e;
+        if (l != null) {
+            List<ShiftDTO> list = new ArrayList<ShiftDTO>();
+            for (Shift shift: l) {
+            	list.add(new ShiftDTO(shift.getStartHour(), shift.getEndHour(), shift.getDate(), new EmployeeDTO(employee.getEmail(), employee.getName(), employee.getPassword(), translateEnum(employee.getStatus()))));
+            }
+        	e = new EmployeeDTO(employee.getEmail(), employee.getName(), employee.getPassword(), translateEnum(employee.getStatus()), list);
+        }
+        else {
+        	e = new EmployeeDTO(employee.getEmail(), employee.getName(), employee.getPassword(), translateEnum(employee.getStatus()));
+        }
         return e;
     }
 

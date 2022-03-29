@@ -6,6 +6,9 @@
       <h4 style="text-align:center">The current total is {{this.orderTotal}}. For details of each order, click here -->
         <button class="orders_botton" @click="gotoOrders()">Orders</button>
       </h4>
+      <h4 style="text-align:center">To view employees and their shifts, click here -->
+        <button class="employee_botton" @click="gotoViewEmployee()">Employees</button>
+      </h4>
   </div> 
 </template>
 
