@@ -394,6 +394,21 @@ public class GroceryStoreController {
     		service.removeEmployee(e);
     		System.out.println("Employee deleted");
     }
+    
+    @PostMapping(value = {"/employee/changeStatus", "/employee/changeStatus/"})
+    public EmployeeDTO changeEmployeeStatus(@RequestParam(name = "employeeEmail") String email,							            
+						    		@RequestParam(name = "ownerEmail") String ownerEmail,
+								    @RequestParam(name = "ownerPassword") String ownerPassword,
+    								@RequestParam(name = "status") EmployeeStatusDTO status)
+                                    throws IllegalArgumentException {
+    		CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is ably to remove an employee");
+    		System.out.println(email);
+    		Employee e = service.getEmployee(email);
+    		if (e == null) {
+    			throw new IllegalArgumentException("Employee with email " + email + " do not exists");
+    		}
+    		return convertToDTO(service.setEmployeeStatus(e, translateEnum(status)));
+    }
 
     /**
      * This implements Req. 11

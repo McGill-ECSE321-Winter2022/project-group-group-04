@@ -5,11 +5,13 @@
     <table class = "tableStyle">
       <tr>
         <th>Name</th>
+        <th>Email</th>
         <th>Status</th>
         <th>Shifts</th>
       </tr>
       <tr v-for="employee in employees" :key=employee.name>
       <td>{{ employee.name }}</td>
+      <td>{{ employee.email }}</td>
       <td>{{ employee.status }}</td>
       <td>
         <p v-for="shift in employee.shifts" :key=shift.date>
@@ -18,7 +20,23 @@
       </td>
       </tr>
     </table>
+    <h3 style="text-align:center; margin-top:50px; margin-left:50px">Edit employee working status</h3>
+    <table class = "tableStyle">
+        <tr> <td> <input type="employeeName" class="input_text" v-model="employeeEmail" placeholder="employee name"> </td> 
+        <td> <label> New status</label>
+            <select v-model = "Newstatus">
+                <option> Active </option>
+                <option> Inactive </option>
+                <option> Sick </option>
+            </select>
+        </td>
+        <td>
+            <button class="botton" v-bind:disabled="!employeeEmail || !Newstatus" @click="changeStatus(employeeEmail, Newstatus)">Modify</button>
+        </td>
+        </tr>
+    </table>
     <span v-if="this.errorEmployee.length > 0" class="error_message">Error: {{errorEmployee}} </span>
+    <span v-if="this.errorStatus.length > 0" class="error_message">Error: {{errorStatus}} </span>
   </div> 
 </template>
 

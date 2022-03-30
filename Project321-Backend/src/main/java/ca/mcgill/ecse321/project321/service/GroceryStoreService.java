@@ -322,6 +322,13 @@ public class GroceryStoreService {
     	employeeRepository.delete(employee);
     }
     
+    @Transactional
+    public Employee setEmployeeStatus(Employee e, Employee.EmployeeStatus status) {
+        e.setStatus(status);
+        employeeRepository.save(e);
+        return e;
+    }
+    
     /* In-Store Purchase-related service methods --------------------------------------------------------------------- */
     @Transactional
     public InStorePurchase createInStorePurchase(int total, Date purchaseDate) {
