@@ -9,6 +9,8 @@ import edit_store_info_page from '@/components/edit_store_info_page'
 import signup_success from '@/components/signup_success'
 import orders from '@/components/orders'
 import view_employee from '../components/view_employee'
+import inventory from '@/components/inventory'
+import product from '@/components/product'
 import authentification from '@/main'
 
 
@@ -17,7 +19,7 @@ Vue.use(Router)
 function routeLoginGuardian(to, from, next) {
   var status = true
   if(localStorage.getItem('status') === 'true') {
-    if (from.name === 'login' || from.name === 'orders' || from.name === 'view_employee') {
+    if (from.name === 'login' || from.name === 'orders' || from.name === 'view_employee' || from.name === 'inventory' || from.name === 'product') {
       status = false
       next()
     } 
@@ -37,6 +39,14 @@ function routeSignupSuccessGuardian(to, from, next) {
 
 function routeOwnerGuardian(to, from, next) {
   if (from.name === 'owner_page') {
+    next()
+  } else {
+    next({ name: 'login' })
+  }
+}
+
+function routeCustomerGuardian(to, from, next) {
+  if (from.name === 'customer_page') {
     next()
   } else {
     next({ name: 'login' })
@@ -96,6 +106,18 @@ export default new Router({
       name: 'view_employee',
       component: view_employee,
       beforeEnter: routeOwnerGuardian,
+    },
+    {
+      path: '/inventory',
+      name: 'inventory',
+      component: inventory,
+      beforeEnter: routeOwnerGuardian,
+    },
+    {
+      path: '/product',
+      name: 'product',
+      component: product,
+      beforeEnter: routeCustomerGuardian,
     }
   ]
 })

@@ -52,7 +52,7 @@ SET storePostalCode=1X1X1X
 @REM #date and hours info for shift
 SET startHour=09:00:00
 SET endHour=17:00:00
-SET date=2022-03-01
+SET date=2022-04-01
 
 @REM #date and hours info for timslot
 SET startHour2=10:00:00

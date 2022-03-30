@@ -401,7 +401,7 @@ public class GroceryStoreController {
 								    @RequestParam(name = "ownerPassword") String ownerPassword,
     								@RequestParam(name = "status") EmployeeStatusDTO status)
                                     throws IllegalArgumentException {
-    		CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is ably to remove an employee");
+    		CheckUser(ownerEmail, ownerPassword, "owner", "Only owner is able to change status of an employee");
     		System.out.println(email);
     		Employee e = service.getEmployee(email);
     		if (e == null) {

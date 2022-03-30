@@ -35,7 +35,10 @@ export default {
             window.localStorage.setItem('password', '')
             window.localStorage.setItem('usertype', '')
             window.localStorage.setItem('status', 'false')
-        }
+        },
+        gotoInventory: function (){
+          this.$router.push('/product')
+       }
     }
     //...
 }

@@ -2,6 +2,9 @@
   <div id="customer_page">
       <button class="logout_button" @click="logout()">Logout</button>
       <h2 style="text-align:center">This is the customer page</h2>
+      <h4 style="text-align:center">To view and purchase products, click here -->
+        <button class="inventory_botton" @click="gotoInventory()">Products</button>
+      </h4>
   </div> 
 </template>
 
