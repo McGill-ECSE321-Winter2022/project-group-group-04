@@ -28,12 +28,11 @@
                 <input v-if="product.isAvailableOnline === 'yes'" type="number" id="tentacles"
                         name="tentacles" min="0" :max="product.stock" v-model="newQuantity[i]">
                 
-                <button v-bind:disabled="newQuantity[i]<1 || newQuantity.length<i+1 || !newQuantity[i]" @click="toCart(product.productName, newQuantity[i])">Add</button>
+                <button v-bind:disabled="newQuantity[i]<1 || newQuantity.length<i+1 || !newQuantity[i] || product.stock < newQuantity[i]" @click="toCart(product.productName, newQuantity[i])">Add</button>
               </td>
             </tr>
         </tbody>
     </table>
-    {{newQuantity}}
     <span v-if="this.errorProduct.length > 0" class="error_message">Error: {{errorStatus}} </span>
   </div> 
 </template>

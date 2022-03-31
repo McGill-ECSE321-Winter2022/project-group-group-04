@@ -220,6 +220,13 @@ public class GroceryStoreService {
         cartItemRepository.save(cartItem);
         return cartItem;
     }
+    
+    @Transactional
+    public CartItem setCartItemQuantity(CartItem cartItem, int q) {
+        cartItem.setQuantity(q);
+        cartItemRepository.save(cartItem);
+        return cartItem;
+    }
 
     @Transactional
     public List<CartItem> getCartItemsByCart(Cart cart) {

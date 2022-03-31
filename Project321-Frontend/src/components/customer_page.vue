@@ -51,9 +51,9 @@
         
         <div id="item_lists" v-if="!noCart">
           <h6>Your cart type : {{yourCart.shoppingType}}</h6>
-          <p v-if="emptyCart" class="error_message"> Your Cart is empty. </p>
+          <p v-if="cartItems.length<0" class="error_message"> Your Cart is empty. </p>
 
-          <div  v-if="!emptyCart" >
+          <div  v-if="cartItems.length>0" >
             <table id="item_lists_table">
               <tr>
                 <th> product name </th>

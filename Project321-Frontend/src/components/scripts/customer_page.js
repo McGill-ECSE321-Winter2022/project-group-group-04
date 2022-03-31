@@ -23,7 +23,7 @@ export default {
         yourAddress :'',
         yourPhone:'',
 
-        yourCarts:[],
+        yourCarts: [],
         yourCart:'',
 
         newCartType : '',
@@ -36,20 +36,34 @@ export default {
       // Get the customer information from backEnd
       AXIOS.get('/customer', { params: {"email" : window.localStorage.getItem('email')}})
       .then(response => {
+        console.log(response.data)
         this.yourName = response.data.name
         this.yourEmail = response.data.email
         this.yourPassword = response.data.password
         this.yourAddress = response.data.address
         this.yourPhone = response.data.phone
-        this.yourCarts = response.data.carts
-        this.yourCart = response.data.carts[0]
-        this.cartItems = this.yourCart.cartItems
-        if (this.yourCarts.length>0){
-          this.noCart = false
-        }
+       // this.yourCarts = response.data.carts
+        //this.yourCart = response.data.carts[0]
+        //this.cartItems = this.yourCart.cartItems
+        //if (this.yourCarts.length>0){
+        //  console.log(yourCarts)
+       //   this.noCart = false
+       // }
       })
       .catch(error => {
         console.log(error)
+      }),
+      // Get the customer's cart
+      AXIOS.get('/cart', { params: {"customeremail" : window.localStorage.getItem('email'), "customerpassword" : window.localStorage.getItem('password')}})
+      .then(response => {
+        console.log(response.data)
+        this.yourCart = response.data
+        this.cartItems = this.yourCart.cartItems
+        this.noCart = false
+      })
+      .catch(error => {
+        console.log(error)
+        this.noCart = true
       })
     },
     methods: {

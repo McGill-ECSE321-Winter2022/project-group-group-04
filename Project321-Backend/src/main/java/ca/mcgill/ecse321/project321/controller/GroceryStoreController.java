@@ -882,14 +882,25 @@ public class GroceryStoreController {
         }
         Product product = verifyProductAvailabilityAndShoppability(productName, quantity);
         List<CartItem> allItems = service.getCartItemsByCart(cart);
+        boolean isSameItemInCart = false;
+        CartItem c = null;
+        int exsistingQuantity = 0;
         for(CartItem i : allItems) {
             if(i.getProduct().getProductName().equals(productName)) {
-                throw new IllegalArgumentException("You already have this product in the cart!");
+            	isSameItemInCart = true;
+            	c = i;
+            	exsistingQuantity = i.getQuantity();
             }
         }
-        CartItem item = service.createCartItem(quantity, product, cart);
-        service.setProductStock(productName, (product.getStock() - quantity));
-        return convertToDTO(item);
+        if (isSameItemInCart) {
+        	service.setProductStock(productName, (product.getStock() - quantity));
+        	return convertToDTO(service.setCartItemQuantity(c, quantity + exsistingQuantity));
+        }
+        else {
+            CartItem item = service.createCartItem(quantity, product, cart);
+            service.setProductStock(productName, (product.getStock() - quantity));
+            return convertToDTO(item);
+        }
     }
 
     @PostMapping(value = {"/instorepurchase", "/instorepurchase/"})

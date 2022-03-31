@@ -70,6 +70,6 @@ export default {
                 selection = this.products
             }
             return selection
-           }
+           },
     }
 }
