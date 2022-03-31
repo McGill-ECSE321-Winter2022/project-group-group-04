@@ -11,6 +11,7 @@ import orders from '@/components/orders'
 import view_employee from '../components/view_employee'
 import inventory from '@/components/inventory'
 import product from '@/components/product'
+import checkout from '@/components/checkout'
 import authentification from '@/main'
 
 
@@ -19,7 +20,7 @@ Vue.use(Router)
 function routeLoginGuardian(to, from, next) {
   var status = true
   if(localStorage.getItem('status') === 'true') {
-    if (from.name === 'login' || from.name === 'orders' || from.name === 'view_employee' || from.name === 'inventory' || from.name === 'product') {
+    if (from.name === 'login' || from.name === 'orders' || from.name === 'view_employee' || from.name === 'inventory' || from.name === 'product'|| from.name === 'checkout') {
       status = false
       next()
     } 
@@ -118,6 +119,12 @@ export default new Router({
       name: 'product',
       component: product,
       beforeEnter: routeCustomerGuardian,
-    }
+    }, 
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: checkout,
+      befroreEnter: routeCustomerGuardian,
+    },
   ]
 })
