@@ -11,6 +11,7 @@ import orders from '@/components/orders'
 import view_employee from '../components/view_employee'
 import inventory from '@/components/inventory'
 import product from '@/components/product'
+import checkout from '@/components/checkout'
 import authentification from '@/main'
 
 
@@ -118,6 +119,12 @@ export default new Router({
       name: 'product',
       component: product,
       beforeEnter: routeCustomerGuardian,
-    }
+    }, 
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: checkout,
+      befroreEnter: routeCustomerGuardian,
+    },
   ]
 })

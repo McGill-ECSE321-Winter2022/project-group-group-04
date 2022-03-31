@@ -19,6 +19,8 @@ export default {
         products: [],
         errorProduct: '',
         search: '',
+
+        newQuantity:[],
       }
     },
     created: function () {
@@ -37,9 +39,25 @@ export default {
         back: function () {
             this.$router.push('/customer')
         },
+        toCart: function (p, q) {
+            const params = new URLSearchParams();
+            params.append('useremail',window.localStorage.getItem('email'));
+            params.append('userpassword', window.localStorage.getItem('password'));
+            params.append('productname',p);
+            params.append('quantity',q);
+            AXIOS.post('/cart/item', params)
+            .then(response => {
+                this.response = response.data
+                console.log('successfully added to cart')
+            })
+            .catch(e => {
+              console.log(e)
+            })
+        }
     },
     computed: {
         ProductFilter() {
+            this.newQuantity = []
             let selection = []
             if(this.search !== '') {
             selection = this.products.filter(p => 
