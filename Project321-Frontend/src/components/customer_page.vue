@@ -14,7 +14,7 @@
           <th>Phone</th>
           <td>{{yourPhone}}</td>
         </tr>
-        <tr >
+        <tr>
           <th>Address</th>
           <td>
             {{yourAddress.postalCode}} <br>
@@ -27,15 +27,15 @@
     
     <div id="cart">
       <h4 style="text-align:left"> Cart </h4>
-        <p v-if="needCart" class="error_message">No cart</p>
+        <p v-if="!yourCarts.length" class="error_message">No cart</p>
 
-        <p v-if="needCart">
+        <p v-if="!yourCarts.length">
           You can start shopping online after creating your own cart.<br>
           Create one by choosing one of Cart Type below! <br>
           Cart Type : 
           <select v-model = "newCartType">
-              <option> delivery </option>
-              <option> PickUp </option>
+              <option> Delivery </option>
+              <option> Pickup </option>
           </select>
           <button v-bind:disabled="!newCartType" @click="create_cart()"> create new cart </button>
           <ul class="description">
@@ -49,28 +49,32 @@
 
         </p>
         
-        <p v-if="!needCart && emptyCart" class="error_message"> Your Cart is empty. </p>
-        <div v-if="!needCart && !emptyCart" >
-          <table id="item_lists">
-            <tr>
-              <th> product name </th>
-              <th> price (price type) </th>
-              <th> quantity </th>
-              <th> total </th>
-            </tr>
-            <tr v-for="cartItem in cartItems" :key=cartItem.name>
-              <td> {{cartItem.product.productName}} </td>
-              <td> {{cartItem.product.price}} ({{cartItem.product.priceType}}) </td>
-              <td> {{cartItem.quantity}} </td>
-              <td> {{cartItem.quantity * cartItem.product.price}} </td>
-            </tr>
-          </table>
+        <div id="item_lists" v-if="yourCarts.length">
+          <h6>Your cart type : {{yourCart.shoppingType}}</h6>
+          <p v-if="emptyCart" class="error_message"> Your Cart is empty. </p>
+
+          <div  v-if="!emptyCart" >
+            <table id="item_lists_table">
+              <tr>
+                <th> product name </th>
+                <th> price <br> (price type) </th>
+                <th> quantity </th>
+                <th> subtotal </th>
+              </tr>
+              <tr v-for="cartItem in cartItems" :key=cartItem.name>
+                <td> {{cartItem.product.productName}} </td>
+                <td> {{cartItem.product.price}} ({{cartItem.product.priceType}}) </td>
+                <td> {{cartItem.quantity}} </td>
+                <td> {{cartItem.quantity * cartItem.product.price}} </td>
+              </tr>
+            </table>
+          </div>
         </div>
-        <p v-if="needCart">
+        <p text-align="right" v-if="yourCarts.length">
           To view and purchase products, 
           <button class="inventory_botton" @click="gotoInventory()">Go Shopping</button>
           <br> If you are ready for payment, 
-          <button class="checkout_botton" @click="gotoCheckout()">Checkout</button>
+          <button v-bind:disabled="cartItems.length>1" class="checkout_botton" @click="gotoCheckout()">Checkout</button>
         </p>
     </div>
   </div> 
@@ -89,23 +93,34 @@
     width : 30%;
     border-radius: 8px;
     padding : 15px;
-    margin-left :50px;
+    margin-left : auto;
   }
 
   #cart{
     float : right;
     background : #c7dbf0;
-    width : 60%;
+    width : 65%;
     border-radius: 8px;
     padding : 15px;
-    margin-right :50px;
+    margin-right :auto;
   }
 
   #item_lists{
     background : white;
-    margin-left: auto;
+    margin-left: 25px;
     margin-right: auto;
     margin-bottom: 10px;
+    padding: 15px;
+  }
+
+  #item_lists_table{
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  h6{
+    text-align: right;
+    background: white;
   }
 
   .logout_button {

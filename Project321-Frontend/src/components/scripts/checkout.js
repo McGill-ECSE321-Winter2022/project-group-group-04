@@ -20,7 +20,15 @@ export default {
         yourName :'',
         yourEmail :'',
         yourPassword : '',
-        yourAddress :''
+        yourAddress :'',
+        yourCarts:[],
+        yourCart:'',
+        cartItems:[],
+        totalPrice :'',
+
+        timeSlots :[],
+
+        selectedTimeSlot :'',
       }
     },
     created: function () {
@@ -31,12 +39,47 @@ export default {
             this.yourEmail = response.data.email
             this.yourPassword = response.data.password
             this.yourAddress = response.data.address
+            this.yourCarts = response.data.carts
+            this.yourCart = response.data.carts[0]
+            this.cartItems = this.yourCart.cartItems
         })
         .catch(error => {
             console.log(error)
         })
+
+        this.totalPrice=0
+        for(let i = 0; i < this.cartItems.length; i++){
+            itemPrice = this.cartItems[i].product.price
+            itemQty = this.cartItems[i].quantity
+            this.totalPrice += itemPrice * itemQty
+        }
+
+        AXIOS.get('/availabletimeslots', {params: {}})
+            .then(response =>{
+                this.timeSlots = response.data
+            })
+            .catch(error => {
+                console.log(error)
+            })
     },
+
     methods: {
+        selectTimeSlot : function(timeslot){
+            const params = new URLSearchParams();
+            params.append('customeremail',this.yourEmail);
+            params.append('customerpassword',this.yourPassword);
+            params.append('timeslotdate',timeslot.date);
+            params.append('timeslotstarttime',timeslot.startTime);
+            params.append('timeslotendtime',timeslot.endTime);
+            AXIOS.post('/carts/timeslot',params)
+                .then(response =>{
+                    console.log(response.data.timeSlot)
+                    this.selectedTimeSlot = ''
+                })
+                .catch(e => {
+                    console.log(e)
+                })
+        },
         back: function () {
             this.$router.push('/customer')
         },

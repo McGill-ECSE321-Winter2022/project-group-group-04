@@ -20,7 +20,7 @@ Vue.use(Router)
 function routeLoginGuardian(to, from, next) {
   var status = true
   if(localStorage.getItem('status') === 'true') {
-    if (from.name === 'login' || from.name === 'orders' || from.name === 'view_employee' || from.name === 'inventory' || from.name === 'product') {
+    if (from.name === 'login' || from.name === 'orders' || from.name === 'view_employee' || from.name === 'inventory' || from.name === 'product'|| from.name === 'checkout') {
       status = false
       next()
     } 

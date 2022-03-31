@@ -23,9 +23,9 @@ export default {
         yourAddress :'',
         yourPhone:'',
 
-        yourCart:[],
+        yourCarts:[],
+        yourCart:'',
 
-        needCart: false,
         newCartType : '',
         emptyCart : true,
         cartItems : [],
@@ -40,16 +40,18 @@ export default {
         this.yourPassword = response.data.password
         this.yourAddress = response.data.address
         this.yourPhone = response.data.phone
-        this.yourCart = response.data.carts
-        if (!this.yourCart.length){
+        this.yourCarts = response.data.carts
+        this.yourCart = response.data.carts[0]
+        this.cartitems = this.yourCart.cartItems
+        if (!this.yourCarts.length){
           console.log("This customer has no cart.")
-          this.needCart = true
         }
+        console.log('hi')
+        console.log(this.yourCarts.length)
       })
       .catch(error => {
         console.log(error)
       })
-
     },
     methods: {
         logout: function () {
@@ -65,14 +67,14 @@ export default {
         },
 
         create_cart: function(){
-          const params2 = new URLSearchParams()
+          const params2 = new URLSearchParams();
           params2.append('type', this.newCartType);
           params2.append('customeremail',this.yourEmail);
           params2.append('customerpassword',this.yourPassword);
           AXIOS.post('/carts',params2)
             .then(response => {
               this.responseCart = response.data
-              this.needCart = False
+              this.newCartType = ''
               console.log(this.responseCart)
             })
             .catch(e => {
