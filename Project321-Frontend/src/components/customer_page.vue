@@ -27,9 +27,9 @@
     
     <div id="cart">
       <h4 style="text-align:left"> Cart </h4>
-        <p v-if="!yourCarts.length" class="error_message">No cart</p>
+        <p v-if="noCart" class="error_message">No cart</p>
 
-        <p v-if="!yourCarts.length">
+        <p v-if="noCart">
           You can start shopping online after creating your own cart.<br>
           Create one by choosing one of Cart Type below! <br>
           Cart Type : 
@@ -49,7 +49,7 @@
 
         </p>
         
-        <div id="item_lists" v-if="yourCarts.length">
+        <div id="item_lists" v-if="!noCart">
           <h6>Your cart type : {{yourCart.shoppingType}}</h6>
           <p v-if="emptyCart" class="error_message"> Your Cart is empty. </p>
 
@@ -70,11 +70,11 @@
             </table>
           </div>
         </div>
-        <p text-align="right" v-if="yourCarts.length">
+        <p text-align="right" v-if="!noCart">
           To view and purchase products, 
           <button class="inventory_botton" @click="gotoInventory()">Go Shopping</button>
           <br> If you are ready for payment, 
-          <button v-bind:disabled="cartItems.length>1" class="checkout_botton" @click="gotoCheckout()">Checkout</button>
+          <button v-bind:disabled="cartItems.length<1" class="checkout_botton" @click="gotoCheckout()">Checkout</button>
         </p>
     </div>
   </div> 
