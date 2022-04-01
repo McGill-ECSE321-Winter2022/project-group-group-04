@@ -39,9 +39,14 @@ function routeSignupSuccessGuardian(to, from, next) {
 }
 
 function routeOwnerGuardian(to, from, next) {
-  if (from.name === 'owner_page') {
+  if (localStorage.getItem('usertype') === 'owner') {
+    next()
+  }
+  else if (from.name === 'owner_page') {
+    console.log("here")
     next()
   } else {
+    console.log(from.name)
     next({ name: 'login' })
   }
 }

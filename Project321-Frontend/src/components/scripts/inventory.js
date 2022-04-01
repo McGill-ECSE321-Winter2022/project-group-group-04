@@ -19,6 +19,12 @@ export default {
         products: [],
         errorProduct: '',
         search: '',
+        newProductName: '',
+        newType: '',
+        newStock: '',
+        newPrice: '',
+        newAvailability: '',
+        errorAddProduct: '',
       }
     },
     created: function () {
@@ -37,6 +43,36 @@ export default {
         back: function () {
             this.$router.push('/owner')
         },
+        refresh: function () {
+          window.location.reload()
+        },
+        addProduct: function(name, stock, price, type, availability) {
+        // Add a proudct to backend
+        const params = new URLSearchParams();
+        params.append('ownerEmail',window.localStorage.getItem('email'));
+        params.append('ownerPassword', window.localStorage.getItem('password'));
+        params.append('productName',name);
+        params.append('stock',stock);
+        params.append('price',price);
+        params.append('type',type);
+        params.append('online',availability);
+        AXIOS.post('/products', params)
+        .then(response => {
+          console.log('add product complete')
+          window.location.reload()
+        })
+        .catch(e => {
+          this.errorAddProduct = 'There is a duplicate product with same name in the system'
+          console.log(e)
+        })
+        },
+        wait: function (ms) {
+          var start = new Date().getTime();
+          var end = start;
+          while(end < start + ms) {
+            end = new Date().getTime();
+         }
+      },
     },
     computed: {
         ProductFilter() {

@@ -1,7 +1,31 @@
 <template>
   <div id="inventory">
     <button class="back_botton" @click="back()">back</button>
-    <h3 style="text-align:center; margin-top:50px; margin-left:50px">All Produts</h3>
+    <button class="refresh_botton" @click="refresh()">refresh</button>
+    <h3 style="text-align:center; margin-top:50px; margin-left:50px">Add a product</h3>
+    <table class = "tableStyle">
+        <tr> <td> <label> Product name</label> <input type="productName" class="input_text" v-model="newProductName" placeholder="Product name" > </td> 
+          <td> <label> Product Stock</label> <input type="productStock" class="input_text" v-model="newStock" placeholder="Product Stock"> </td> 
+          <td> <label> Product Price</label> <input type="productPrice" class="input_text" v-model="newPrice" placeholder=""> </td> 
+          <td> <label> New status</label>
+              <select v-model = "newType">
+                  <option> PER_UNIT </option>
+                  <option> PER_KILOS </option>
+              </select>
+          </td>
+          <td> <label> Online availability</label>
+              <select v-model = "newAvailability">
+                  <option> yes </option>
+                  <option> no </option>
+              </select>
+          </td>
+          <td>
+              <button class="botton" v-bind:disabled="!newProductName || !newStock || !newPrice || !newType || !newAvailability" @click="addProduct(newProductName, newStock, newPrice, newType, newAvailability)">Add</button>
+          </td>
+        </tr>
+    </table>
+    <span v-if="this.errorAddProduct.length > 0" class="error_message">Error: {{errorAddProduct}}. You can refresh the page with the refresh botton</span>
+    <h3 style="text-align:center; margin-top:50px; margin-left:50px">All Products</h3>
     <div class="search-wrapper panel-heading col-sm-12">
     <input type="text" v-model="search" placeholder="Search" /> <br> <br>
     </div> 
@@ -25,7 +49,7 @@
             </tr>
         </tbody>
     </table>
-    <span v-if="this.errorProduct.length > 0" class="error_message">Error: {{errorStatus}} </span>
+    <span v-if="this.errorProduct.length > 0" class="error_message">Error: {{errorProduct}}</span>
   </div> 
 </template>
 
@@ -59,7 +83,15 @@
   .error_message {
     color:red;
     text-align:center;
-}
+  }
+  .refresh_botton {
+  margin-top: 5px;
+  margin-right: 80px;
+  width: 70px;
+  top: 0; 
+  right: 0;
+  position: absolute;
+  }
 </style>
 
 <script src="./scripts/inventory.js"></script>
