@@ -1,7 +1,7 @@
 <template>
   <div id="product">
     <button class="back_botton" @click="back()">back</button>
-    <h3 style="text-align:center; margin-top:50px; margin-left:50px">All Produts</h3>
+    <h3 style="text-align:center; margin-top:50px; margin-left:50px">All Products</h3>
     <div class="search-wrapper panel-heading col-sm-12">
     <input type="text" v-model="search" placeholder="Search" /> <br> <br>
     </div> 

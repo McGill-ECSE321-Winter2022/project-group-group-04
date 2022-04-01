@@ -49,10 +49,12 @@ export default {
             AXIOS.post('/employee/changeStatus', params)
             .then(response => {
                 this.response = response.data
+                window.location.reload()
             })
             .catch(e => {
               this.errorStatus = 'there is no employee with the specified email in the system'
               console.log(e)
+              window.location.reload()
             })
         }
     }

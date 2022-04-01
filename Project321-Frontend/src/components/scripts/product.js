@@ -29,6 +29,7 @@ export default {
         .then(response => {
           // JSON responses are automatically parsed.
           this.products = response.data
+          this.products.sort((a, b) => a.productName.localeCompare(b.productName))
         })
         .catch(e => {
           this.errorProduct = 'There is no products in the system, we broke!'
@@ -49,11 +50,12 @@ export default {
             .then(response => {
                 this.response = response.data
                 console.log('successfully added to cart')
+                window.location.reload()
             })
             .catch(e => {
               console.log(e)
             })
-        }
+        },
     },
     computed: {
         ProductFilter() {

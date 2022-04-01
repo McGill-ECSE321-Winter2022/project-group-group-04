@@ -2,7 +2,7 @@
   <div id="inventory">
     <button class="back_botton" @click="back()">back</button>
     <button class="refresh_botton" @click="refresh()">refresh</button>
-    <h3 style="text-align:center; margin-top:50px; margin-left:50px">Add a product</h3>
+    <h3 style="text-align:center">Add a product</h3>
     <table class = "tableStyle">
         <tr> <td> <label> Product name</label> <input type="productName" class="input_text" v-model="newProductName" placeholder="Product name" > </td> 
           <td> <label> Product Stock</label> <input type="productStock" class="input_text" v-model="newStock" placeholder="Product Stock"> </td> 
@@ -25,7 +25,7 @@
         </tr>
     </table>
     <span v-if="this.errorAddProduct.length > 0" class="error_message">Error: {{errorAddProduct}}. You can refresh the page with the refresh botton</span>
-    <h3 style="text-align:center; margin-top:50px; margin-left:50px">All Products</h3>
+    <h3 style="text-align:center; margin-top:50px">All Products</h3>
     <div class="search-wrapper panel-heading col-sm-12">
     <input type="text" v-model="search" placeholder="Search" /> <br> <br>
     </div> 
@@ -37,6 +37,7 @@
                 <th>Online availability</th>
                 <th>stock</th>
                 <th>price</th>
+                <th>Delete Product</th>
             </tr>
          </thead>
         <tbody>
@@ -46,10 +47,13 @@
             <td>{{ product.isAvailableOnline }}</td>
             <td>{{ product.stock }}</td>
             <td>{{ product.price }}</td>
+            <td> <button class="delete_botton" @click="deleteProduct(product.productName)">Delete</button>
+            </td>
             </tr>
         </tbody>
     </table>
     <span v-if="this.errorProduct.length > 0" class="error_message">Error: {{errorProduct}}</span>
+    <span v-if="this.errorDelete.length > 0" class="error_message">Error: {{errorDelete}}</span>
   </div> 
 </template>
 
@@ -91,6 +95,9 @@
   top: 0; 
   right: 0;
   position: absolute;
+  }
+  .delete_botton {
+    color:red;
   }
 </style>
 

@@ -14,6 +14,19 @@ import product from '@/components/product'
 import checkout from '@/components/checkout'
 import authentification from '@/main'
 
+import axios from 'axios'
+var config = require('../../config')
+
+var frontendUrl = 'http://' + config.dev.host + ':' + config.dev.port
+var backendUrl = 'http://' + config.dev.backendHost + ':' + config.dev.backendPort
+
+var AXIOS = axios.create({
+  baseURL: backendUrl,
+  headers: { 'Access-Control-Allow-Origin': frontendUrl }
+})
+
+var userType = '';
+
 
 Vue.use(Router)
 
@@ -39,24 +52,27 @@ function routeSignupSuccessGuardian(to, from, next) {
 }
 
 function routeOwnerGuardian(to, from, next) {
-  if (localStorage.getItem('usertype') === 'owner') {
+  AXIOS.get('/login', { params: {"email" : localStorage.getItem('email'), "password" : localStorage.getItem('password')}})
+  .then(response => {
+    if(response.data.type === 'owner') {
     next()
   }
-  else if (from.name === 'owner_page') {
-    console.log("here")
-    next()
-  } else {
-    console.log(from.name)
+  })
+  .catch(e => {
     next({ name: 'login' })
-  }
+  })
 }
 
 function routeCustomerGuardian(to, from, next) {
-  if (from.name === 'customer_page') {
+  AXIOS.get('/login', { params: {"email" : localStorage.getItem('email'), "password" : localStorage.getItem('password')}})
+  .then(response => {
+    if(response.data.type === 'customer') {
     next()
-  } else {
-    next({ name: 'login' })
   }
+  })
+  .catch(e => {
+    next({ name: 'login' })
+  })
 }
 
 export default new Router({

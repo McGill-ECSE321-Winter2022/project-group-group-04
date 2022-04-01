@@ -25,6 +25,7 @@ export default {
         newPrice: '',
         newAvailability: '',
         errorAddProduct: '',
+        errorDelete: '',
       }
     },
     created: function () {
@@ -33,6 +34,7 @@ export default {
         .then(response => {
           // JSON responses are automatically parsed.
           this.products = response.data
+          this.products.sort((a, b) => a.productName.localeCompare(b.productName))
         })
         .catch(e => {
           this.errorProduct = 'There is no products in the system, we broke!'
@@ -66,6 +68,21 @@ export default {
           console.log(e)
         })
         },
+        deleteProduct: function (name){
+          const params2 = new URLSearchParams();
+          params2.append('ownerEmail',window.localStorage.getItem('email'));
+          params2.append('ownerPassword', window.localStorage.getItem('password'));
+          params2.append('productName', name);
+          AXIOS.post('/products/delete', params2)
+          .then(response => {
+              console.log('successfully added to cart')
+              window.location.reload()
+          })
+          .catch(e => {
+            console.log(e)
+            this.errorDelete = 'This Product is currently in one of cart, delete stopped'
+          })
+      },
         wait: function (ms) {
           var start = new Date().getTime();
           var end = start;

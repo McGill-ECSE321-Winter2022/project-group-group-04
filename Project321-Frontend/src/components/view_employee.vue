@@ -9,7 +9,7 @@
         <th>Status</th>
         <th>Shifts</th>
       </tr>
-      <tr v-for="employee in employees" :key=employee.name>
+      <tr v-for="employee in employees" :key=employee.email>
       <td>{{ employee.name }}</td>
       <td>{{ employee.email }}</td>
       <td>{{ employee.status }}</td>
@@ -22,7 +22,7 @@
     </table>
     <h3 style="text-align:center; margin-top:50px; margin-left:50px">Edit employee working status</h3>
     <table class = "tableStyle">
-        <tr> <td> <input type="employeeName" class="input_text" v-model="employeeEmail" placeholder="employee name"> </td> 
+        <tr> <td> <input type="employeeName" class="input_text" v-model="employeeEmail" placeholder="employee email"> </td> 
         <td> <label> New status</label>
             <select v-model = "Newstatus">
                 <option> Active </option>
