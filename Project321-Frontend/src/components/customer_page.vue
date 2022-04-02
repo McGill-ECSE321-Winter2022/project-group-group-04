@@ -75,6 +75,8 @@
           <button class="inventory_botton" @click="gotoInventory()">Go Shopping</button>
           <br> If you are ready for payment, 
           <button v-bind:disabled="cartItems.length<1" class="checkout_botton" @click="gotoCheckout()">Checkout</button>
+          <br>To clear the cart,
+          <button class="clear_cart_botton" @click="clear_cart()">Clear Cart</button>
         </p>
     </div>
   </div> 

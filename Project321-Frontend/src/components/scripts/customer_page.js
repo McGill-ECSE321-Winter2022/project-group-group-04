@@ -97,9 +97,12 @@ export default {
             })
         },
         clear_cart: function(){
-          AXIOS.post('/carts/clear',{ params: {"customeremail" : window.localStorage.getItem('email'), "customerpassword" : window.localStorage.getItem('password')}})
+          const params = new URLSearchParams();
+          params.append('customeremail',window.localStorage.getItem('email'))
+          params.append('customerpassword',window.localStorage.getItem('password'))
+          AXIOS.post('/carts/clear', params)
           .then(response => {
-            
+            window.location.reload()
           })
           .catch(e => {
             this.errorCart = "Cart cannot be cleared"
