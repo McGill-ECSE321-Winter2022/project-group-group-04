@@ -25,6 +25,7 @@ export default {
         newEndHour: '',
         newDate: '',
         errorShift: '',
+        employeeEmail2: '',
       }
     },
     created: function () {

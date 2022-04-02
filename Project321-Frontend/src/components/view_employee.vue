@@ -13,12 +13,6 @@
       <td>{{ employee.name }}</td>
       <td>{{ employee.email }}</td>
       <td>{{ employee.status }} 
-        <select v-model = "Newstatus">
-                <option> Active </option>
-                <option> Inactive </option>
-                <option> Sick </option>
-        </select>
-        <button class="botton" v-bind:disabled="!Newstatus" @click="changeStatus(employee.email, Newstatus)">Modify</button>
       </td>
       <td>
         <p v-for="shift in employee.shifts" :key=shift.date>
@@ -27,7 +21,28 @@
       </td>
       </tr>
     </table>
-    <h3 style="text-align:center; margin-top:50px; margin-left:50px">Create shift for employee</h3>
+    <h3 style="text-align:center; margin-top:50px; margin-left:50px">Edit employee status</h3>
+    <table class = "tableStyle">
+      <th> Employee email </th>
+      <th> NewStatus </th>
+      <th> Confirm modification </th>
+        <tr> <td>         
+          <select v-model = "employeeEmail">
+            <option v-for="employee in employees" :key=employee.email> {{employee.email}} </option>
+        </select>
+         </td> 
+        <select v-model = "Newstatus" style = "margin-top:15px">
+                <option> Active </option>
+                <option> Inactive </option>
+                <option> Sick </option>
+        </select>
+        <td>
+        <button class="botton" v-bind:disabled="!Newstatus" @click="changeStatus(employeeEmail, Newstatus)">Modify</button>
+         </td>
+        </tr>
+    </table>
+
+        <h3 style="text-align:center; margin-top:50px; margin-left:50px">Create shift for employee</h3>
     <table class = "tableStyle">
       <th> Employee email </th>
       <th> Start hour </th>
@@ -35,18 +50,19 @@
       <th> Date </th>
       <th> Confirm modification </th>
         <tr> <td>         
-          <select v-for="employee in employees" :key=employee.email v-model = "employeeEmail">
-            <option> {{employee.email}} </option>
+          <select v-model = "employeeEmail2">
+            <option v-for="employee in employees" :key=employee.email> {{employee.email}} </option>
         </select>
          </td> 
           <td> <input type="time" class="input_text" v-model="newStartHour" placeholder="hh:mm:ss"> </td> 
           <td> <input type="time" class="input_text" v-model="newEndHour" placeholder="hh:mm:ss"> </td> 
           <td> <input type="date" class="input_text" v-model="newDate" placeholder="yyyy:mm:dd"> </td> 
           <td>
-            <button class="botton" v-bind:disabled="!employeeEmail || !newStartHour || !newEndHour || !newDate" @click="createShift(employeeEmail, newStartHour, newEndHour, newDate)">Modify</button>
+            <button class="botton" v-bind:disabled="!employeeEmail2 || !newStartHour || !newEndHour || !newDate" @click="createShift(employeeEmail2, newStartHour, newEndHour, newDate)">Modify</button>
          </td>
         </tr>
     </table>
+
     <span v-if="this.errorEmployee.length > 0" class="error_message">Error: {{errorEmployee}} </span>
     <span v-if="this.errorStatus.length > 0" class="error_message">Error: {{errorStatus}} </span>
     <span v-if="this.errorShift.length > 0" class="error_message">Error: {{errorShift}} </span>
