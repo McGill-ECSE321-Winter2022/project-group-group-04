@@ -6,65 +6,75 @@
     <h3 style="text-align: center; margin-top: 50px; margin-left: 50px">Opening Hour</h3>
     <table class="table_style">
       <tr>
-        <th> 
-          <td>{{ store.openingHour }}</td>
+        <th>
+          Current Opening Hour
         </th>
-          <th>
+        <th>
+          New Opening Hour
+        </th>
+      </tr>
+      <tr>
+          <td>{{ store.openingHour }}</td>
             <td>
                   <input
                     id="editOpeningHour"
-                    type="tel"
+                    type="time"
+                    step="1"
                     v-model="newOpeningHour"
                     class="small_input"
                     placeholder="HH:mm:ss"
                   />
+              <button class="edit_closing_hour" @click="edit()">edit</button>
             </td>
-          </th>
-        <th>
-          <button class="edit_closing_hour" @click="edit()">edit</button>
-        </th>
       </tr>
     </table>
     <h3 style="text-align: center; margin-top: 50px; margin-left: 50px">
       Closing Hour
     </h3>
     <table class="table_style">
-      <tr>
-        <th> 
-          <td>{{ store.closingHour }}</td>
+        <tr>
+        <th>
+          Current Opening Hour
         </th>
-          <th>
+        <th>
+          New Opening Hour
+        </th>
+      </tr>
+      <tr>
+          <td>{{ store.closingHour }}</td>
             <td>
                   <input
                     id="editClosingHour"
-                    type="tel"
+                    type="time"
+                    step="1"
                     v-model="newClosingHour"
                     class="small_input"
                     placeholder="HH:mm:ss"
                   />
+             <button class="edit_closing_hour" @click="edit()">edit</button>
             </td>
-          </th>
-        <th>
-          <button class="edit_closing_hour" @click="edit()">edit</button>
-        </th>
       </tr>
     </table>
-    <table class="table_style">
+    <table class="table_style" style = "margin-top: 50px">
       <tr>
         <th>
-          <h4 style="text-align: center; margin-top: 50px; margin-left: 50px">Email</h4>
+          <h4 style="text-align: center; margin-left: 20px; margin-right: 20px">Email</h4>
         </th>
         <th>
-          <h4 style="text-align: center; margin-top: 50px; margin-left: 50px">Telephone</h4>
+          <h4 style="text-align: center; margin-left: 20px; margin-right: 20px">Telephone</h4>
         </th>
         <th>
-          <h4 style="text-align: center; margin-top: 50px; margin-left: 50px">Address</h4>
+          <h4 style="text-align: center; margin-left: 20px; margin-right: 20px">Address</h4>
+        </th>
+        <th>
+          <h4 style="text-align: center; margin-left: 20px; margin-right: 20px">Out of Town Fee</h4>
         </th>
       </tr>
       <tr>
         <td class="data">{{ store.email }}</td>
         <td class="data">{{ store.telephone }}</td>
         <td id="town"></td>
+        <td> {{store.outOfTownFee}}</td>
        
       </tr>
     </table>
@@ -243,6 +253,8 @@
     position: absolute;
   }
 .table_style {
+  border:1px solid black;
+  padding: 10px; 
   margin-left: auto;
   margin-right: auto;
   border-collapse: collapse;
@@ -250,6 +262,7 @@
 }
 .table_style2 {
   margin-left: auto;
+  padding: 10px; 
   margin-right: auto;
   border-collapse: collapse;
   border-spacing: 0;
@@ -272,6 +285,13 @@
 .error_message {
   color: red;
   text-align: center;
+}
+th, td {
+    border:1px solid black;
+    padding: 10px; 
+}
+tr:nth-child(even) {
+  background-color: #f2f2f2;
 }
 </style>
 

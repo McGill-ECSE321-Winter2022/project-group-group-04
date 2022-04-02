@@ -21,6 +21,10 @@ export default {
         employeeEmail: '',
         Newstatus: '',
         errorStatus: '',
+        newStartHour: '',
+        newEndHour: '',
+        newDate: '',
+        errorShift: '',
       }
     },
     created: function () {
@@ -54,8 +58,27 @@ export default {
             .catch(e => {
               this.errorStatus = 'there is no employee with the specified email in the system'
               console.log(e)
-              window.location.reload()
             })
-        }
+        },
+        createShift: function (email, startHour, endHour, date) {
+          let start = startHour.concat(":00");
+          let end = endHour.concat(":00");
+          const params2 = new URLSearchParams();
+          params2.append('startHour', start);
+          params2.append('endHour', end);
+          params2.append('date', date);
+          params2.append('employeeEmail', email);
+          params2.append('ownerEmail', window.localStorage.getItem('email'));
+          params2.append('ownerPassword', window.localStorage.getItem('password'));
+          AXIOS.post('/shifts', params2)
+          .then(response => {
+              this.response = response.data
+              window.location.reload()
+          })
+          .catch(e => {
+            this.errorShift = 'Conflict! Start or End hour out of the store opening hours'
+            console.log(e)
+          })
+      }
     }
 }
