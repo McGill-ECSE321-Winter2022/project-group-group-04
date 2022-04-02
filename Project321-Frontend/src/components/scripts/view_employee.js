@@ -56,6 +56,22 @@ export default {
               console.log(e)
               window.location.reload()
             })
+        },
+        employee: function(a, b, c, s){
+          const params = new URLSearchParams();
+            params.append('status', s);
+            params.append('employeeEmail', a);
+            params.append('employeeName', b)
+            params.append('password', c)
+            console.log(e)
+            params.append('ownerEmail', window.localStorage.getItem('email'));
+            params.append('ownerPassword', window.localStorage.getItem('password'));
+            AXIOS.post('/employee', params)
+            .then(response => {
+                this.response = response.data
+                window.location.reload()
+            })
+
         }
     }
 }
