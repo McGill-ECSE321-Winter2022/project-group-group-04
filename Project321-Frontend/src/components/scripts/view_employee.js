@@ -26,6 +26,10 @@ export default {
         newDate: '',
         errorShift: '',
         employeeEmail2: '',
+        newEmployeeEmail:'',
+        employeeName: '',
+        employeePassword: '',
+        newEmployeeStatus:'',
       }
     },
     created: function () {
@@ -80,6 +84,39 @@ export default {
             this.errorShift = 'Conflict! Start or End hour out of the store opening hours'
             console.log(e)
           })
-      }
+      },
+              addEmployee: function(e,n,s,pw){
+           AXIOS.get('/userexists', { params: {"email": this.newEmployeeEmail}})
+            .then(response => {
+                if(!response.data) {
+                    const params = new URLSearchParams();
+                    params.append('employeeEmail', e);
+                    params.append('employeeName', n);
+                    params.append('password', pw);
+                    params.append('status', s);
+                    params.append('ownerEmail', window.localStorage.getItem('email'));
+                    params.append('ownerPassword', window.localStorage.getItem('password'));
+                    AXIOS.post('/employee',  params)
+                    .then(response => {
+                        this.newEmployeeEmail = ''
+                        this.employeeName = ''
+                        this.employeePassword = ''
+                        this.newEmployeeStatus = ''
+                        this.response = response.data
+                        window.location.reload()
+                    })
+                    .catch(e => {
+                        console.log(JSON.stringify(e))
+                        this.error = "Failed to create an account due to server errors"
+                    })
+                } else {
+                    this.error = "Account with this email already exists"
+                }
+            })
+            .catch(e => {
+                console.log(JSON.stringify(e))
+                this.error = "Failed to verify if an account with this email exists"
+            })
+        }
     }
 }
