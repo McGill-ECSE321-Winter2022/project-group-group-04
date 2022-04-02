@@ -97,7 +97,7 @@ export default {
             })
         },
         clear_cart: function(){
-          AXIOS.post('/carts',{ params: {"customeremail" : window.localStorage.getItem('email'), "customerpassword" : window.localStorage.getItem('password')}})
+          AXIOS.post('/carts/clear',{ params: {"customeremail" : window.localStorage.getItem('email'), "customerpassword" : window.localStorage.getItem('password')}})
           .then(response => {
             
           })
