@@ -1,15 +1,74 @@
 <template>
   <div id="edit_store_info_page">
-    <button class="logout_button" @click="logout()">Logout</button>
+    <button class="back_botton" @click="back()">back</button>
     <h2 style="text-align: center">This is the edit store information page</h2>
+    <div id = "store_info">
+    <h3 style="text-align: center; margin-top: 50px; margin-left: 50px">Opening Hour</h3>
+    <table class="table_style">
+      <tr>
+        <th> 
+          <td>{{ store.openingHour }}</td>
+        </th>
+          <th>
+            <td>
+                  <input
+                    id="editOpeningHour"
+                    type="tel"
+                    v-model="newOpeningHour"
+                    class="small_input"
+                    placeholder="HH:mm:ss"
+                  />
+            </td>
+          </th>
+        <th>
+          <button class="edit_closing_hour" @click="edit()">edit</button>
+        </th>
+      </tr>
+    </table>
     <h3 style="text-align: center; margin-top: 50px; margin-left: 50px">
-      Opening Hour
+      Closing Hour
     </h3>
     <table class="table_style">
       <tr>
-        <td>{{ store.openingHour }}</td>
+        <th> 
+          <td>{{ store.closingHour }}</td>
+        </th>
+          <th>
+            <td>
+                  <input
+                    id="editClosingHour"
+                    type="tel"
+                    v-model="newClosingHour"
+                    class="small_input"
+                    placeholder="HH:mm:ss"
+                  />
+            </td>
+          </th>
+        <th>
+          <button class="edit_closing_hour" @click="edit()">edit</button>
+        </th>
       </tr>
     </table>
+    <table class="table_style">
+      <tr>
+        <th>
+          <h4 style="text-align: center; margin-top: 50px; margin-left: 50px">Email</h4>
+        </th>
+        <th>
+          <h4 style="text-align: center; margin-top: 50px; margin-left: 50px">Telephone</h4>
+        </th>
+        <th>
+          <h4 style="text-align: center; margin-top: 50px; margin-left: 50px">Address</h4>
+        </th>
+      </tr>
+      <tr>
+        <td class="data">{{ store.email }}</td>
+        <td class="data">{{ store.telephone }}</td>
+        <td id="town"></td>
+       
+      </tr>
+    </table>
+    </div>
     <span v-if="error.length > 0" class="error_message"
       >Error: {{ error }}
     </span>
@@ -166,19 +225,23 @@
 </template>
 
 <style>
+
 #edit_store_info_page {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   color: #2c3e50;
   background: white;
 }
-.logout_button {
-  margin-top: 5px;
-  margin-right: 5px;
-  width: 70px;
-  top: 0;
-  right: 0;
-  position: absolute;
+.data {
+  text-align: center;
 }
+.back_botton {
+    margin-top: 5px;
+    margin-right: 5px;
+    width: 70px;
+    top: 0; 
+    right: 0;
+    position: absolute;
+  }
 .table_style {
   margin-left: auto;
   margin-right: auto;

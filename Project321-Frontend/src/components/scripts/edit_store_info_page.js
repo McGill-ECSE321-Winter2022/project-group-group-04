@@ -33,30 +33,31 @@ export default {
       .then(response => {
         // JSON responses are automatically parsed.
         this.store = response.data
+
+        var unit = this.store.address.unit;
+        var street = this.store.address.street;
+        var town = this.store.address.town;
+        var postalCode = this.store.address.postalCode;
+        document.getElementById("town").innerHTML = "Unit " + unit + " - "+ street+ ", " + town + ", " + postalCode;
+
         console.log("Store Exists")
         document.getElementById("createStore").style.display="none";
+        document.getElementById("store_info").style.display="block";
       })
       .catch(e => {
         this.error = "Must create Store first"
         console.log("Store Doesn't Exists")
         document.getElementById("createStore").style.display="block";
+        document.getElementById("store_info").style.display="none";
       })
     },
     methods: {
-        logout: function () {
-            this.$useremail = ''
-            this.$userpassword = ''
-            this.$usertype = ''
-            authentification.setAuthentification(false)
-            this.$router.push('/')
-            window.localStorage.setItem('email', '')
-            window.localStorage.setItem('password', '')
-            window.localStorage.setItem('usertype', '')
-            window.localStorage.setItem('status', 'false')
-        },
+      back: function () {
+        this.$router.push('/owner')
+      },
         createStore: function (newTelephone,newEmail,newOpeningHour,newClosingHour,newUnit,newStreet,newTown,newPostalCode,newOutOfTownFee){
           const params = new URLSearchParams();
-                    params.append('telephone', this.newPhone);
+                    params.append('telephone', this.newTelephone);
                     params.append('email', this.newEmail);
                     params.append('openingHour', this.newOpeningHour);
                     params.append('closingHour', this.newClosingHour);
@@ -83,6 +84,36 @@ export default {
           .catch(e=>{
             console.log(JSON.stringify(e))
             this.error = "Failed to create store, Please try again!"
+          })
+        },
+        edit: function (newOpeningHour,newClosingHour){
+          const params = new URLSearchParams();
+          //checks if one of the input parameters is empty and if it is then it keeps the current store time for the missing parameter
+          var openingHour = document.getElementById("editOpeningHour").value;
+          var closingHour = document.getElementById("editClosingHour").value;
+          if(closingHour == "" && openingHour != ""){
+            params.append('openingHour', this.newOpeningHour);
+            params.append('closingHour', this.store.closingHour);
+          }
+          else if(openingHour == "" && closingHour != ""){
+            params.append('openingHour', this.store.openingHour);
+            params.append('closingHour', this.newClosingHour);
+          }
+          else{
+            params.append('openingHour', this.newOpeningHour);
+            params.append('closingHour', this.newClosingHour);
+          }
+          params.append('ownerEmail', window.localStorage.getItem('email'));
+          params.append('ownerPassword', window.localStorage.getItem('password'));
+          AXIOS.post('/store/changeHours', params)
+          .then(response=>{
+            this.newOpeningHour = ''
+            this.newClosingHour = ''
+            window.location.reload()
+          })
+          .catch(e=>{
+            console.log(JSON.stringify(e))
+            this.error = "Failed to update information, Please try again!"
           })
         }
     }
