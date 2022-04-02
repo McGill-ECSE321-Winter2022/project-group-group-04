@@ -96,6 +96,16 @@ export default {
               console.log(e)
             })
         },
+        clear_cart: function(){
+          AXIOS.post('/carts',{ params: {"customeremail" : window.localStorage.getItem('email'), "customerpassword" : window.localStorage.getItem('password')}})
+          .then(response => {
+            
+          })
+          .catch(e => {
+            this.errorCart = "Cart cannot be cleared"
+            console.log(e)
+          })
+        },
 
         gotoInventory: function (){
           this.$router.push('/product')
