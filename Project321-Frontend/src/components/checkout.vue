@@ -20,6 +20,7 @@
             </table>
             <p class="right">
                 total price : ${{totalPrice}} <br>
+                shipping fee : ${{shippingPrice}} <br>
                 type(Delivery OR Pickup) : {{yourCart.shoppingType}}
             </p>
         </div>

@@ -25,6 +25,8 @@ export default {
         yourCart:'',
         cartItems:[],
         totalPrice :'',
+        shippingPrice: '',
+        store: [],
 
         timeSlots :[],
 
@@ -42,17 +44,41 @@ export default {
             this.yourCarts = response.data.carts
             this.yourCart = response.data.carts[0]
             this.cartItems = this.yourCart.cartItems
+
+            ///checks if customer should get free shipping
+            if(this.yourCart.shoppingType == "Pickup"){
+                this.shippingPrice = 0;
+            }
+            else{
+                if(this.yourAddress.town.toLowerCase() == this.store.address.town.toLowerCase()){
+                    this.shippingPrice = 0
+                }
+                else{
+                    this.shippingPrice = this.store.outOfTownFee
+                }
+            }
+            //calculates the item total price then add shipping cost at the end
+            this.totalPrice=0
+            for(let i = 0; i < this.cartItems.length; i++){
+                this.itemPrice = this.cartItems[i].product.price
+                this.itemQty = this.cartItems[i].quantity
+                this.totalPrice += this.itemPrice * this.itemQty
+            }
+            this.totalPrice+=this.shippingPrice
         })
         .catch(error => {
             console.log(error)
         })
 
-        this.totalPrice=0
-        for(let i = 0; i < this.cartItems.length; i++){
-            itemPrice = this.cartItems[i].product.price
-            itemQty = this.cartItems[i].quantity
-            this.totalPrice += itemPrice * itemQty
-        }
+        AXIOS.get('store')
+        .then(response =>{
+            this.store = response.data
+        })
+        .catch(error => {
+            console.log(error)
+        })
+
+        
 
         AXIOS.get('/availabletimeslots', {params: {}})
             .then(response =>{
