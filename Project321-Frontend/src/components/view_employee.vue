@@ -62,6 +62,28 @@
          </td>
         </tr>
     </table>
+    
+     <h3 style="text-align:center; margin-top:50px; margin-left:50px">Add New Employee</h3>
+    <table class = "tableStyle">
+
+        <tr> <td> <input type="newEmployeeEmail" class="input_text" v-model="newEmployeeEmail" placeholder="Employee Email"> </td> 
+
+        <td> <input type="employeeName" class="input_text" v-model="employeeName" placeholder="Employee Name"> </td> 
+
+        <td> <input type="employeePassword" class="input_text" v-model="employeePassword" placeholder="Employee Password"> </td> 
+
+        <td> <label> New status</label>
+            <select v-model = "newEmployeeStatus">
+                <option> Active </option>
+                <option> Inactive </option>
+                <option> Sick </option>
+            </select>
+        </td>
+        <td>
+            <button class="botton" v-bind:disabled="!newEmployeeEmail || !newEmployeeStatus || !employeeName || !employeePassword" @click="addEmployee(newEmployeeEmail, employeeName, newEmployeeStatus, employeePassword )">Add</button>
+        </td>
+        </tr>
+    </table>
 
     <span v-if="this.errorEmployee.length > 0" class="error_message">Error: {{errorEmployee}} </span>
     <span v-if="this.errorStatus.length > 0" class="error_message">Error: {{errorStatus}} </span>
