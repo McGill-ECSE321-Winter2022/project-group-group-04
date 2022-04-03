@@ -47,6 +47,9 @@ export default {
     },
 
     methods:{
+      back: function () {
+            this.$router.push('/owner')
+        },
             createTimeSlot: function (startHour, endHour, date) {
           let start = startHour.concat(":00");
           let end = endHour.concat(":00");
