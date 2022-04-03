@@ -35,7 +35,7 @@ This repository holds the source code for the Grocery System
 | Cedric  |    |  |
 | Jed  |   |  |
 | John  |   |  |
-| Karim  |   |  |
+| Karim  | 17  | UI Sketch, TimeSlot Pages, Cart Debug, General Debug |
 | Thomas  |    |  |
 | Youjin  |   |    |
 ### Deliverable Two Report
