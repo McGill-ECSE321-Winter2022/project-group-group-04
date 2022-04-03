@@ -112,7 +112,7 @@ export default new Router({
       path: '/owner',
       name: 'owner_page',
       component: owner_page,
-      beforeEnter: routeLoginGuardian,
+      beforeEnter: routeOwnerGuardian,
     },
     {
       path: '/signup',

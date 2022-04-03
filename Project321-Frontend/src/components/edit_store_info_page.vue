@@ -126,7 +126,9 @@
                     <td class="table_cell">
                       <p style="text-align=left">Opening Hours</p>
                       <input
-                        type="tel"
+                        id="storeOpeningHour"
+                        type="time"
+                        step="1"
                         v-model="newOpeningHour"
                         class="small_input"
                         placeholder="HH:mm:ss"
@@ -137,7 +139,9 @@
                     <td class="table_cell">
                       <p style="text-align=left">Closing Hours</p>
                       <input
-                        type="tel"
+                        id="storeClosingHour"
+                        type="time"
+                        step="1"
                         v-model="newClosingHour"
                         class="small_input"
                         placeholder="HH:mm:ss"
