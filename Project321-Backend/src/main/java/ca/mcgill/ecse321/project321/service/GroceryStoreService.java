@@ -206,6 +206,13 @@ public class GroceryStoreService {
         orderRepository.save(order);
         return true;
     }
+    
+    @Transactional
+    public List<Order> getAllIncompleteOrder() {
+    	return toList(orderRepository.findByCompletedFalse());
+    }
+
+
 
     /* Cart Item-related service methods ------------------------------------------------------------------------- */
     @Transactional

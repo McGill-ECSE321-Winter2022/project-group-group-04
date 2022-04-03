@@ -8,6 +8,7 @@
         <th>total</th>
         <th>TransactionID</th>
         <th>Products List</th>
+        <th>Fulfilled/Completed</th>
       </tr>
       <tr v-for="order in orders" :key=order.orderDate>
       <td>{{ order.orderDate }}</td>
@@ -17,6 +18,9 @@
         <p v-for="items in order.cart.cartItems" :key=items.quantity>
           {{ items.product.productName}} with quantity: {{ items.quantity}}
         </p>
+      </td>
+      <td style="text-align: center">
+        {{ order.completed }}
       </td>
       </tr>
     </table>

@@ -33,6 +33,7 @@
         <thead>
             <tr>
                 <th>product name</th>
+                <th>preview</th>
                 <th>price type</th>
                 <th>Online availability</th>
                 <th>stock</th>
@@ -42,7 +43,12 @@
          </thead>
         <tbody>
             <tr v-for="product in ProductFilter" :key=product.productName>
-            <td>{{ product.productName }}<p v-if="Number(product.stock) === 0" class="error_message">Out Of Stock </p></td>
+            <td>{{ product.productName }}
+              <p v-if="Number(product.stock) === 0" class="error_message">Out Of Stock </p>
+            </td>
+            <td>
+              <img :src="'static/' + product.productName + '.jpg'" alt="N/A" style="width:60px;height:60px;" >
+            </td>
             <td>{{ product.priceType }}</td>
             <td>{{ product.isAvailableOnline }}</td>
             <td>{{ product.stock }}</td>
@@ -101,7 +107,7 @@
   }
   tr:nth-child(even) {
   background-color: #f2f2f2;
-}
+  }
 </style>
 
 <script src="./scripts/inventory.js"></script>
