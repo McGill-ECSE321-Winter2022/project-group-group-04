@@ -45,8 +45,13 @@
 
             </table>
             <p class="right">
-                you selected : {{selectedTimeSlot}} <br>
-                <button v-bind:disabled="!selectedTimeSlot" @click="selectTimeSlot()">Confirm this Timeslot</button>
+                you selected : {{selectedTimeSlot.date}} {{selectedTimeSlot.startTime}} {{selectedTimeSlot.endTime}} <br>
+                <button v-bind:disabled="!selectedTimeSlot" @click="selectTimeSlot(selectedTimeSlot)">Confirm this Timeslot</button>
+                <div class= "popup" id="popup">
+                    <h2>Success</h2>
+                    <p>You have succesfully booked a Time Slot.</p>
+                    <button type=button @click="closePopup()">OK</button>
+                </div>
             </p>
         </div>
     <h4><b> Step 3 </b>&nbsp;Complete your payment </h4>
@@ -107,6 +112,44 @@ h4 b{
 .error_message {
     color:red;
     text-align:center;
+}
+.popup{
+    width:  400px;
+    background: #fff;
+    border-radius: 6px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%,-50%) scale(0.1);
+    text-align: center;
+    padding: 0 30px 30px;
+    color: #333;
+    visibility: hidden;
+    transition: 0.4s, top 0.4s;
+
+}
+.open-popup{
+    visibility: visible;
+    top:  50%;
+    transform: translate(-50%,-50%) scale(1);
+}
+.popup h2{
+    font-size: 38px;
+    font-weight: 500;
+    margin: 30px 0 10px;
+
+}
+.popup button{
+    width: 100%;
+    margin-top: 50px;
+    padding: 10px 0 ;
+    background: #000000;
+    color: #fff;
+    border:  0;
+    outline: none;
+    font-size: 18px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 </style>

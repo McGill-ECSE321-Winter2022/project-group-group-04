@@ -90,6 +90,7 @@ export default {
     },
 
     methods: {
+       
         selectTimeSlot : function(timeslot){
             const params = new URLSearchParams();
             params.append('customeremail',this.yourEmail);
@@ -101,6 +102,8 @@ export default {
                 .then(response =>{
                     console.log(response.data.timeSlot)
                     this.selectedTimeSlot = ''
+                    let popup = document.getElementById("popup");
+                    popup.classList.add("open-popup");
                 })
                 .catch(e => {
                     console.log(e)
@@ -109,5 +112,9 @@ export default {
         back: function () {
             this.$router.push('/customer')
         },
+        closePopup: function (){
+            let popup = document.getElementById("popup");
+            popup.classList.remove("open-popup");
+        }
     }
 }
