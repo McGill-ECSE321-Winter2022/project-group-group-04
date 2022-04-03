@@ -13,6 +13,7 @@ import view_timeslot from '../components/view_timeslot'
 import inventory from '@/components/inventory'
 import product from '@/components/product'
 import checkout from '@/components/checkout'
+import checkout_success from '@/components/checkout_success'
 import authentification from '@/main'
 
 
@@ -35,7 +36,7 @@ Vue.use(Router)
 function routeLoginGuardian(to, from, next) {
   var status = true
   if(localStorage.getItem('status') === 'true') {
-    if (from.name === 'login' || from.name === 'orders' || from.name === 'view_employee' || from.name === 'inventory' || from.name === 'product'|| from.name === 'checkout' || from.name === 'edit_store_info_page' || from.name === 'customer_page') {
+    if (from.name === 'login' || from.name === 'orders' || from.name === 'view_employee' || from.name === 'inventory' || from.name === 'product'|| from.name === 'checkout'|| from.name === 'checkout_success' || from.name === 'edit_store_info_page' || from.name === 'customer_page') {
       status = false
       next()
     } 
@@ -167,5 +168,12 @@ export default new Router({
       component: checkout,
       befroreEnter: routeCustomerGuardian,
     },
+    {
+      path: '/checkout_success',
+      name: 'checkout_success',
+      component: checkout_success,
+      befroreEnter: routeCustomerGuardian,
+    },
+  
   ]
 })

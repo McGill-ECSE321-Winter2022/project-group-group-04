@@ -19,13 +19,16 @@
                 </tr>
             </table>
             <p class="right">
-                total price : ${{totalPrice}} <br>
-                shipping fee : ${{shippingPrice}} <br>
+                total price for item : ${{totalItemPrice}} <br>
                 type(Delivery OR Pickup) : {{yourCart.shoppingType}}
+                (shipping fee : ${{shippingPrice}})
+            </p>
+            <p class="review">
+                You need to pay : <b>${{totalPrice}}</b>
             </p>
         </div>
     <h4><b> Step 2 </b>&nbsp;Schedule your delivery/pick-up time </h4>
-        <div class="section">
+        <div class="section" v-if="!yourTimeSlot">
             <table id="item_lists_table">
                 <tr>
                     <th> Date </th>
@@ -47,16 +50,26 @@
             <p class="right">
                 you selected : {{selectedTimeSlot.date}} {{selectedTimeSlot.startTime}} {{selectedTimeSlot.endTime}} <br>
                 <button v-bind:disabled="!selectedTimeSlot" @click="selectTimeSlot(selectedTimeSlot)">Confirm this Timeslot</button>
-                <div class= "popup" id="popup">
-                    <h2>Success</h2>
-                    <p>You have succesfully booked a Time Slot.</p>
-                    <button type=button @click="closePopup()">OK</button>
-                </div>
+
+            </p>
+            <div class= "popup" id="popup">
+                <h2>Success</h2>
+                <p>You have succesfully booked a Time Slot.</p>
+                <button type=button @click="closePopup()">OK</button>
+            </div>
+        </div>
+        <div class="section" v-if="yourTimeSlot">
+            <p> You have already booked your Time Slot.</p>
+            <p class="review">
+                Date : <b>{{yourTimeSlot.date}}</b><br>
+                Time : <b>{{yourTimeSlot.startTime}} ~ {{yourTimeSlot.endTime}}</b>
             </p>
         </div>
     <h4><b> Step 3 </b>&nbsp;Complete your payment </h4>
         <div class="section">
-            To complete your payment, go to next page
+            To complete your payment, enter your payment code below: <br>
+            <input type="text" placeholder="ex. Card Number" v-model="yourPaymentCode">
+            <button v-bind:disabled="!yourPaymentCode" @click="makePayment(yourPaymentCode)">Make a payment</button>
         </div>
   </div> 
 </template>
@@ -81,6 +94,13 @@ div.section{
 p.right{
     text-align: right;
     margin-right : 15%
+}
+
+p.review{
+    background: #c7dbf0;
+    text-align: center;
+    font-style: italic;
+    font-size: 20px;
 }
 
 .back_button {
