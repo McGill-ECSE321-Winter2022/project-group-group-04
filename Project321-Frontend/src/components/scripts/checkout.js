@@ -24,9 +24,12 @@ export default {
         yourCarts:[],
         yourCart:'',
         cartItems:[],
+        totalItemPrice:'',
         totalPrice :'',
         shippingPrice: '',
         store: [],
+        yourTimeSlot :'',
+        yourPaymentCode:'',
 
         timeSlots :[],
 
@@ -41,10 +44,19 @@ export default {
             this.yourEmail = response.data.email
             this.yourPassword = response.data.password
             this.yourAddress = response.data.address
-            this.yourCarts = response.data.carts
-            this.yourCart = response.data.carts[0]
-            this.cartItems = this.yourCart.cartItems
+            this.yourPaymentCode = False
+        })
+        .catch(error => {
+            console.log(error)
+        })
 
+
+        // Get the customer's cart
+        AXIOS.get('/cart', { params: {"customeremail" : window.localStorage.getItem('email'), "customerpassword" : window.localStorage.getItem('password')}})
+        .then(response => {
+            console.log(response.data)
+            this.yourCart = response.data
+            this.cartItems = this.yourCart.cartItems
             ///checks if customer should get free shipping
             if(this.yourCart.shoppingType == "Pickup"){
                 this.shippingPrice = 0;
@@ -58,16 +70,21 @@ export default {
                 }
             }
             //calculates the item total price then add shipping cost at the end
+            this.totalItemPrice=0
             this.totalPrice=0
             for(let i = 0; i < this.cartItems.length; i++){
                 this.itemPrice = this.cartItems[i].product.price
                 this.itemQty = this.cartItems[i].quantity
-                this.totalPrice += this.itemPrice * this.itemQty
+                this.totalItemPrice += this.itemPrice * this.itemQty
             }
-            this.totalPrice+=this.shippingPrice
-        })
-        .catch(error => {
-            console.log(error)
+            this.totalPrice=this.totalItemPrice+this.shippingPrice
+
+            if (this.yourCart.timeSlot==null){
+                this.yourTimeSlot = false
+            }
+            else {
+                this.yourTimeSlot = this.yourCart.timeSlot
+            }
         })
 
         AXIOS.get('store')
@@ -90,6 +107,7 @@ export default {
     },
 
     methods: {
+       
         selectTimeSlot : function(timeslot){
             const params = new URLSearchParams();
             params.append('customeremail',this.yourEmail);
@@ -101,13 +119,38 @@ export default {
                 .then(response =>{
                     console.log(response.data.timeSlot)
                     this.selectedTimeSlot = ''
+                    this.yourTimeSlot=response.data.timeSlot
+                    let popup = document.getElementById("popup");
+                    popup.classList.add("open-popup");
                 })
                 .catch(e => {
                     console.log(e)
                 })
         },
+
+        makePayment : function(paymentcode){
+            const params = new URLSearchParams();
+            params.append('paymentcode',paymentcode)
+            params.append('customeremail',this.yourEmail);
+            params.append('customerpassword',this.yourPassword);
+            AXIOS.post('/cart/pay',params)
+                .then(response =>{
+                    console.log('payment made!')
+                    console.log(response.data)
+                    this.$router.push('/checkout_success')
+                })
+                .catch(e => {
+                    console.log(e)
+                })
+
+        },
+
         back: function () {
             this.$router.push('/customer')
         },
+        closePopup: function (){
+            let popup = document.getElementById("popup");
+            popup.classList.remove("open-popup");
+        }
     }
 }

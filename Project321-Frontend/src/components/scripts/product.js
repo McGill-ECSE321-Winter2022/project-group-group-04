@@ -19,8 +19,8 @@ export default {
         products: [],
         errorProduct: '',
         search: '',
-
         newQuantity:[],
+        items: [],
       }
     },
     created: function () {
@@ -34,6 +34,15 @@ export default {
         .catch(e => {
           this.errorProduct = 'There is no products in the system, we broke!'
           console.log(e)
+        })
+        // Get the customer's cart
+        AXIOS.get('/cart', { params: {"customeremail" : window.localStorage.getItem('email'), "customerpassword" : window.localStorage.getItem('password')}})
+        .then(response => {
+          console.log(response.data)
+          this.items = response.data.cartItems
+        })
+        .catch(error => {
+          console.log(error)
         })
     },
     methods: {
@@ -66,7 +75,7 @@ export default {
                p.productName.toLowerCase().includes(this.search.toLowerCase()) ||
                p.priceType.toLowerCase().includes(this.search.toLowerCase()) ||
                p.isAvailableOnline.toLowerCase().includes(this.search.toLowerCase()) ||
-               p.stock === Number(this.search)
+               p.price <= Number(this.search)
              )
             } else {
                 selection = this.products

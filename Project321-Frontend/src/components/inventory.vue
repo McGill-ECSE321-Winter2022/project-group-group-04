@@ -5,8 +5,8 @@
     <h3 style="text-align:center">Add a product</h3>
     <table class = "tableStyle">
         <tr> <td> <label> Product name</label> <input type="productName" class="input_text" v-model="newProductName" placeholder="Product name" > </td> 
-          <td> <label> Product Stock</label> <input type="productStock" class="input_text" v-model="newStock" placeholder="Product Stock"> </td> 
-          <td> <label> Product Price</label> <input type="productPrice" class="input_text" v-model="newPrice" placeholder=""> </td> 
+          <td> <label> Product Stock</label> <input type="number" class="input_text" v-model="newStock" placeholder="Product Stock"> </td> 
+          <td> <label> Product Price</label> <input type="number" class="input_text" v-model="newPrice" placeholder=""> </td> 
           <td> <label> New status</label>
               <select v-model = "newType">
                   <option> PER_UNIT </option>
@@ -47,7 +47,7 @@
               <p v-if="Number(product.stock) === 0" class="error_message">Out Of Stock </p>
             </td>
             <td>
-              <img :src="'static/' + product.productName + '.jpg'" alt="N/A" style="width:60px;height:60px;" >
+              <img :src="'static/' + product.productName + '.jpg'" alt="N/A" style="width:60px;height:60px;" class="bigpic">
             </td>
             <td>{{ product.priceType }}</td>
             <td>{{ product.isAvailableOnline }}</td>
@@ -107,6 +107,10 @@
   }
   tr:nth-child(even) {
   background-color: #f2f2f2;
+  }
+  table td:hover img {
+  transform: scale(2.0);
+  transition: transform .3s;
   }
 </style>
 

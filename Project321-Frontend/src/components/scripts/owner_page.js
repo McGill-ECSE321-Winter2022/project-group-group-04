@@ -54,7 +54,10 @@ export default {
    },
    gotoInventory: function (){
     this.$router.push('/inventory')
- }
+ },
+    gotoTimeslot: function (){
+      this.$router.push('/view_timeslot')
+    }
     }
     //...
 }

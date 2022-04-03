@@ -26,7 +26,7 @@
     </table>
     <span v-if="errorOrder.length > 0" class="error_message">Error: {{errorOrder}} </span>
 
-        <h3 style="text-align:center; margin-top:50px; margin-left:50px">All Instore Purchase</h3>
+        <h3 style="text-align:center; margin-top:50px; margin-left:50px">All In-Store Purchase</h3>
     <table class = "tableStyle">
       <tr>
         <th>Date</th>
