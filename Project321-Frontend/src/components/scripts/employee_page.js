@@ -16,7 +16,13 @@ export default {
       return {
         response: [],
         error: '',
-        shifts: []
+        shifts: [],
+        orders: [],
+        errorOrder: '',
+        instorePurchaseName: '',
+        instorePurchaseQuantity: '',
+        creationComplete: '',
+        errorAddInstorePurchase: '',
       }
     },
     created: function () {
@@ -31,6 +37,17 @@ export default {
       .catch(e => {
         console.log(e)
       })
+
+      // Get all incomplete orders from backEnd
+      AXIOS.get('/orders/fulfill', { params: {"employeeEmail" : window.localStorage.getItem('email'), "employeePassword" : window.localStorage.getItem('password')}})
+      .then(response => {
+        // JSON responses are automatically parsed.
+        this.orders = response.data
+      })
+      .catch(e => {
+        this.errorOrder = 'There is no active orders to fulfill'
+        console.log(e)
+      })
     },
     methods: {
         logout: function () {
@@ -43,7 +60,43 @@ export default {
             window.localStorage.setItem('password', '')
             window.localStorage.setItem('usertype', '')
             window.localStorage.setItem('status', 'false')
-        }
+        },
+        fulFill: function (time, date) {
+          const params = new URLSearchParams();
+          params.append('employeeEmail',window.localStorage.getItem('email'));
+          params.append('employeePassword', window.localStorage.getItem('password'));
+          params.append('creationDate',date);
+          params.append('creationTime',time);
+          AXIOS.post('/orders/fulfill', params)
+          .then(response => {
+            // JSON responses are automatically parsed.
+            this.orders = response.data
+          })
+          .catch(e => {
+            console.log(e)
+          })
+      },
+        addInstorePurchase: function (n, q) {
+        console.log(n)
+        console.log(q)
+        const params = new URLSearchParams();
+        params.append('useremail',window.localStorage.getItem('email'));
+        params.append('userpassword', window.localStorage.getItem('password'));
+        params.append('productname',n);
+        params.append('quantity',q);
+        AXIOS.post('/instorepurchase', params)
+        .then(response => {
+          // JSON responses are automatically parsed.
+          this.creationComplete = 'true'
+        })
+        .catch(e => {
+          console.log(e)
+          this.errorAddInstorePurchase = 'cannot locate the product with the specified name or quantity exceeding the current stock'
+        })
+    },
+    refresh: function () {
+      window.location.reload()
+    },
     }
     //...
 }

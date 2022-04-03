@@ -96,6 +96,39 @@ export default {
               console.log(e)
             })
         },
+        clear_cart: function(){
+          const params = new URLSearchParams();
+          params.append('customeremail',window.localStorage.getItem('email'))
+          params.append('customerpassword',window.localStorage.getItem('password'))
+          AXIOS.post('/carts/clear', params)
+          .then(response => {
+            window.location.reload()
+          })
+          .catch(e => {
+            this.errorCart = "Cart cannot be cleared"
+            console.log(e)
+          })
+        },
+        delete_cart: function(){
+          const params = new URLSearchParams();
+          params.append('customeremail',window.localStorage.getItem('email'))
+          params.append('customerpassword',window.localStorage.getItem('password'))
+          AXIOS.post('/carts/clear', params)
+          .then(response => {
+            AXIOS.post('/carts/delete', params)
+            .then(response => {
+              window.location.reload()
+            })
+              .catch(e => {
+              this.errorCart = "Cart cannot be deleted"
+              console.log(e)
+            })
+          })
+          .catch(e => {
+            this.errorCart = "Cart cannot be deleted"
+            console.log(e)
+          })
+        },
 
         gotoInventory: function (){
           this.$router.push('/product')

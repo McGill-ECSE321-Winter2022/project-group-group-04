@@ -27,3 +27,16 @@ This repository holds the source code for the Grocery System
 | Youjin  |  10 |  Unit Testing  |
 ### Deliverable Two Report
 * [Report](https://github.com/McGill-ECSE321-Winter2022/project-group-group-04/wiki)
+
+## Deliverable Three
+### Hours
+| Members  | Hours | Tasks |
+| ------------- | ------------- | ------------- |
+| Cedric  |    |  |
+| Jed  |   |  |
+| John  |   |  |
+| Karim  |   |  |
+| Thomas  |    |  |
+| Youjin  |   |    |
+### Deliverable Two Report
+* [Report](https://github.com/McGill-ECSE321-Winter2022/project-group-group-04/wiki)

@@ -17,7 +17,9 @@ export default {
         response: [],
         error: '',
         orders: [],
-        errorOrder: ''
+        errorOrder: '',
+        instorePurchases: [],
+        errorInstorePurchases: '',
       }
     },
     created: function () {
@@ -29,6 +31,17 @@ export default {
         })
         .catch(e => {
           this.errorOrder = 'There is no orders in the System yet'
+          console.log(e)
+        })
+        // Get all orders from backEnd
+        AXIOS.get('/instorepurchases')
+        .then(response => {
+          // JSON responses are automatically parsed.
+          console.log(response)
+          this.instorePurchases = response.data
+        })
+        .catch(e => {
+          this.errorInstorePurchases = 'There is no instore purchases in the system yet'
           console.log(e)
         })
     },

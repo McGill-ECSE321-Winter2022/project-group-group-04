@@ -33,7 +33,7 @@ Vue.use(Router)
 function routeLoginGuardian(to, from, next) {
   var status = true
   if(localStorage.getItem('status') === 'true') {
-    if (from.name === 'login' || from.name === 'orders' || from.name === 'view_employee' || from.name === 'inventory' || from.name === 'product'|| from.name === 'checkout' || from.name === 'edit_store_info_page') {
+    if (from.name === 'login' || from.name === 'orders' || from.name === 'view_employee' || from.name === 'inventory' || from.name === 'product'|| from.name === 'checkout' || from.name === 'edit_store_info_page' || from.name === 'customer_page') {
       status = false
       next()
     } 
@@ -55,6 +55,18 @@ function routeOwnerGuardian(to, from, next) {
   AXIOS.get('/login', { params: {"email" : localStorage.getItem('email'), "password" : localStorage.getItem('password')}})
   .then(response => {
     if(response.data.type === 'owner') {
+    next()
+  }
+  })
+  .catch(e => {
+    next({ name: 'login' })
+  })
+}
+
+function routeEmployeeGuardian(to, from, next) {
+  AXIOS.get('/login', { params: {"email" : localStorage.getItem('email'), "password" : localStorage.getItem('password')}})
+  .then(response => {
+    if(response.data.type === 'employee') {
     next()
   }
   })
@@ -86,13 +98,13 @@ export default new Router({
       path: '/employee',
       name: 'employee_page',
       component: employee_page,
-      beforeEnter: routeLoginGuardian,
+      beforeEnter: routeEmployeeGuardian,
     },
     {
       path: '/customer',
       name: 'customer_page',
       component: customer_page,
-      beforeEnter: routeLoginGuardian,
+      beforeEnter: routeCustomerGuardian,
     },
     {
       path: '/owner',

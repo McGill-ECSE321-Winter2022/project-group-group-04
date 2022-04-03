@@ -127,6 +127,11 @@ public class GroceryStoreService {
     }
     
     @Transactional
+    public void deleteCart(Cart cart) {
+    	cartRepository.delete(cart);
+    }
+    
+    @Transactional
     public List<Cart> getCartsByCustomer(Customer customer) {
         return cartRepository.findByCustomer(customer);
     }
@@ -201,6 +206,13 @@ public class GroceryStoreService {
         orderRepository.save(order);
         return true;
     }
+    
+    @Transactional
+    public List<Order> getAllIncompleteOrder() {
+    	return toList(orderRepository.findByCompletedFalse());
+    }
+
+
 
     /* Cart Item-related service methods ------------------------------------------------------------------------- */
     @Transactional

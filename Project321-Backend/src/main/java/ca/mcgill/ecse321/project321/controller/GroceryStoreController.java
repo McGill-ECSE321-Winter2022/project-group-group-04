@@ -245,6 +245,16 @@ public class GroceryStoreController {
             service.deleteCartItem(i);
         }
     }
+    
+    @PostMapping(value = {"/carts/delete", "/carts/delete/"})
+    public void deleteCart(@RequestParam(name = "customeremail")  String customerEmail, 
+            			   @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException {
+    	Cart cart = retrieveOpenCart(customerEmail, customerPassword);
+    	if(cart == null) {
+            throw new IllegalStateException("Failed to delete the current cart: there is no opened cart to clear");
+        }
+    	service.deleteCart(cart);
+    }
 
     /**
      * This implements part of Req. 06 which relates to setting a desired time slot
@@ -623,6 +633,39 @@ public class GroceryStoreController {
         return convertOrderListDTO(list);
     }
     
+    @GetMapping(value = {"/orders/fulfill", "/orders/fulfill/"})
+    public List<OrderDTO> getAllOrdersToFullfill( @RequestParam(name = "employeeEmail") String employeeEmail,
+		    							@RequestParam(name = "employeePassword") String employeePassword) throws IllegalArgumentException{
+    	CheckUser(employeeEmail, employeePassword, "employee", "Only employee is able to fullfill order");
+    	List<Order> list = service.getAllIncompleteOrder();
+    	if (list == null) {
+    		throw new IllegalArgumentException("currently no orders in the system");
+    	}
+        return convertOrderListDTO(list);
+    }
+    
+    @PostMapping(value = {"/orders/fulfill", "/orders/fulfill/"})
+    public OrderDTO setOrderforFullfillment( @RequestParam(name = "employeeEmail") String employeeEmail,
+		    							@RequestParam(name = "employeePassword") String employeePassword,
+		    							@RequestParam(name = "creationDate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date creationDate,
+                                        @RequestParam(name = "creationTime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date creationTime) throws IllegalArgumentException{
+    	CheckUser(employeeEmail, employeePassword, "employee", "Only employee is able to fullfill order");
+    	List<Order> list = service.getAllIncompleteOrder();
+    	if (list == null) {
+    		throw new IllegalArgumentException("currently no orders in the system");
+    	}
+        Order toFulfill = null;
+    	for (Order o: list) {
+    		if (o.getCart().getCreationDate().compareTo(creationDate) == 0 && o.getCart().getCreationTime().compareTo(creationTime) == 0) {
+                toFulfill = o;
+                break;
+            }
+    	}
+        service.setCompleted(toFulfill);
+        return convertToDTO(toFulfill);
+    }
+    
+    
     /**
      * This is an enhancement to Req.14, which generates the sales total for the owner.
      * Req.14-The Grocery Store System shall allow the owner to create a sales report containing all orders and their respective totals 
@@ -911,7 +954,8 @@ public class GroceryStoreController {
         checkEmployeeOrOwner(userEmail, userPassword);
         Product p = verifyProductAvailability(productName, quantity);
         Date purchaseDate = java.sql.Date.valueOf(LocalDate.now());
-        InStorePurchase purchase = new InStorePurchase((quantity * p.getPrice()), purchaseDate);
+        InStorePurchase purchase = service.createInStorePurchase(quantity * p.getPrice(), purchaseDate);
+        service.createCartItem(quantity, p, purchase);
         service.setProductStock(productName, (p.getStock() - quantity));
         return convertToDTO(purchase);
     }
@@ -919,7 +963,11 @@ public class GroceryStoreController {
     @GetMapping(value = {"/instorepurchases", "/instorepurchases/"})
     public List<InStorePurchaseDTO> getAllInStorePurchases() {
         List<InStorePurchase> localList = service.getAllInStorePurchases();
-        return convertInStorePurchaseListToDTO(localList);
+        List<InStorePurchaseDTO> localListDTO = new ArrayList<InStorePurchaseDTO>();
+        for (InStorePurchase isp: localList) {
+            localListDTO.add(new InStorePurchaseDTO(isp.getTotal(), isp.getPurchaseDate(), convertCartItemListDTO(service.getCartItemsByInStorePurchase(isp))));
+        }
+        return localListDTO;
     }
 
     /* Helper methods ---------------------------------------------------------------------------------------------------- */
@@ -1134,6 +1182,14 @@ public class GroceryStoreController {
     private List<CartDTO> convertCartListToDTO(List<Cart> carts) throws IllegalArgumentException{
         List<CartDTO> list = new ArrayList<CartDTO>();
         for(Cart c : carts) {
+            list.add(convertToDTO(c));
+        }
+        return list;
+    }
+
+    private List<CartItemDTO> convertCartItemListDTO(List<CartItem> cartItems) throws IllegalArgumentException{
+        List<CartItemDTO> list = new ArrayList<CartItemDTO>();
+        for(CartItem c : cartItems) {
             list.add(convertToDTO(c));
         }
         return list;
