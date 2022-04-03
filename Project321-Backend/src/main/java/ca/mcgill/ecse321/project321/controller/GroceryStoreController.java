@@ -954,7 +954,8 @@ public class GroceryStoreController {
         checkEmployeeOrOwner(userEmail, userPassword);
         Product p = verifyProductAvailability(productName, quantity);
         Date purchaseDate = java.sql.Date.valueOf(LocalDate.now());
-        InStorePurchase purchase = new InStorePurchase((quantity * p.getPrice()), purchaseDate);
+        InStorePurchase purchase = service.createInStorePurchase(quantity * p.getPrice(), purchaseDate);
+        service.createCartItem(quantity, p, purchase);
         service.setProductStock(productName, (p.getStock() - quantity));
         return convertToDTO(purchase);
     }
@@ -962,7 +963,11 @@ public class GroceryStoreController {
     @GetMapping(value = {"/instorepurchases", "/instorepurchases/"})
     public List<InStorePurchaseDTO> getAllInStorePurchases() {
         List<InStorePurchase> localList = service.getAllInStorePurchases();
-        return convertInStorePurchaseListToDTO(localList);
+        List<InStorePurchaseDTO> localListDTO = new ArrayList<InStorePurchaseDTO>();
+        for (InStorePurchase isp: localList) {
+            localListDTO.add(new InStorePurchaseDTO(isp.getTotal(), isp.getPurchaseDate(), convertCartItemListDTO(service.getCartItemsByInStorePurchase(isp))));
+        }
+        return localListDTO;
     }
 
     /* Helper methods ---------------------------------------------------------------------------------------------------- */
@@ -1177,6 +1182,14 @@ public class GroceryStoreController {
     private List<CartDTO> convertCartListToDTO(List<Cart> carts) throws IllegalArgumentException{
         List<CartDTO> list = new ArrayList<CartDTO>();
         for(Cart c : carts) {
+            list.add(convertToDTO(c));
+        }
+        return list;
+    }
+
+    private List<CartItemDTO> convertCartItemListDTO(List<CartItem> cartItems) throws IllegalArgumentException{
+        List<CartItemDTO> list = new ArrayList<CartItemDTO>();
+        for(CartItem c : cartItems) {
             list.add(convertToDTO(c));
         }
         return list;
