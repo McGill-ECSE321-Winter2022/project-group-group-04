@@ -326,7 +326,7 @@ public class GroceryStoreController {
                                 @RequestParam(name = "timeslotendtime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotEndTime,
                                 @RequestParam(name = "ownerEmail") String email,
                                 @RequestParam(name = "ownerPassword") String password) throws IllegalArgumentException {
-        CheckUser(email, password, "owner", "Only owner is able to create a time slot"); 
+        CheckUser(email, password, "owner", "Only owner is able to delete a time slot"); 
         Time startTime = new Time(timeSlotStartTime.getTime());
         Time endTime = new Time(timeSlotEndTime.getTime());
         Date date = new Date(timeSlotDate.getTime());

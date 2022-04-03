@@ -9,10 +9,12 @@ import edit_store_info_page from '@/components/edit_store_info_page'
 import signup_success from '@/components/signup_success'
 import orders from '@/components/orders'
 import view_employee from '../components/view_employee'
+import view_timeslot from '../components/view_timeslot'
 import inventory from '@/components/inventory'
 import product from '@/components/product'
 import checkout from '@/components/checkout'
 import authentification from '@/main'
+
 
 import axios from 'axios'
 var config = require('../../config')
@@ -139,6 +141,12 @@ export default new Router({
       path: '/view_employee',
       name: 'view_employee',
       component: view_employee,
+      beforeEnter: routeOwnerGuardian,
+    },
+    {
+      path: '/view_timeslot',
+      name: 'view_timeslot',
+      component: view_timeslot,
       beforeEnter: routeOwnerGuardian,
     },
     {

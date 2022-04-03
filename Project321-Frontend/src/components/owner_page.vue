@@ -14,6 +14,9 @@
       <h4 style="text-align:center; margin-top:20px">To view inventory and modify the stock, click here -->
         <button class="inventory_botton" @click="gotoInventory()">Inventory Management</button>
       </h4>
+      <h4 style="text-align:center; margin-top:20px">To manage Time Slots click here -->
+        <button class="timeslot_button" @click="gotoTimeslot()">Time Slot Management</button>
+      </h4>
   </div> 
 </template>
 
