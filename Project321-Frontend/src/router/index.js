@@ -92,7 +92,7 @@ export default new Router({
       path: '/customer',
       name: 'customer_page',
       component: customer_page,
-      beforeEnter: routeLoginGuardian,
+      beforeEnter: routeCustomerGuardian,
     },
     {
       path: '/owner',
