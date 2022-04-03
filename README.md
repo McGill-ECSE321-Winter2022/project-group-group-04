@@ -36,7 +36,7 @@ This repository holds the source code for the Grocery System
 | Jed  |   |  |
 | John  | 27  | Meeting Minutes/Architecture Modeling/Frontend reqirments |
 | Karim  | 17  | UI Sketch, TimeSlot Pages, Cart Debug, General Debug |
-| Thomas  |    |  |
+| Thomas  |  20  | Frontend requirement/ bug fixing |
 | Youjin  |   |    |
 ### Deliverable Two Report
 * [Report](https://github.com/McGill-ECSE321-Winter2022/project-group-group-04/wiki)
