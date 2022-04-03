@@ -16,7 +16,10 @@ export default {
       return {
         response: [],
         error: '',
-        shifts: []
+        shifts: [],
+        orders: [],
+        errorOrder: '',
+
       }
     },
     created: function () {
@@ -31,6 +34,17 @@ export default {
       .catch(e => {
         console.log(e)
       })
+
+      // Get all incomplete orders from backEnd
+      AXIOS.get('/orders/fulfill', { params: {"employeeEmail" : window.localStorage.getItem('email'), "employeePassword" : window.localStorage.getItem('password')}})
+      .then(response => {
+        // JSON responses are automatically parsed.
+        this.orders = response.data
+      })
+      .catch(e => {
+        this.errorOrder = 'There is no active orders to fulfill'
+        console.log(e)
+      })
     },
     methods: {
         logout: function () {
@@ -43,7 +57,22 @@ export default {
             window.localStorage.setItem('password', '')
             window.localStorage.setItem('usertype', '')
             window.localStorage.setItem('status', 'false')
-        }
+        },
+        fulFill: function (time, date) {
+          const params = new URLSearchParams();
+          params.append('employeeEmail',window.localStorage.getItem('email'));
+          params.append('employeePassword', window.localStorage.getItem('password'));
+          params.append('creationDate',date);
+          params.append('creationTime',time);
+          AXIOS.post('/orders/fulfill', params)
+          .then(response => {
+            // JSON responses are automatically parsed.
+            this.orders = response.data
+          })
+          .catch(e => {
+            console.log(e)
+          })
+      },
     }
     //...
 }

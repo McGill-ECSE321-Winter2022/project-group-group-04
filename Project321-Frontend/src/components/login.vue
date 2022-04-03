@@ -30,7 +30,7 @@
     margin-bottom: none;
     margin-top: none;
   }
-  .table_style {
+  .table_style{
       margin-left: auto;
       margin-right: auto;
       border-collapse: collapse;

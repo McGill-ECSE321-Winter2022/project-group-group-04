@@ -623,6 +623,39 @@ public class GroceryStoreController {
         return convertOrderListDTO(list);
     }
     
+    @GetMapping(value = {"/orders/fulfill", "/orders/fulfill/"})
+    public List<OrderDTO> getAllOrdersToFullfill( @RequestParam(name = "employeeEmail") String employeeEmail,
+		    							@RequestParam(name = "employeePassword") String employeePassword) throws IllegalArgumentException{
+    	CheckUser(employeeEmail, employeePassword, "employee", "Only employee is able to fullfill order");
+    	List<Order> list = service.getAllIncompleteOrder();
+    	if (list == null) {
+    		throw new IllegalArgumentException("currently no orders in the system");
+    	}
+        return convertOrderListDTO(list);
+    }
+    
+    @PostMapping(value = {"/orders/fulfill", "/orders/fulfill/"})
+    public OrderDTO setOrderforFullfillment( @RequestParam(name = "employeeEmail") String employeeEmail,
+		    							@RequestParam(name = "employeePassword") String employeePassword,
+		    							@RequestParam(name = "creationDate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date creationDate,
+                                        @RequestParam(name = "creationTime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date creationTime) throws IllegalArgumentException{
+    	CheckUser(employeeEmail, employeePassword, "employee", "Only employee is able to fullfill order");
+    	List<Order> list = service.getAllIncompleteOrder();
+    	if (list == null) {
+    		throw new IllegalArgumentException("currently no orders in the system");
+    	}
+        Order toFulfill = null;
+    	for (Order o: list) {
+    		if (o.getCart().getCreationDate().compareTo(creationDate) == 0 && o.getCart().getCreationTime().compareTo(creationTime) == 0) {
+                toFulfill = o;
+                break;
+            }
+    	}
+        service.setCompleted(toFulfill);
+        return convertToDTO(toFulfill);
+    }
+    
+    
     /**
      * This is an enhancement to Req.14, which generates the sales total for the owner.
      * Req.14-The Grocery Store System shall allow the owner to create a sales report containing all orders and their respective totals 
