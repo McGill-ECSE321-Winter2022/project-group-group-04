@@ -1,7 +1,7 @@
 <template>
   <div id="product">
     <button class="back_botton" @click="back()">back</button>
-    <h3 style="text-align:center; margin-top:50px; margin-left:50px">All Products</h3>
+    <h3 style="text-align:center; margin-top:50px">All Products</h3>
     <div class="search-wrapper panel-heading col-sm-12">
     <input type="text" v-model="search" placeholder="Search" /> <br> <br>
     </div> 
@@ -9,6 +9,7 @@
         <thead>
             <tr>
                 <th>product name</th>
+                <th>preview</th>
                 <th>price type</th>
                 <th>Online availability</th>
                 <th>stock</th>
@@ -19,6 +20,9 @@
         <tbody>
             <tr v-for="(product, i) in ProductFilter" :key=product.productName>
               <td>{{ product.productName }} </td>
+                <td>
+                  <img :src="'static/' + product.productName + '.jpg'" alt="N/A" style="width:70px;height:70px;" class="bigpic" >
+                </td>
               <td>{{ product.priceType }}</td>
               <td>{{ product.isAvailableOnline }}</td>
               <td>{{ product.stock }}</td>
@@ -68,6 +72,11 @@
     color:red;
     text-align:center;
 }
+  table td:hover img {
+    transform: scale(2.0);
+  transition: transform .3s;
+  }
+    
 </style>
 
 <script src="./scripts/product.js"></script>
