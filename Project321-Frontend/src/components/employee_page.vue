@@ -23,7 +23,7 @@
     </table>
     <span v-if="orders.length == 0" style="color:red"> There is no order waiting to be fulfiled </span>
 
-    <h3 style="text-align:center; margin-top:30px">Create an instore Purchase</h3>
+    <h3 style="text-align:center; margin-top:30px">Create an in-store Purchase</h3>
     <table class = "tableStyle" >
       <tr>
         <th>Product name</th>
