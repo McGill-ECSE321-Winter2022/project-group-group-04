@@ -245,6 +245,16 @@ public class GroceryStoreController {
             service.deleteCartItem(i);
         }
     }
+    
+    @PostMapping(value = {"/carts/delete", "/carts/delete/"})
+    public void deleteCart(@RequestParam(name = "customeremail")  String customerEmail, 
+            			   @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException {
+    	Cart cart = retrieveOpenCart(customerEmail, customerPassword);
+    	if(cart == null) {
+            throw new IllegalStateException("Failed to delete the current cart: there is no opened cart to clear");
+        }
+    	service.deleteCart(cart);
+    }
 
     /**
      * This implements part of Req. 06 which relates to setting a desired time slot

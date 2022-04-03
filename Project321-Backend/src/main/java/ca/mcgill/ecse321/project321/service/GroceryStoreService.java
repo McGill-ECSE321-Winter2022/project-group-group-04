@@ -127,6 +127,11 @@ public class GroceryStoreService {
     }
     
     @Transactional
+    public void deleteCart(Cart cart) {
+    	cartRepository.delete(cart);
+    }
+    
+    @Transactional
     public List<Cart> getCartsByCustomer(Customer customer) {
         return cartRepository.findByCustomer(customer);
     }
