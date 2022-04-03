@@ -25,6 +25,25 @@
       </tr>
     </table>
     <span v-if="errorOrder.length > 0" class="error_message">Error: {{errorOrder}} </span>
+
+        <h3 style="text-align:center; margin-top:50px; margin-left:50px">All Instore Purchase</h3>
+    <table class = "tableStyle">
+      <tr>
+        <th>Date</th>
+        <th>total</th>
+        <th>Products List</th>
+      </tr>
+      <tr v-for="isp in instorePurchases" :key=isp.total>
+      <td>{{ isp.purchaseDate }}</td>
+      <td>{{ isp.total }}</td>
+      <td>
+        <p v-for="item in isp.cartItems" :key=item.quantity>
+          {{ item.product.productName}} with quantity: {{ item.quantity}}
+        </p>
+      </td>
+      </tr>
+    </table>
+    <span v-if="errorInstorePurchases.length > 0" class="error_message">Error: {{errorInstorePurchases}} </span>
   </div> 
 </template>
 

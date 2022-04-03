@@ -63,6 +63,18 @@ function routeOwnerGuardian(to, from, next) {
   })
 }
 
+function routeEmployeeGuardian(to, from, next) {
+  AXIOS.get('/login', { params: {"email" : localStorage.getItem('email'), "password" : localStorage.getItem('password')}})
+  .then(response => {
+    if(response.data.type === 'employee') {
+    next()
+  }
+  })
+  .catch(e => {
+    next({ name: 'login' })
+  })
+}
+
 function routeCustomerGuardian(to, from, next) {
   AXIOS.get('/login', { params: {"email" : localStorage.getItem('email'), "password" : localStorage.getItem('password')}})
   .then(response => {
@@ -86,7 +98,7 @@ export default new Router({
       path: '/employee',
       name: 'employee_page',
       component: employee_page,
-      beforeEnter: routeLoginGuardian,
+      beforeEnter: routeEmployeeGuardian,
     },
     {
       path: '/customer',
