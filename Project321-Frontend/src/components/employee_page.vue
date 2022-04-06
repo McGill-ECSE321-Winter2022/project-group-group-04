@@ -7,7 +7,7 @@
         <h2 style="text-align:center">This is the employee page</h2>
     </div>
 
-    <div id = "logic_sector">
+    <div id = "logic_sector" v-if="orders.length > 0">
       <h3 style="text-align:center; margin-top:50px; color:red">Orders Waiting for Fulfillment</h3>
       <table class = "tableStyle" v-if="orders.length > 0">
         <tr>

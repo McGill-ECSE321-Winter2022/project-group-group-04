@@ -1,7 +1,7 @@
 <template>
   <div id="customer_page">
     <button class="logout_button" @click="logout()">Logout</button>
-    <h2 style="text-align:center">Welcome, {{yourName}} !</h2>
+    <h2 style="text-align:center;margin-left:35%">Welcome, {{yourName}} !</h2>
     <div id="personal_info">
       <h4 style="text-align:left"> Personal information </h4>
     
@@ -97,16 +97,16 @@
     width : 30%;
     border-radius: 8px;
     padding : 15px;
-    margin-left : auto;
+    margin-left : 5%;
   }
 
   #cart{
     float : right;
     background : #c7dbf0;
-    width : 65%;
+    width : 55%;
     border-radius: 8px;
     padding : 15px;
-    margin-right :auto;
+    margin-right :5%;
   }
 
   #item_lists{

@@ -37,14 +37,14 @@ SET postalcode2=H1X1X2
 SET unit2=917
 
 @REM #Valid store info
-SET storePhone=2222222222
+SET storePhone=4181111111
 SET storeEmail=store@email.com
 SET storeOpeningHours=09:00:00
 SET storeClosingHours=17:00:00
 SET newStoreOpeningHours=08:00:00
 SET newStoreClosingHours=19:00:00
-SET storeTown=Test
-SET storeStreet=Test
+SET storeTown=Montreal
+SET storeStreet=Mcgill
 SET storeUnit=101
 SET storeOutOfTownFee=10
 SET storePostalCode=1X1X1X
@@ -63,7 +63,7 @@ SET endHour3=15:00:00
 
 @REM #Valid product info
 SET type=PER_UNIT
-SET productName=chocolate
+SET productName=Chocolate
 SET productName2=Butter
 SET productName3=Rice
 SET online=no

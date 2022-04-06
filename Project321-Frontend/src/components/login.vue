@@ -2,7 +2,7 @@
   <div id="login">
     <h2 style="text-align:center">Welcome to the Technologically Superior Grocery Store!</h2>
     <p style="text-align:center"> Enter your credentials bellow to login </p>
-    <table class="table_style">
+    <table class="login_table">
         <tr> <td> <p style="text-align:left"> Email Address </p> </td> </tr>
         <tr> <td> <input type="text" class="input_text" v-model="newUsername" placeholder="Email Address"> </td> </tr>
         <tr> <td> <p style="text-align:left"> Password </p> </td> </tr>
@@ -30,7 +30,7 @@
     margin-bottom: none;
     margin-top: none;
   }
-  .table_style{
+  .login_table{
       margin-left: auto;
       margin-right: auto;
       border-collapse: collapse;

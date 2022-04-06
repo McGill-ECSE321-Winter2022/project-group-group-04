@@ -99,7 +99,7 @@ export default {
                p.productName.toLowerCase().includes(this.search.toLowerCase()) ||
                p.priceType.toLowerCase().includes(this.search.toLowerCase()) ||
                p.isAvailableOnline.toLowerCase().includes(this.search.toLowerCase()) ||
-               p.stock === Number(this.search)
+               p.stock <= Number(this.search)
              )
             } else {
                 selection = this.products

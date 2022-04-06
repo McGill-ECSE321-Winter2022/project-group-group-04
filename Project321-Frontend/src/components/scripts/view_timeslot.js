@@ -35,7 +35,7 @@ export default {
     },
      created: function () {
         // Get all orders from backEnd
-        AXIOS.get('/availabletimeslots')
+        AXIOS.get('/timeslots')
         .then(response => {
           // JSON responses are automatically parsed.
           this.timeSlots = response.data

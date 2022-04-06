@@ -320,6 +320,19 @@ public class GroceryStoreController {
     	return convertTimeSlotListToDTO(availableTimeSlots);
     }
     
+    @GetMapping(value = {"/timeslots", "/timeslots/"})
+    public List<TimeSlotDTO> getAllTimeSlots() throws IllegalArgumentException {
+    	List<TimeSlot> tslot = service.getAllTimeSlots();
+    	if(tslot == null) {
+    		throw new IllegalArgumentException("No TimeSlot exists!");
+    	}
+    	List<Shift> shifts = service.getAllShifts();
+    	if(shifts == null) {
+    		throw new IllegalArgumentException("No one on shift!");
+    	}
+    	return convertTimeSlotListToDTO(tslot);
+    }
+    
     @PostMapping(value = {"/timeslot/delete", "/timeslot/delete/"})
     public TimeSlotDTO deleteTimeSlot(@RequestParam(name = "timeslotdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date timeSlotDate,
                                 @RequestParam(name = "timeslotstarttime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotStartTime,
