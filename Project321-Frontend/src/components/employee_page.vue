@@ -11,12 +11,14 @@
       <h3 style="text-align:center; margin-top:50px; color:red">Orders Waiting for Fulfillment</h3>
       <table class = "tableStyle" v-if="orders.length > 0">
         <tr>
-          <th>Date</th>
+          <th>Order Date</th>
+          <th>Fullfill By</th>
           <th>Products List</th>
           <th>Confirm Fulfilment</th>
         </tr>
         <tr v-for="order in orders" :key=order.orderDate>
         <td>{{ order.orderDate }}</td>
+        <td>{{order.cart.timeSlot.date}} at {{order.cart.timeSlot.startTime}}</td>
         <td>
           <p v-for="items in order.cart.cartItems" :key=items.quantity>
             {{ items.product.productName}} with quantity: {{ items.quantity}}

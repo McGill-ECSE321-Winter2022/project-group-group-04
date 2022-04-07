@@ -182,7 +182,7 @@ public class GroceryStoreController {
     public List<CartDTO> getAllCarts() throws IllegalArgumentException {
         return convertCartListToDTO(service.getAllCarts());
     }
-
+    
     /**
      * Method partly related to Req.03 (1/3): As a user of the Grocery software system with a customer account, I 
      * would like to add items into a cart if they are online shopperable and checkout when I am ready for payment 
@@ -223,6 +223,21 @@ public class GroceryStoreController {
         return convertToDTO(cart);
     }
 
+    @GetMapping(value = {"/cart/history", "/cart/history/"})
+    public List<CartDTO> getHistoryCart(@RequestParam(name = "customeremail")  String customerEmail, 
+                            @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException {
+        Customer customer = checkCustomer(customerEmail, customerPassword);
+        List<Cart> carts = service.getCartsByCustomer(customer);
+        List<Cart> history = new ArrayList<Cart>();
+        for(Cart c : carts) {
+            if(service.getOrderByCart(c) != null) {
+				history.add(c);
+            }
+        }
+        return convertCartListToDTO(history);
+    }
+    
+    
     /**
      * Method partly related to Req.03 (1/3): As a user of the Grocery software system with a customer account, I 
      * would like to add items into a cart if they are online shopperable and checkout when I am ready for payment
@@ -1340,6 +1355,7 @@ public class GroceryStoreController {
         }
         return cart;
     }
+    
 
     private Customer checkCustomer(String customerEmail, String customerPassword) throws IllegalArgumentException {
         Customer customer = service.getCustomer(customerEmail);

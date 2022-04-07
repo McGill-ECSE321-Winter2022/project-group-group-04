@@ -81,7 +81,30 @@
           <button class="delete_cart_botton" @click="delete_cart()">Delete Cart</button>
         </p>
     </div>
+    <div v-if="yourCarts.length>0" style="margin-top:22%">
+      <h4 style="margin-left:55%"> Your Order history</h4>
+      <table class = "products">
+        <tr>
+          <th>Type</th>
+          <th>Time Slot</th>
+          <th>Products List</th>
+        </tr>
+        <tr v-for="cart in yourCarts" :key=cart.creationTime>
+        <td>{{ cart.shoppingType }}</td>
+        <td>{{ cart.timeSlot.startTime}} to {{ cart.timeSlot.endTime}} at {{ cart.timeSlot.date}}</td>
+        <td v-if="detail == false">
+          <button class="clear_cart_botton" @click="showDetail()">Show purchase detail</button>
+        </td>
+        <td v-if="detail == true">
+          <p v-for="items in cart.cartItems" :key=items.quantity>
+            {{ items.product.productName}} with quantity: {{ items.quantity}}
+          </p>
+        </td>
+        </tr>
+    </table>
+    </div>
   </div> 
+  
 </template>
 
 <style>
@@ -161,6 +184,18 @@
     color:navy;
     text-align:left;
     margin : 15px;
+  }
+   	.products, th, td{
+  	border:1px solid black;
+   	border-collapse: collapse;
+    text-align: center;
+    text-align: center;
+    padding: 10px; 
+  }
+  .products {
+      width: 55%;
+      margin-left: 40%;
+      caption-side: top;
   }
 
 </style>

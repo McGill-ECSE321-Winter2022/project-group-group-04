@@ -30,6 +30,7 @@ export default {
         noCart : true,
         emptyCart : true,
         cartItems : [],
+        detail: false,
       }
     },
     created: function () {
@@ -64,6 +65,14 @@ export default {
       .catch(error => {
         console.log(error)
         this.noCart = true
+      })
+      AXIOS.get('/cart/history', { params: {"customeremail" : window.localStorage.getItem('email'), "customerpassword" : window.localStorage.getItem('password')}})
+      .then(response => {
+        console.log(response.data)
+        this.yourCarts = response.data
+      })
+      .catch(error => {
+        console.log(error)
       })
     },
     methods: {
@@ -136,7 +145,11 @@ export default {
 
         gotoCheckout: function (){
           this.$router.push('/checkout')
-        }
+        },
+
+        showDetail: function (){
+          this.detail = true;
+        },
     }
     //...
 }
