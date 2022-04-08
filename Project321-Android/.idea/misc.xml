@@ -3,8 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/songt/Desktop/School/ECSE321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/content_main.xml" value="0.24547101449275363" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.29" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.3546875" />
+        <entry key="app/src/main/res/layout/fragment_first.xml" value="0.3703125" />
+        <entry key="app/src/main/res/layout/fragment_second.xml" value="0.3703125" />
+        <entry key="app/src/main/res/layout/login.xml" value="0.259375" />
+        <entry key="app/src/main/res/layout/store_info.xml" value="0.3703125" />
+        <entry key="app/src/main/res/menu/menu_main.xml" value="0.3703125" />
       </map>
     </option>
   </component>
