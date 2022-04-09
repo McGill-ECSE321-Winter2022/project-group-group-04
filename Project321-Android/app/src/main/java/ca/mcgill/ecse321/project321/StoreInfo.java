@@ -66,7 +66,8 @@ public class StoreInfo extends Fragment {
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                error.setText("Failed to get store info from the server.");
+//                error.setText("Failed to get store info from the server.");
+                error.setText(errorResponse.toString());
                 error.setVisibility(View.VISIBLE);
             }
         });

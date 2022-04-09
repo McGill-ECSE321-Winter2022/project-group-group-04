@@ -56,6 +56,22 @@ import ca.mcgill.ecse321.project321.service.GroceryStoreService;
 public class GroceryStoreController {
 	
     public static String adminCode = "admin";
+
+    private class AccountDTO{
+        private boolean exists;
+
+        public AccountDTO(boolean exists) {
+            this.exists = exists;
+        }
+
+        public void setExists(boolean exists) {
+            this.exists = exists;
+        }
+
+        public boolean getExists() {
+            return this.exists;
+        }
+    }
     
     @Autowired
     private GroceryStoreService service;
@@ -84,11 +100,12 @@ public class GroceryStoreController {
     }
 
     @GetMapping(value = {"/userexists", "/userexists/"})
-    public boolean userExists(@RequestParam(name = "email")     String email) {
-        if(service.getUser(email) == null) {
-            return false;
+    public AccountDTO userExists(@RequestParam(name = "email")     String email) {
+        AccountDTO a = new AccountDTO(false);
+        if(service.getUser(email) != null) {
+            a.setExists(true);
         }
-        return true;
+        return a;
     }
 
     @GetMapping(value = {"/customers", "/customers/"})

@@ -27,7 +27,9 @@
             android:padding="5dp"
             android:text="Store Information"
             android:textStyle="bold"
-            android:visibility="visible" />
+            android:visibility="visible"
+            android:background="#FAD0D0 "
+            android:width="150dp"/>
 
         <TextView
             android:id="@+id/storeemail"

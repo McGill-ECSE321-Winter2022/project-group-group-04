@@ -88,7 +88,7 @@ export default {
               addEmployee: function(e,n,s,pw){
            AXIOS.get('/userexists', { params: {"email": this.newEmployeeEmail}})
             .then(response => {
-                if(!response.data) {
+                if(!response.data.exists) {
                     const params = new URLSearchParams();
                     params.append('employeeEmail', e);
                     params.append('employeeName', n);
