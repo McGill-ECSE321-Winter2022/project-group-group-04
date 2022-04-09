@@ -12,4 +12,9 @@
         android:orderInCategory="100"
         android:title="Login"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/cart_page"
+        android:orderInCategory="100"
+        android:title="Cart Page"
+        app:showAsAction="never" />
 </menu>
