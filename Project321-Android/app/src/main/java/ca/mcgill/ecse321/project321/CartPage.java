@@ -55,7 +55,7 @@ public class CartPage extends Fragment {
                 createCart();
             }
         });
-        Spinner spinner = view.findViewById(R.id.cartTypeSpinner);
+        Spinner spinner = binding.cartTypeSpinner;
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getActivity(), R.array.cart_type_spinner, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
