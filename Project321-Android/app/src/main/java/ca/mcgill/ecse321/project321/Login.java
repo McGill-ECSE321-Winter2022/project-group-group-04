@@ -34,7 +34,7 @@ public class Login extends Fragment {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-        
+
         binding = LoginBinding.inflate(inflater, container, false);
         return binding.getRoot();
 
@@ -145,10 +145,11 @@ public class Login extends Fragment {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    MainActivity.useremail = response.getString("email");
-                    MainActivity.userpassword = response.getString("password");
-                    MainActivity.usertype = response.getString("type");
-                    MainActivity.status = true;
+                    MainActivity.setEmail(response.getString("email"));
+                    MainActivity.setPassword(response.getString("password"));
+                    MainActivity.setType(response.getString("type"));
+                    MainActivity.setStatus(true);
+                    System.out.println("Email " + MainActivity.getEmail() + " of type " + MainActivity.getType() + " with password " + MainActivity.getPassword());
                     cb.successResponse(email, password);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -157,7 +158,7 @@ public class Login extends Fragment {
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                MainActivity.status = false;
+                MainActivity.setStatus(false);
                 binding.loginerror.setText("The password provided is wrong, try again");
                 binding.loginerror.setVisibility(View.VISIBLE);
             }

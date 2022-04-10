@@ -30,10 +30,10 @@ public class MainActivity extends AppCompatActivity {
     private String error = null;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
-    protected static String useremail = "";
-    protected static String userpassword = "";
-    protected static String usertype = "";
-    protected static boolean status = false;
+    private static String useremail = "";
+    private static String userpassword = "";
+    private static String usertype = "";
+    private static boolean status = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,5 +98,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void testButton(){
     error = "";
+    }
+
+    public static void setEmail(String email) {
+        useremail = email;
+    }
+    public static void setPassword(String password) {
+        userpassword = password;
+    }
+
+    public static void setType(String type) {
+        usertype = type;
+    }
+
+    public static void setStatus(boolean aStatus) {
+        status = aStatus;
+    }
+
+    public static String getEmail() {
+        return useremail;
+    }
+    public static String getPassword() {
+        return userpassword;
+    }
+
+    public static String getType() {
+        return usertype;
+    }
+
+    public static boolean getStatus() {
+        return status;
     }
 }
