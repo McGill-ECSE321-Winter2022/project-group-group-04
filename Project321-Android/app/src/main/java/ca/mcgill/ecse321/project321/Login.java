@@ -34,7 +34,7 @@ public class Login extends Fragment {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-
+        
         binding = LoginBinding.inflate(inflater, container, false);
         return binding.getRoot();
 
@@ -52,18 +52,16 @@ public class Login extends Fragment {
                     binding.loginerror.setText("Email or password cannot be empty");
                     binding.loginerror.setVisibility(View.VISIBLE);
                 } else {
-//                    userExists(email);
-//                    System.out.println("Account exists? " + Login.accountExist);
-//                    if(Login.accountExist) {
-//                        login(email, password);
-//                        System.out.println("Login success? " + MainActivity.status);
-//                        if(MainActivity.status) {
-//                            NavHostFragment.findNavController(Login.this)
-//                                .navigate(R.id.action_login_to_signup);
-//                        }
-//                    }
                     loginProcess(email, password);
                 }
+            }
+        });
+
+        binding.signupredirectclickable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                NavHostFragment.findNavController(Login.this)
+                        .navigate(R.id.action_login_to_signup);
             }
         });
     }
@@ -74,6 +72,13 @@ public class Login extends Fragment {
         binding = null;
     }
 
+    /**
+     * Method that defines the log in process. The process starts by verifying that the email
+     * specified is linked with an active account before attempting to log in. If the log in is
+     * successful, the user is notified and the app is rerouted to the product page
+     * @param email Email of the customer trying to log in
+     * @param password Password of the customer trying to log in
+     */
     private void loginProcess(String email, String password) {
         userExists(email, password, new responseCallback() {
             @Override
@@ -81,17 +86,24 @@ public class Login extends Fragment {
                 login(email, password, new responseCallback() {
                     @Override
                     public void successResponse(String email, String password) {
-                        System.out.println(MainActivity.useremail + " of type " + MainActivity.usertype + " with password " + MainActivity.userpassword);
-                        LoggedInDialogFragment popup = new LoggedInDialogFragment();
+                        NotifyDialogFragment popup = new NotifyDialogFragment("Log in successful!");
                         popup.show(getParentFragmentManager(), "loggedin");
                         NavHostFragment.findNavController(Login.this)
-                                .navigate(R.id.action_login_to_storeinfo); // Can change this to any page!
+                                .navigate(R.id.action_login_to_productpage); // Can change this to any page!
                     }
                 });
             }
         });
     }
 
+    /**
+     * Method used to verify if the email specified is linked with an existing account before
+     * attempting to log in with the specfied email and password.
+     * @param email Email of the customer trying to log in
+     * @param password Password of the customer trying to log in
+     * @param cb Callback method that will attempt to log in if the email specified is indeed
+     *           linked to an active account
+     */
     private void userExists(String email, String password, responseCallback cb) {
         RequestParams rp = new RequestParams();
         rp.add("email", email);
@@ -111,13 +123,20 @@ public class Login extends Fragment {
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Login.accountExist = false;
                 binding.loginerror.setText("Failed to reach the server to verify the email");
                 binding.loginerror.setVisibility(View.VISIBLE);
             }
         });
     }
 
+    /**
+     * Method used to log in the user by verifying that the user gives the proper password related
+     * to the specified email. The user information is saved in the MainActivity class for later use
+     * @param email Email of the customer trying to log in
+     * @param password Password of the customer trying to log in
+     * @param cb Callback method that will allow to notify the user on successful log in and reroute
+     *           the app to the product page
+     */
     private void login(String email, String password, responseCallback cb) {
         RequestParams rp = new RequestParams();
         rp.add("email", email);
@@ -145,23 +164,12 @@ public class Login extends Fragment {
         });
     }
 
+    /**
+     * Interface that declares the callback method for successful response in the sign in process
+     */
     public interface responseCallback {
         public void successResponse(String email, String password);
     }
 
-    public static class LoggedInDialogFragment extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the Builder class for convenient dialog construction
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage("Login successful!")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            return;
-                        }
-                    });
-            // Create the AlertDialog object and return it
-            return builder.create();
-        }
-    }
+
 }
