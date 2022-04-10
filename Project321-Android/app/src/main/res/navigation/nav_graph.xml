@@ -31,6 +31,9 @@
         <action
             android:id="@+id/action_login_to_signup"
             app:destination="@id/Signup" />
+        <action
+            android:id="@+id/action_login_to_storeinfo"
+            app:destination="@id/StoreInfo" />
     </fragment>
 
     <fragment
