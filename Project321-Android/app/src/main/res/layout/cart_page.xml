@@ -45,6 +45,12 @@
         android:text="@string/cart_create" />
 
     <Button
+        android:id="@+id/clear_cart_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cart_clear"/>
+
+    <Button
         android:id="@+id/delete_cart_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -60,15 +66,17 @@
         android:id="@+id/carterror"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:text="error" />
+        android:text="error"
+        android:textAlignment="center" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/cart_items_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:text="TextView" />
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:text="@string/cart_items_title" />
 
     <ListView
         android:id="@+id/cartItemsList"

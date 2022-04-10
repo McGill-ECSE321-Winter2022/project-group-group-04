@@ -37,12 +37,13 @@ public class CartPage extends Fragment {
     Button create_button;
     Button delete_button;
     Button get_button;
+    Button clear_button;
     JSONArray cartItems;
     private String cartType;
 
     //Test variables
-    public String customeremail = "customer@email.com";
-    public String customerpassword = "customerPwd";
+    public String customeremail = MainActivity.getEmail();
+    public String customerpassword = MainActivity.getPassword();
     public ArrayList<String> items = new ArrayList<>();
     //
 
@@ -60,9 +61,12 @@ public class CartPage extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         binding = CartPageBinding.inflate(inflater, container, false);
+        //Set Visibility of Items that don't need to be seen yet
         binding.carterror.setVisibility(View.GONE);
         binding.cartItemsList.setVisibility(View.GONE);
+        binding.cartItemsTitle.setVisibility(View.GONE);
         binding.deleteCartButton.setVisibility(View.GONE);
+        binding.clearCartButton.setVisibility(View.GONE);
         //Button on click setters
         create_button = binding.createCartButton;
         create_button.setOnClickListener(new View.OnClickListener() {
@@ -83,6 +87,13 @@ public class CartPage extends Fragment {
             @Override
             public void onClick(View view) {
                 getCart();
+            }
+        });
+        clear_button = binding.clearCartButton;
+        clear_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearCart();
             }
         });
         //Spinner population and on select actions
@@ -155,7 +166,10 @@ public class CartPage extends Fragment {
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
                 binding.cartItemsList.setVisibility(View.GONE);
+                binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
+                binding.clearCartButton.setVisibility(View.GONE);
+                items.clear();
                 Log.d("myTag", "test: Success");
             }
 
@@ -168,7 +182,10 @@ public class CartPage extends Fragment {
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
                 binding.cartItemsList.setVisibility(View.GONE);
+                binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
+                binding.clearCartButton.setVisibility(View.GONE);
+                items.clear();
             }
 
             @Override
@@ -180,7 +197,10 @@ public class CartPage extends Fragment {
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
                 binding.cartItemsList.setVisibility(View.GONE);
+                binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
+                binding.clearCartButton.setVisibility(View.GONE);
+                items.clear();
             }
         });
     }
@@ -199,8 +219,23 @@ public class CartPage extends Fragment {
                 binding.cartType.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.VISIBLE);
                 binding.cartItemsList.setVisibility(View.VISIBLE);
+                binding.cartItemsTitle.setVisibility(View.VISIBLE);
+                binding.clearCartButton.setVisibility(View.VISIBLE);
                 try {
                     cartItems = response.getJSONArray("cartItems");
+                    if(cartItems.length() >0){
+                        for(int i = 0; i < cartItems.length(); i++){
+                            String listElement,productName,productPriceType;
+                            int productPrice,productQuantity;
+                            productName = cartItems.getJSONObject(i).getJSONObject("product").getString("productName");
+                            productPrice = cartItems.getJSONObject(i).getJSONObject("product").getInt("price");
+                            productPriceType = cartItems.getJSONObject(i).getJSONObject("product").getString("priceType");
+                            productQuantity = cartItems.getJSONObject(i).getInt("quantity");
+                            listElement = productName + " " + productPrice + productPriceType + " " + productQuantity;
+                            items.add(listElement);
+                            Log.d("MyTag", "Products: " + cartItems.get(0).toString());
+                        }
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -217,13 +252,31 @@ public class CartPage extends Fragment {
             }
         });
     }
+    //clearCart and re-getCart to update listview
+    public void clearCart(){
+        TextView error = binding.carterror;
+        RequestParams rp = new RequestParams();
+        rp.add("customeremail", customeremail);
+        rp.add("customerpassword", customerpassword);
+        HttpUtils.post("carts/clear", rp, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                getCart();
+                Log.d("myTag", "test: Success");
+            }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                getCart();
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable) {
+                getCart();
+            }
+        });
+    }
+    //Populates the listview with items from cart
     public void populateItemList(){
-        //Test method
-        items.add("CartItem1");
-        items.add("CartItem2");
-        items.add("CartItem3");
-
         ListView lv = binding.cartItemsList;
         ArrayAdapter<String> itemListAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
         lv.setAdapter(itemListAdapter);
