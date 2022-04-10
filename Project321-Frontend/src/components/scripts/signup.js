@@ -33,7 +33,7 @@ export default {
         createCustomerAccount: function () {
             AXIOS.get('/userexists', { params: {"email": this.newEmail}})
             .then(response => {
-                if(!response.data) {
+                if(!response.data.exists) {
                     var name = this.newFirstname + " " + this.newLastname
                     const params = new URLSearchParams();
                     params.append('email', this.newEmail);

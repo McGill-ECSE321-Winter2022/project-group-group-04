@@ -25,4 +25,5 @@
         android:title="Products"
         app:showAsAction="always"
         android:icon="@drawable/ic_storefront_24"/>
+
 </menu>

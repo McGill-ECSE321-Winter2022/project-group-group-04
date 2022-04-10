@@ -26,6 +26,10 @@ public class MainActivity extends AppCompatActivity {
     private String error = null;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
+    protected static String useremail = "";
+    protected static String userpassword = "";
+    protected static String usertype = "";
+    protected static boolean status = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
