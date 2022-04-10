@@ -8,6 +8,12 @@
     <string name="login_fragment_label">Login</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="cart_type">Cart Type:</string>
+    <string name="cart">Cart</string>
+    <string-array name="cart_type_spinner">
+        <item>Delivery</item>
+        <item>Pickup</item>
+    </string-array>
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
