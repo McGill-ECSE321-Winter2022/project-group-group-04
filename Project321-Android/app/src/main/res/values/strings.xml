@@ -10,6 +10,9 @@
     <string name="previous">Previous</string>
     <string name="cart_type">Cart Type:</string>
     <string name="cart">Cart</string>
+    <string name="cart_create">Create Cart</string>
+    <string name="cart_delete">Delete Cart</string>
+    <string name="cart_get">Get Cart</string>
     <string-array name="cart_type_spinner">
         <item>Delivery</item>
         <item>Pickup</item>

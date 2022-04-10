@@ -39,10 +39,10 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/create_cart_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="@string/cart_create" />
 
     <TextView
         android:id="@+id/carterror"
@@ -50,5 +50,29 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:text="error" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="TextView" />
+
+    <ListView
+        android:id="@+id/cartItemsList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/delete_cart_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cart_delete" />
+
+    <Button
+        android:id="@+id/get_cart_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cart_get" />
 
 </LinearLayout>
