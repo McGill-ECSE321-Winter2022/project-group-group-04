@@ -42,7 +42,7 @@ public class CartPage extends Fragment {
 
     //Test variables
     public String customeremail = "customer@email.com";
-    public String customerpassword = "password";
+    public String customerpassword = "customerPwd";
     public ArrayList<String> items = new ArrayList<>();
     //
 
@@ -62,6 +62,7 @@ public class CartPage extends Fragment {
         binding = CartPageBinding.inflate(inflater, container, false);
         binding.carterror.setVisibility(View.GONE);
         binding.cartItemsList.setVisibility(View.GONE);
+        binding.deleteCartButton.setVisibility(View.GONE);
         //Button on click setters
         create_button = binding.createCartButton;
         create_button.setOnClickListener(new View.OnClickListener() {
@@ -153,6 +154,8 @@ public class CartPage extends Fragment {
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
+                binding.cartItemsList.setVisibility(View.GONE);
+                binding.deleteCartButton.setVisibility(View.GONE);
                 Log.d("myTag", "test: Success");
             }
 
@@ -164,6 +167,8 @@ public class CartPage extends Fragment {
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
+                binding.cartItemsList.setVisibility(View.GONE);
+                binding.deleteCartButton.setVisibility(View.GONE);
             }
 
             @Override
@@ -174,6 +179,8 @@ public class CartPage extends Fragment {
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
+                binding.cartItemsList.setVisibility(View.GONE);
+                binding.deleteCartButton.setVisibility(View.GONE);
             }
         });
     }
@@ -190,6 +197,7 @@ public class CartPage extends Fragment {
                 binding.createCartButton.setVisibility(View.GONE);
                 binding.cartTypeSpinner.setVisibility(View.GONE);
                 binding.cartType.setVisibility(View.GONE);
+                binding.deleteCartButton.setVisibility(View.VISIBLE);
                 binding.cartItemsList.setVisibility(View.VISIBLE);
                 try {
                     cartItems = response.getJSONArray("cartItems");
@@ -211,9 +219,11 @@ public class CartPage extends Fragment {
     }
 
     public void populateItemList(){
+        //Test method
         items.add("CartItem1");
         items.add("CartItem2");
         items.add("CartItem3");
+
         ListView lv = binding.cartItemsList;
         ArrayAdapter<String> itemListAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
         lv.setAdapter(itemListAdapter);

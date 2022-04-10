@@ -44,6 +44,18 @@
         android:layout_height="wrap_content"
         android:text="@string/cart_create" />
 
+    <Button
+        android:id="@+id/delete_cart_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cart_delete"/>
+
+    <Button
+        android:id="@+id/get_cart_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cart_get"/>
+
     <TextView
         android:id="@+id/carterror"
         android:layout_width="match_parent"
@@ -62,17 +74,5 @@
         android:id="@+id/cartItemsList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
-    <Button
-        android:id="@+id/delete_cart_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/cart_delete" />
-
-    <Button
-        android:id="@+id/get_cart_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/cart_get" />
 
 </LinearLayout>
