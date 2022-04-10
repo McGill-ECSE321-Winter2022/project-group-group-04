@@ -20,4 +20,5 @@
     <string name="customer_page">Customer Page</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ProductPage_fragment_label">Product Page</string>
 </resources>
