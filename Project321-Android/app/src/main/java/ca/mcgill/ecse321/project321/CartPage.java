@@ -112,6 +112,10 @@ public class CartPage extends Fragment {
         });
     }
 
+    public void deleteCart(){
+
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
