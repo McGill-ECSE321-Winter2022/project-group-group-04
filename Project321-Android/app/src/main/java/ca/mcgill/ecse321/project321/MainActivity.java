@@ -64,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.StoreInfo);
         } else if(id == R.id.login) {
             navController.navigate(R.id.Login);
+        }else if (id == R.id.cart_page) {
+            navController.navigate(R.id.CartPage);
+        } else if (id == R.id.product_page){
+            navController.navigate(R.id.ProductPage);
         }
 
         return super.onOptionsItemSelected(item);
