@@ -28,7 +28,7 @@ export default {
         login: function (username, password) {
           AXIOS.get('/userexists', { params: {"email": this.newUsername}})
             .then(response => {
-              if(response.data) {
+              if(response.data.exists) {
                 AXIOS.get('/login', { params: {"email" : username, "password" : password}})
                   .then(response => {
                       this.$useremail = response.data.email
