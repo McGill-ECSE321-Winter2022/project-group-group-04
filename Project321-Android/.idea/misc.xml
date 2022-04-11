@@ -3,16 +3,24 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/john9/Desktop/ECSE 321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/activity_main.xml" value="0.20618034447821681" />
-        <entry key="..\:/Users/john9/Desktop/ECSE 321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/cart_page.xml" value="0.3808876811594203" />
-        <entry key="..\:/Users/john9/Desktop/ECSE 321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/content_main.xml" value="0.20618034447821681" />
-        <entry key="..\:/Users/john9/Desktop/ECSE 321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/fragment_first.xml" value="0.3808876811594203" />
-        <entry key="..\:/Users/john9/Desktop/ECSE 321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/fragment_second.xml" value="0.3808876811594203" />
-        <entry key="..\:/Users/john9/Desktop/ECSE 321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/login.xml" value="0.3808876811594203" />
-        <entry key="..\:/Users/john9/Desktop/ECSE 321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/product_page.xml" value="0.3808876811594203" />
-        <entry key="..\:/Users/john9/Desktop/ECSE 321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/shop_page.xml" value="0.3808876811594203" />
-        <entry key="..\:/Users/john9/Desktop/ECSE 321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/store_info.xml" value="0.3808876811594203" />
-        <entry key="..\:/Users/john9/Desktop/ECSE 321/Project/project-group-group-04/Project321-Android/app/src/main/res/menu/menu_main.xml" value="0.35185185185185186" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1685" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/drawable/ic_baseline_shopping_cart_24.xml" value="0.1685" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1685" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/drawable/ic_login_24.xml" value="0.1685" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/drawable/ic_storefront_24.xml" value="0.1685" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/layout/activity_main.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/layout/cart_page.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/layout/content_main.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/layout/fragment_first.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/layout/fragment_second.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/layout/login.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/layout/order_history.xml" value="0.4466666666666667" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/layout/product_page.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/layout/shop_page.xml" value="0.3723958333333333" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/layout/store_info.xml" value="0.156" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/menu/menu_main.xml" value="0.159375" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.3395" />
+        <entry key="..\:/Users/jedla/Desktop/project-group-group-04/Project321-Android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.3395" />
         <entry key="..\:/Users/songt/Desktop/School/ECSE321/Project/project-group-group-04/Project321-Android/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="..\:/Users/songt/Desktop/School/ECSE321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/activity_customer_page.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/songt/Desktop/School/ECSE321/Project/project-group-group-04/Project321-Android/app/src/main/res/layout/activity_main.xml" value="0.264" />
@@ -29,7 +37,6 @@
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.3703125" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.3703125" />
         <entry key="app/src/main/res/layout/login.xml" value="0.259375" />
-        <entry key="app/src/main/res/layout/signup.xml" value="0.246875" />
         <entry key="app/src/main/res/layout/store_info.xml" value="0.3703125" />
         <entry key="app/src/main/res/menu/menu_main.xml" value="0.3703125" />
       </map>
