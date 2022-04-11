@@ -8,6 +8,11 @@
         android:title="Store Info"
         app:showAsAction="never" />
     <item
+        android:id="@+id/order_history"
+        android:orderInCategory="100"
+        android:title="Order History"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/login"
         android:orderInCategory="70"
         android:title="Login"
