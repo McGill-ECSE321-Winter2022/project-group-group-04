@@ -40,3 +40,16 @@ This repository holds the source code for the Grocery System
 | Youjin  |  20 |  Frontend requirement(Customer Page)  |
 ### Deliverable Three Report
 * [Report](https://github.com/McGill-ECSE321-Winter2022/project-group-group-04/wiki)
+
+## Deliverable Three
+### Hours
+| Members  | Hours | Tasks |
+| ------------- | ------------- | ------------- |
+| Cedric  |  |  |
+| Jed  |    |   |
+| John  |  |  |
+| Karim  |   |  |
+| Thomas  |    |  |
+| Youjin  | |   |
+### Deliverable Three Report
+* [Report](https://github.com/McGill-ECSE321-Winter2022/project-group-group-04/wiki)
