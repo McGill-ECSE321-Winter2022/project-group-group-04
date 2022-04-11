@@ -4,8 +4,6 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,25 +25,22 @@ import cz.msebera.android.httpclient.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
 
 public class CartPage extends Fragment {
     private CartPageBinding binding;
-    Button create_button;
-    Button delete_button;
-    Button get_button;
-    Button clear_button;
-    JSONArray cartItems;
+    private Button create_button;
+    private Button delete_button;
+    private Button clear_button;
+    private JSONArray cartItems;
     private String cartType;
+    //private int TotalPrice = 0;
 
-    //Test variables
-    public String customeremail = MainActivity.getEmail();
-    public String customerpassword = MainActivity.getPassword();
-    public ArrayList<String> items = new ArrayList<>();
-    //
+    private String customeremail = MainActivity.getEmail();
+    private String customerpassword = MainActivity.getPassword();
+    private ArrayList<String> items = new ArrayList<>();
 
 
     public CartPage() {
@@ -80,13 +75,6 @@ public class CartPage extends Fragment {
             @Override
             public void onClick(View view) {
                 deleteCart();
-            }
-        });
-        get_button = binding.getCartButton;
-        get_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getCart();
             }
         });
         clear_button = binding.clearCartButton;
@@ -169,6 +157,7 @@ public class CartPage extends Fragment {
                 binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
+                //TotalPrice = 0;
                 items.clear();
                 Log.d("myTag", "test: Success");
             }
@@ -185,13 +174,14 @@ public class CartPage extends Fragment {
                 binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
+                //TotalPrice = 0;
                 items.clear();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable){
                 error.setVisibility(View.VISIBLE);
-                error.setText(errorResponse.toString());
+                error.setText(errorResponse);
                 Log.d("myTag", "test: Fail");
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
@@ -200,6 +190,7 @@ public class CartPage extends Fragment {
                 binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
+                //TotalPrice = 0;
                 items.clear();
             }
         });
@@ -233,6 +224,7 @@ public class CartPage extends Fragment {
                             productQuantity = cartItems.getJSONObject(i).getInt("quantity");
                             listElement = productName + " " + productPrice + productPriceType + " " + productQuantity;
                             items.add(listElement);
+                            //TotalPrice += productPrice*productQuantity;
                             Log.d("MyTag", "Products: " + cartItems.get(0).toString());
                         }
                     }
@@ -254,7 +246,6 @@ public class CartPage extends Fragment {
     }
     //clearCart and re-getCart to update listview
     public void clearCart(){
-        TextView error = binding.carterror;
         RequestParams rp = new RequestParams();
         rp.add("customeremail", customeremail);
         rp.add("customerpassword", customerpassword);
@@ -262,16 +253,18 @@ public class CartPage extends Fragment {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 getCart();
-                Log.d("myTag", "test: Success");
+                //TotalPrice = 0;
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 getCart();
+                //TotalPrice = 0;
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable) {
                 getCart();
+                //TotalPrice = 0;
             }
         });
     }
