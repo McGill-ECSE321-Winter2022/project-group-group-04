@@ -74,7 +74,7 @@ public class CartPage extends Fragment {
         delete_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteCart();
+                clearDeleteCart();
             }
         });
         clear_button = binding.clearCartButton;
@@ -252,18 +252,48 @@ public class CartPage extends Fragment {
         HttpUtils.post("carts/clear", rp, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                items.clear();
                 getCart();
                 //TotalPrice = 0;
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                items.clear();
                 getCart();
                 //TotalPrice = 0;
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable) {
+                items.clear();
                 getCart();
+                //TotalPrice = 0;
+            }
+        });
+    }
+    //needed a second clear for just deleting cart because the cart must be clear to delete
+    public void clearDeleteCart(){
+        RequestParams rp = new RequestParams();
+        rp.add("customeremail", customeremail);
+        rp.add("customerpassword", customerpassword);
+        HttpUtils.post("carts/clear", rp, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                items.clear();
+                deleteCart();
+                //TotalPrice = 0;
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                items.clear();
+                deleteCart();
+                //TotalPrice = 0;
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable) {
+                items.clear();
+                deleteCart();
                 //TotalPrice = 0;
             }
         });
