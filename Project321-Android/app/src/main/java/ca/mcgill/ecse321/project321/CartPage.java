@@ -96,11 +96,9 @@ public class CartPage extends Fragment {
                 //Called when item is selected, use position of item to find it from list of items
                 if(id == 0){
                     cartType = "Delivery";
-                    Log.d("myTag", "test: Selected " + cartType);
                 }
                 if(id == 1){
                     cartType = "Pickup";
-                    Log.d("myTag", "test: Selected " + cartType);
                 }
             }
 
@@ -124,7 +122,6 @@ public class CartPage extends Fragment {
         HttpUtils.post("carts", rp, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("myTag", "test: Success");
                 error.setVisibility(View.GONE);
                 binding.createCartButton.setVisibility(View.GONE);
                 binding.cartTypeSpinner.setVisibility(View.GONE);
@@ -136,7 +133,6 @@ public class CartPage extends Fragment {
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 error.setVisibility(View.VISIBLE);
                 error.setText(errorResponse.toString());
-                Log.d("myTag", "test: Fail");
             }
         });
     }
@@ -159,14 +155,12 @@ public class CartPage extends Fragment {
                 binding.clearCartButton.setVisibility(View.GONE);
                 //TotalPrice = 0;
                 items.clear();
-                Log.d("myTag", "test: Success");
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 error.setVisibility(View.VISIBLE);
                 error.setText(errorResponse.toString());
-                Log.d("myTag", "test: Fail");
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
@@ -182,7 +176,6 @@ public class CartPage extends Fragment {
             public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable){
                 error.setVisibility(View.VISIBLE);
                 error.setText(errorResponse);
-                Log.d("myTag", "test: Fail");
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
@@ -225,22 +218,18 @@ public class CartPage extends Fragment {
                             listElement = productName + " " + productPrice + productPriceType + " " + productQuantity;
                             items.add(listElement);
                             //TotalPrice += productPrice*productQuantity;
-                            Log.d("MyTag", "Products: " + cartItems.get(0).toString());
                         }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 populateItemList();
-                Log.d("myTag", "test: Success");
-                Log.d("myTag", "test: CartItems: " + cartItems);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 error.setVisibility(View.VISIBLE);
                 error.setText(errorResponse.toString());
-                Log.d("myTag", "test: Fail");
             }
         });
     }
