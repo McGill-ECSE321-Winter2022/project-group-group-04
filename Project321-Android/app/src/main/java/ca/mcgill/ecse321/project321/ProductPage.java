@@ -1,8 +1,13 @@
 package ca.mcgill.ecse321.project321;
 
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,10 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -106,8 +113,29 @@ public class ProductPage extends Fragment {
                 }
             }
         });
-
         getProducts();
+
+        FloatingActionButton button = (FloatingActionButton)view.findViewById(R.id.imageButton2);
+
+        FloatingActionButton cancelButton = (FloatingActionButton)view.findViewById(R.id.imageButton1);
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView tv = (TextView)view.findViewById(R.id.popup_text);
+                tv.setVisibility(View.GONE);
+                cancelButton.setVisibility(View.GONE);
+            }
+        });
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView tv = (TextView)view.findViewById(R.id.popup_text);
+                tv.setVisibility(View.VISIBLE);
+                cancelButton.setVisibility(View.VISIBLE);
+            }
+        });
 
         return view;
     }
@@ -126,6 +154,7 @@ public class ProductPage extends Fragment {
                                 response.getJSONObject(i).getString("isAvailableOnline"),
                                 response.getJSONObject(i).getString("priceType"),
                                 response.getJSONObject(i).getString("price") + "$"));
+
                     } catch (Exception e) {
                         Log.d("products", "222222222 ");
 
