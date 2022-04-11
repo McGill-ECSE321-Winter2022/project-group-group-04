@@ -68,4 +68,5 @@
         tools:layout="@layout/product_page">
     </fragment>
 
+
 </navigation>
