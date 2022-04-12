@@ -57,13 +57,6 @@
         android:text="@string/cart_delete"/>
 
     <TextView
-        android:id="@+id/carterror"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="error"
-        android:textAlignment="center" />
-
-    <TextView
         android:id="@+id/cart_items_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -92,6 +85,13 @@
             android:textAlignment="center" />
     </LinearLayout>
     -->
+    <TextView
+        android:id="@+id/cart_total_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="@string/total_price" />
+
     <ListView
         android:id="@+id/cartItemsList"
         android:layout_width="match_parent"
