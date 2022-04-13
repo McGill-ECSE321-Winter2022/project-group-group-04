@@ -18,21 +18,15 @@ import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.OngoingStubbing;
 
 import ca.mcgill.ecse321.project321.dao.AddressRepository ;
 import ca.mcgill.ecse321.project321.dao.CartItemRepository ;
@@ -47,7 +41,6 @@ import ca.mcgill.ecse321.project321.dao.StoreOwnerRepository ;
 import ca.mcgill.ecse321.project321.dao.StoreRepository ;
 import ca.mcgill.ecse321.project321.dao.TimeslotRepository ;
 import ca.mcgill.ecse321.project321.dao.UserRepository ;
-import ca.mcgill.ecse321.project321.dto.OrderDTO;
 import ca.mcgill.ecse321.project321.model.Address;
 import ca.mcgill.ecse321.project321.model.Cart;
 import ca.mcgill.ecse321.project321.model.CartItem;
@@ -106,12 +99,11 @@ public class TestProject321Service {
 	private static final String SET_CUSTOMER_ADDRESS_KEY = "testSet@mail.com";
 	
 	private static final Address ADDRESS_KEY = new Address("testTown", "testStreet", "testPostCode", 1);
-	private static final Address NON_EXISTING_ADDRESS_KEY = new Address("testTown2", "testStreet2", "testPostCode2", 1);
 	private static final Address ADDRESS_KEY_DELETING = new Address("testTown", "testStreet", "testPostCode", 1);
 	
 	private static final Address CART_TESTING_ADDRESS = new Address("testTown", "testStreet", "testPostCode", 1);
 	private static final Customer CART_TESTING_CUSTOMER = new Customer("email", "name", "password", "phone",CART_TESTING_ADDRESS ); 
-	private static final Date TESTING_DATE = new Date(2022, 01, 01);
+	private static final Date TESTING_DATE = Date.valueOf("2022-01-01");
 	private static final Time START_TESTING_TIME = java.sql.Time.valueOf(LocalTime.of(12,00)); 
 	private static final Time END_TESTING_TIME = java.sql.Time.valueOf(LocalTime.of(16, 00));
 	private static final TimeSlot CART_TESTING_TIMESLOT = new TimeSlot(); 
@@ -796,7 +788,7 @@ public class TestProject321Service {
 	
 	@Test
 	public void testSetStoreOwnerInfoEmptyOwner() {
-		List all = new ArrayList<StoreOwner>();
+		List<StoreOwner> all = new ArrayList<StoreOwner>();
 		when(storeOwnerDao.findAll()).thenReturn(all);
 		String error = null;
 		
@@ -812,7 +804,7 @@ public class TestProject321Service {
 	@Test
 	public void testSetStoreOwnerInfo() {
 		StoreOwner testOwner = new StoreOwner("test@mail.com", "testName", "testPassword");
-		List all =  new ArrayList<StoreOwner>();
+		List<StoreOwner> all =  new ArrayList<StoreOwner>();
 		all.add(testOwner);
 		
 		when(storeOwnerDao.findAll()).thenReturn(all);
@@ -1554,8 +1546,7 @@ public class TestProject321Service {
 		Time endTime = java.sql.Time.valueOf(LocalTime.of(14, 00));
 		Date date = java.sql.Date.valueOf(LocalDate.now());
 		int maxOrderPerSlot = 100;	
-		TimeSlot ts = null;
-		ts = service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
+		service.createTimeSlot(startTime,endTime,date,maxOrderPerSlot);
 		String error = "";
 		try {
 		service.deleteTimeSlot(startTime,endTime,date);
@@ -2422,8 +2413,7 @@ public class TestProject321Service {
 		String password = "pw1234";
 		StoreOwner testStoreOwner = service.createStoreOwner(email,name,password);
 		Store testStore = service.createStore(testPhoneNumber, testEmail, testOpenTime, testCloseTime, testStoreOwner, ADDRESS_KEY_DELETING, testOutOfTownFee);
-		Store testStore2 = new Store(testPhoneNumber, testEmail, testOpenTime, testCloseTime, testStoreOwner, ADDRESS_KEY_DELETING, testOutOfTownFee);	    
-	    
+		
 
 //	    when(storeDao.findByAddress(ADDRESS_KEY_DELETING)).thenReturn(testStore); //expect a fetch, return a "fetched" person;
 
@@ -2449,12 +2439,10 @@ public class TestProject321Service {
 	public void testGetNonExistingStore(){
 		List<Store> all = new ArrayList<Store>();
 		when(storeDao.findAll()).thenReturn(all);
-		String error = null;
 		Store foundStore = null;
 		try{
 			foundStore = service.getStore();
 		}catch(Exception e) {
-			error = e.getMessage();
 		}
 		assertNull(foundStore);
 
