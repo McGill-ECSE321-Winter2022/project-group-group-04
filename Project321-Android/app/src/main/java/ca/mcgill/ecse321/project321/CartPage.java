@@ -2,11 +2,9 @@ package ca.mcgill.ecse321.project321;
 
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -29,7 +27,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-
 public class CartPage extends Fragment {
     private CartPageBinding binding;
     private Button create_button;
@@ -38,7 +35,7 @@ public class CartPage extends Fragment {
     private Button checkout_button;
     private JSONArray cartItems;
     private String cartType;
-    //private int TotalPrice = 0;
+    private int TotalPrice = 0;
 
     private String customeremail = MainActivity.getEmail();
     private String customerpassword = MainActivity.getPassword();
@@ -50,21 +47,16 @@ public class CartPage extends Fragment {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         binding = CartPageBinding.inflate(inflater, container, false);
         //Set Visibility of Items that don't need to be seen yet
-        binding.carterror.setVisibility(View.GONE);
         binding.cartItemsList.setVisibility(View.GONE);
         binding.cartItemsTitle.setVisibility(View.GONE);
         binding.deleteCartButton.setVisibility(View.GONE);
         binding.clearCartButton.setVisibility(View.GONE);
         binding.checkoutButton.setVisibility(View.GONE);
+        binding.cartTotalPrice.setVisibility(View.GONE);
         //Button on click setters
         create_button = binding.createCartButton;
         create_button.setOnClickListener(new View.OnClickListener() {
@@ -106,11 +98,9 @@ public class CartPage extends Fragment {
                 //Called when item is selected, use position of item to find it from list of items
                 if(id == 0){
                     cartType = "Delivery";
-                    Log.d("myTag", "test: Selected " + cartType);
                 }
                 if(id == 1){
                     cartType = "Pickup";
-                    Log.d("myTag", "test: Selected " + cartType);
                 }
             }
 
@@ -118,15 +108,15 @@ public class CartPage extends Fragment {
             public void onNothingSelected(AdapterView<?> arg0)
             {
                 //Called when no item is selected
+                //In this case at least one item is always selected
             }
         });
-        //Get cart
+        //Get cart if possible
         getCart();
         return binding.getRoot();
     }
-    //Create new cart
+    //Create new cart using the cart type from spinner and customer info from being logged in
     public void createCart() {
-        TextView error = binding.carterror;
         RequestParams rp = new RequestParams();
         rp.add("type", cartType);
         rp.add("customeremail", customeremail);
@@ -134,32 +124,31 @@ public class CartPage extends Fragment {
         HttpUtils.post("carts", rp, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("myTag", "test: Success");
-                error.setVisibility(View.GONE);
                 binding.createCartButton.setVisibility(View.GONE);
                 binding.cartTypeSpinner.setVisibility(View.GONE);
                 binding.cartType.setVisibility(View.GONE);
-                getCart();
+                getCart(); //retrieves the cart after it is created
             }
-
+            //On failure it creates a toast that lets the user know why it failed. Either server issue or the user is not logged in
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                error.setVisibility(View.VISIBLE);
-                error.setText(errorResponse.toString());
-                Log.d("myTag", "test: Fail");
+                if(customeremail.isEmpty()&&customerpassword.isEmpty()){
+                    Toast.makeText(getActivity(), "You must Log in first!", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getActivity(), "Uhh oh something went wrong, try again later!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
-    //Method for deleting existing Cart
+    //Method for deleting existing Cart and resets visibility of components back to cart creation
     public void deleteCart(){
-        TextView error = binding.carterror;
         RequestParams rp = new RequestParams();
         rp.add("customeremail", customeremail);
         rp.add("customerpassword", customerpassword);
         HttpUtils.post("carts/delete", rp, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                error.setVisibility(View.GONE);
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
@@ -168,16 +157,14 @@ public class CartPage extends Fragment {
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
                 binding.checkoutButton.setVisibility(View.GONE);
-                //TotalPrice = 0;
+                binding.cartTotalPrice.setVisibility(View.GONE);
+                TotalPrice = 0;
                 items.clear();
-                Log.d("myTag", "test: Success");
+                Toast.makeText(getActivity(), "Cart was deleted!", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                error.setVisibility(View.VISIBLE);
-                error.setText(errorResponse.toString());
-                Log.d("myTag", "test: Fail");
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
@@ -186,15 +173,14 @@ public class CartPage extends Fragment {
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
                 binding.checkoutButton.setVisibility(View.GONE);
-                //TotalPrice = 0;
+                binding.cartTotalPrice.setVisibility(View.GONE);
+                TotalPrice = 0;
                 items.clear();
+                Toast.makeText(getActivity(), "Cart was deleted!", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable){
-                error.setVisibility(View.VISIBLE);
-                error.setText(errorResponse);
-                Log.d("myTag", "test: Fail");
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
@@ -202,22 +188,22 @@ public class CartPage extends Fragment {
                 binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
+                binding.cartTotalPrice.setVisibility(View.GONE);
                 binding.checkoutButton.setVisibility(View.GONE);
-                //TotalPrice = 0;
+                TotalPrice = 0;
                 items.clear();
+                Toast.makeText(getActivity(), "Cart was deleted!", Toast.LENGTH_SHORT).show();
             }
         });
     }
-    //Gets cart if one already exists
+    //Attempts to retrieve cart the customer has and lists the items in cart if any to list view
     public void getCart(){
-        TextView error = binding.carterror;
         RequestParams rp = new RequestParams();
         rp.add("customeremail", customeremail);
         rp.add("customerpassword", customerpassword);
         HttpUtils.get("cart", rp, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                error.setVisibility(View.GONE);
                 binding.createCartButton.setVisibility(View.GONE);
                 binding.cartTypeSpinner.setVisibility(View.GONE);
                 binding.cartType.setVisibility(View.GONE);
@@ -227,7 +213,9 @@ public class CartPage extends Fragment {
                 binding.clearCartButton.setVisibility(View.VISIBLE);
                 try {
                     cartItems = response.getJSONArray("cartItems");
-                    if(cartItems.length() >0){
+
+                    if(cartItems.length() >0){ //If cart is not empty then loop through all the items and add each item as a string to the items arraylist for the list view
+
                         binding.checkoutButton.setVisibility(View.VISIBLE);
                         for(int i = 0; i < cartItems.length(); i++){
                             String listElement,productName,productPriceType;
@@ -236,25 +224,30 @@ public class CartPage extends Fragment {
                             productPrice = cartItems.getJSONObject(i).getJSONObject("product").getInt("price");
                             productPriceType = cartItems.getJSONObject(i).getJSONObject("product").getString("priceType");
                             productQuantity = cartItems.getJSONObject(i).getInt("quantity");
-                            listElement = productName + " " + productPrice + productPriceType + " " + productQuantity;
+                            listElement = productName + "    " + productPriceType + ": " + productPrice + "$  " + "Quantity: " + productQuantity + "                                  Item Total:  " + (productPrice*productQuantity)+ "$" ;
                             items.add(listElement);
-                            //TotalPrice += productPrice*productQuantity;
-                            Log.d("MyTag", "Products: " + cartItems.get(0).toString());
+                            TotalPrice += productPrice*productQuantity;
                         }
+                    }
+                    else if(cartItems.length() == 0){
+                        TotalPrice = 0;
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                binding.cartTotalPrice.setVisibility(View.VISIBLE);
+                binding.cartTotalPrice.setText("Total Cart Price:  " + TotalPrice);
                 populateItemList();
-                Log.d("myTag", "test: Success");
-                Log.d("myTag", "test: CartItems: " + cartItems);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                error.setVisibility(View.VISIBLE);
-                error.setText(errorResponse.toString());
-                Log.d("myTag", "test: Fail");
+                if(customeremail.isEmpty()&&customerpassword.isEmpty()){
+                    Toast.makeText(getActivity(), "You must Log in first!", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getActivity(), "You must create a cart first!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -268,20 +261,17 @@ public class CartPage extends Fragment {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 items.clear();
                 getCart();
-                //TotalPrice = 0;
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 items.clear();
                 getCart();
-                //TotalPrice = 0;
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable) {
                 items.clear();
                 getCart();
-                //TotalPrice = 0;
             }
         });
     }
@@ -295,26 +285,24 @@ public class CartPage extends Fragment {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 items.clear();
                 deleteCart();
-                //TotalPrice = 0;
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 items.clear();
                 deleteCart();
-                //TotalPrice = 0;
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable) {
                 items.clear();
                 deleteCart();
-                //TotalPrice = 0;
             }
         });
     }
 
     public void checkout(){
         if(cartItems.length() >0){
+            items.clear();
             NavHostFragment.findNavController(CartPage.this)
                     .navigate(R.id.action_cart_to_checkout);
         }
@@ -322,7 +310,7 @@ public class CartPage extends Fragment {
     //Populates the listview with items from cart
     public void populateItemList(){
         ListView lv = binding.cartItemsList;
-        ArrayAdapter<String> itemListAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
+        ArrayAdapter<String> itemListAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, items);
         lv.setAdapter(itemListAdapter);
     }
 

@@ -1,6 +1,10 @@
 package ca.mcgill.ecse321.project321;
 
 import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,176 +14,210 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
-
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+
+import ca.mcgill.ecse321.project321.databinding.CartPageBinding;
+import ca.mcgill.ecse321.project321.databinding.CheckoutPageBinding;
+import cz.msebera.android.httpclient.Header;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-import ca.mcgill.ecse321.project321.databinding.CheckoutPageBinding;
-import cz.msebera.android.httpclient.entity.mime.Header;
-
-
-public class CheckoutPage extends Fragment{
+public class CheckoutPage extends Fragment {
     private CheckoutPageBinding binding;
     private Button timeslot_button;
     private Button payment_button;
+
     private JSONArray cartItems;
-    private JSONArray timeslots;
+    private JSONArray allTimeslots;
     private String cartType;
+    private int TotalPrice = 0;
 
     private String customeremail = MainActivity.getEmail();
     private String customerpassword = MainActivity.getPassword();
     private ArrayList<String> items = new ArrayList<>();
-    private ArrayList<String> datetimes = new ArrayList<>();
+    private ArrayList<String> timeslots = new ArrayList<>();
 
-    public CheckoutPage(){
+    boolean timeslotSelected;
 
+    private String paymentcode;
+
+    public CheckoutPage() {
+        // Required empty public constructor
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState){
+                             Bundle savedInstanceState) {
         binding = CheckoutPageBinding.inflate(inflater, container, false);
+        timeslotSelected = false;
+        //Set Visibility of Items that don't need to be seen yet
         binding.paymentButton.setEnabled(false);
         binding.checkouterror.setVisibility(View.GONE);
-
-        //button on click setter
+        //Button on click setters
         payment_button = binding.paymentButton;
-        payment_button.setOnClickListener(new View.OnClickListener(){
-
+        payment_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                makePayment();
+                paymentcode = binding.paymentcodeinput.getText().toString();
+                if(paymentcode.length() == 0) {
+                    binding.checkouterror.setText("payment code cannot be empty");
+                    binding.checkouterror.setVisibility(View.VISIBLE);
+                }
+                else {
+                    pay(paymentcode);
+                }
             }
         });
+        //Spinner population and on select actions
 
-        getTimeSLot();
-        //spinner population and on selection action
-        Spinner spinner = binding.timeslotSpinner;
-        ArrayAdapter<CharSequence> adapter
-                = ArrayAdapter.createFromResource(this.getActivity(), R.array.cart_type_spinner, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                //Called when item is selected, use position of item to find it from list of items
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
+        //Get cart if possible
         getCart();
-
+        //get timeslot
+        getTimeslot();
+        //Get timeslots if possible
         return binding.getRoot();
     }
 
+    //Attempts to retrieve cart the customer has and lists the items in cart if any to list view
     public void getCart(){
-        TextView error = binding.checkouterror;
         RequestParams rp = new RequestParams();
-        rp.add("customeremail",customeremail);
-        rp.add("customerpassword",customerpassword);
-        HttpUtils.get("cart",rp,new JsonHttpResponseHandler(){
-            //@Override
-            public void OnSuccess(int statusCode, Header[] headers, JSONObject response) throws JSONException {
-                error.setVisibility(View.GONE);
+        rp.add("customeremail", customeremail);
+        rp.add("customerpassword", customerpassword);
+        HttpUtils.get("cart", rp, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     cartItems = response.getJSONArray("cartItems");
-                    cartType = response.getJSONObject("shoppingType").getString("cartType");
-                    int productTotalPrice=0;
-                    int paymentPrice=0;
-                    if(cartItems.length()>0){
-                        for(int i=0; i< cartItems.length(); i++){
-                            String listElement, productName;
-                            int productPrice, productQuantity, subtotal;
+
+                    if(cartItems.length() >0){ //If cart is not empty then loop through all the items and add each item as a string to the items arraylist for the list view
+
+                        for(int i = 0; i < cartItems.length(); i++){
+                            String listElement,productName,productPriceType;
+                            int productPrice,productQuantity;
                             productName = cartItems.getJSONObject(i).getJSONObject("product").getString("productName");
-                            productPrice = cartItems.getJSONObject(i).getJSONObject("price").getInt("productPrice");
-                            productQuantity = cartItems.getJSONObject(i).getJSONObject("quantity").getInt("productQuantity");
-                            subtotal = productPrice * productQuantity;
-                            productTotalPrice += subtotal;
-                            listElement = productName+" subtotal :"+subtotal+"($"+productPrice+"*"+productQuantity+"qty)";
+                            productPrice = cartItems.getJSONObject(i).getJSONObject("product").getInt("price");
+                            productPriceType = cartItems.getJSONObject(i).getJSONObject("product").getString("priceType");
+                            productQuantity = cartItems.getJSONObject(i).getInt("quantity");
+                            listElement = productName + "    " + productPriceType + ": " + productPrice + "$  " + "Quantity: " + productQuantity + "                                  Item Total:  " + (productPrice*productQuantity)+ "$" ;
                             items.add(listElement);
-                            Log.d("MyTag","products:"+cartItems.get(i).toString());
+                            TotalPrice += productPrice*productQuantity;
                         }
                     }
-                } catch (JSONException e){
+                    else if(cartItems.length() == 0){
+                        TotalPrice = 0;
+                    }
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                populateItemList(binding.cartItemsList,items);
-                Log.d("myTag","test : CartItems:"+cartItems);
+                binding.cartItemsTotal.setVisibility(View.VISIBLE);
+                binding.cartItemsTotal.setText("Total Cart Price:  " + TotalPrice);
+                populateItemList();
             }
-            //@Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse){
-                error.setVisibility(View.VISIBLE);
-                error.setText(errorResponse.toString());
-                Log.d("myTag","test: fail getting cart");
-            }
-        });
-    }
 
-    public void getTimeSLot(){
-        TextView error = binding.checkouterror;
-        RequestParams rp = new RequestParams();
-        HttpUtils.get("availabletimeslots",rp,new JsonHttpResponseHandler(){
-            //@Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response){
-                error.setVisibility(View.GONE);
-                binding.timeslotSpinner.setVisibility(View.VISIBLE);
-                try{
-                    timeslots = response.getJSONArray("timeslots");
-                    if (timeslots.length()>0){
-                        for(int i=0; i<timeslots.length(); i++){
-                            String listElement, start, end, date;
-                            int max;
-                            start = timeslots.getJSONObject(i).getJSONObject("startTime").getString("start");
-                            end = timeslots.getJSONObject(i).getJSONObject("endTime").getString("end");
-                            date = timeslots.getJSONObject(i).getJSONObject("date").getString("date");
-                            max = timeslots.getJSONObject(i).getJSONObject("maxOrderPerSlot").getInt("max");
-                            listElement = date+" "+start+" ~ "+end;
-                            datetimes.add(listElement);
-                        }
-                    }
-                } catch(JSONException e){
-                    e.printStackTrace();;
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if(customeremail.isEmpty()&&customerpassword.isEmpty()){
+                    Toast.makeText(getActivity(), "You must Log in first!", Toast.LENGTH_SHORT).show();
                 }
-                populateItemList(binding.timeslotList,datetimes);
-                Log.d("myTag","test : CartItems:"+cartItems);
-            }
-            //@Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse){
-                error.setVisibility(View.VISIBLE);
-                error.setText(errorResponse.toString());
-                Log.d("myTag","test : fail getting timeslots");
+                else{
+                    Toast.makeText(getActivity(), "You must create a cart first!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
-    public void makePayment(){
-        TextView error = binding.checkouterror;
-    }
-
-    public void populateItemList(ListView lv, ArrayList<String> arr){
-        ArrayAdapter<String> itemListAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, arr);
+    //Populates the listview with items from cart
+    public void populateItemList(){
+        ListView lv = binding.cartItemsReviewList;
+        ArrayAdapter<String> itemListAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, items);
         lv.setAdapter(itemListAdapter);
     }
 
+    public void getTimeslot(){
+        RequestParams rp = new RequestParams();
+        HttpUtils.get("availabletimeslots",rp,new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response){
+                try {
+                    Log.d("mytag", String.valueOf(response.length()));
+//                    for(int i=0; i<response.length();i++){
+//                        String listElement, date, start, end;
+//                        date = response.getJSONObject(i).getString("date");
+//                        start = response.getJSONObject(i).getString("startTime");
+//                        end = response.getJSONObject(i).getString("endTime");
+//                        listElement = "["+date+"]"+start+"-"+end;
+//                        Log.d("myTag",listElement);
+//                        timeslots.add(listElement);
+//                    }
+                    response.getJSONObject("1ab3");
+
+                } catch (JSONException e){
+                    e.printStackTrace();
+                }
+                populateTimeslotList();
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse){
+                Log.d("myTag","getting timeslot failed");
+            }
+        });
+    }
+
+    //Populates the listview with items from cart
+    public void populateTimeslotList(){
+        ListView lv = binding.timeslotList;
+        ArrayAdapter<String> timeslotListAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, timeslots);
+        lv.setAdapter(timeslotListAdapter);
+    }
+    public void confirm_timeslot(Timeslot timeslot){
+        RequestParams rp = new RequestParams();
+        rp.add("customeremail", customeremail);
+        rp.add("customerpassword", customerpassword);
+        rp.add("timeslotdate",timeslot.getDate());
+        rp.add("timeslotstarttime",timeslot.getStartTime());
+        rp.add("timeslotendtime",timeslot.getEndTime());
+        HttpUtils.post("/carts/timeslot",rp, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response){
+                binding.paymentcodeinput.setVisibility(View.VISIBLE);
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse){
+                Toast.makeText(getActivity(),"something went wrong, try again later",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    public void pay(String paymentcode){
+        RequestParams rp = new RequestParams();
+        rp.add("paymentcode",paymentcode);
+        rp.add("customeremail", customeremail);
+        rp.add("customerpassword", customerpassword);
+        HttpUtils.post("/cart/pay",rp, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response){
+                NavHostFragment.findNavController(CheckoutPage.this)
+                        .navigate(R.id.action_payment_to_history);
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse){
+                Toast.makeText(getActivity(),"payment cannot be completed",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
 
 }
