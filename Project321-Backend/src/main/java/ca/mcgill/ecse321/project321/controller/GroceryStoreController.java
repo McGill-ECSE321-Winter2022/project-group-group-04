@@ -990,7 +990,11 @@ public class GroceryStoreController {
             return convertToDTO(item);
         }
     }
-
+    /**
+     * Creates a cart and add items specified. Used to make in store purchases.
+     * @param user identification of employee and product name and quantity
+     * @return returns instorepurchase object
+     */
     @PostMapping(value = {"/instorepurchase", "/instorepurchase/"})
     public InStorePurchaseDTO createInStorePurchase(@RequestParam(name = "useremail") String userEmail,
                                                     @RequestParam(name = "userpassword") String userPassword,
@@ -1004,7 +1008,10 @@ public class GroceryStoreController {
         service.setProductStock(productName, (p.getStock() - quantity));
         return convertToDTO(purchase);
     }
-
+    /**
+     * Make a list of all the in store purchases
+     * @return returns the list of all the in store purchases
+     */
     @GetMapping(value = {"/instorepurchases", "/instorepurchases/"})
     public List<InStorePurchaseDTO> getAllInStorePurchases() {
         List<InStorePurchase> localList = service.getAllInStorePurchases();
@@ -1359,7 +1366,12 @@ public class GroceryStoreController {
                 return null;
         }
     }
-
+    /**
+     * Retrieve cart if one exists for user
+     * @param userEmail user name to be checked
+     * @param userPassword user password to be checked
+     * @return returns the currently open cart of the user
+     */
     private Cart retrieveOpenCart(String customerEmail, String customerPassword) throws IllegalArgumentException {
         Customer customer = checkCustomer(customerEmail, customerPassword);
         List<Cart> carts= service.getCartsByCustomer(customer);
@@ -1372,8 +1384,12 @@ public class GroceryStoreController {
         }
         return cart;
     }
-    
-
+    /**
+     * Check if user is customer
+     * @param userEmail user name to be checked
+     * @param userPassword user password to be checked
+     * @return On success returns user object
+     */
     private Customer checkCustomer(String customerEmail, String customerPassword) throws IllegalArgumentException {
         Customer customer = service.getCustomer(customerEmail);
         if(customer == null) {
@@ -1384,7 +1400,12 @@ public class GroceryStoreController {
         }
         return customer;
     }
-
+    /**
+     * Check if user is owner
+     * @param userEmail user name to be checked
+     * @param userPassword user password to be checked
+     * @return On success returns user object
+     */
     private StoreOwner checkOwner(String ownerEmail, String ownerPassword) {
         StoreOwner owner = service.getStoreOwner();
         if(!owner.getEmail().equals(ownerEmail) || !owner.getPassword().equals(ownerPassword)) {
@@ -1392,7 +1413,12 @@ public class GroceryStoreController {
         }
         return owner;
     }
-
+    /**
+     * Check if user is owner or employee 
+     * @param userEmail user name to be checked
+     * @param userPassword user password to be checked
+     * @return On success return user object
+     */
     private User checkEmployeeOrOwner(String userEmail, String userPassword) throws IllegalArgumentException {
         User u = service.getEmployee(userEmail);
         if(u == null) {
@@ -1406,7 +1432,12 @@ public class GroceryStoreController {
         }
         return u;
     }
-
+    /**
+     * Check if item of specified amount exists
+     * @param productName is the name of product in string 
+     * @param quanitity is the integer value of the number of items to be checked for availability 
+     * @return retruns product
+     */
     private Product verifyProductAvailability(String productName, int quantity) throws IllegalArgumentException {
         Product p = service.getProductByName(productName);
         if(p == null) {
@@ -1420,7 +1451,12 @@ public class GroceryStoreController {
         }
         return p;
     }
-
+    /**
+     * Checks if the given item of specified quantity is available to shop online.
+     * @param productName is the name of product in string 
+     * @param quanitity is the integer value of the number of items to be checked for availability 
+     * @return on success returns product 
+     */
     private Product verifyProductAvailabilityAndShoppability(String productName, int quantity) throws IllegalArgumentException {
         Product p = verifyProductAvailability(productName, quantity);
         if(p.getIsAvailableOnline().equals("no")) {
@@ -1428,7 +1464,9 @@ public class GroceryStoreController {
         }
         return p;
     }
-
+    /**
+     * Calculated the total value of all the items in the customers cart
+     */
     private int getCurrentTotal(Cart cart) {
         int totalPrice = 0;
         List<CartItem> itemList = service.getCartItemsByCart(cart);
@@ -1440,7 +1478,9 @@ public class GroceryStoreController {
         }
         return totalPrice;
     }
-
+    /**
+     * Compares Customer town equals to the stores town and returns true if customer is in same town or false otherwise.
+     */
     private boolean outOfTown(String customerEmail) {
         boolean outOfTown = true;
         Customer customer = service.getCustomer(customerEmail);
