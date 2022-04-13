@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CheckoutPage">
+
+
+    <TextView
+        android:id="@+id/checkout_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold"
+        android:textSize="32sp"
+        android:text="Checkout" />
+
+    <TextView
+        android:id="@+id/review_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:text="Review Your Cart" />
+
+    <ListView
+        android:id="@+id/cartItemsList"
+        android:layout_width="match_parent"
+        android:layout_height="314dp" />
+
+    <TextView
+        android:id="@+id/timeslot_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:text="Choose timeslot to delivery/pickup" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/timeslots"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAlignment="center"
+            android:text="available time slots :" />
+
+        <Spinner
+            android:id="@+id/timeslotSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
+
+
+    <ListView
+        android:id="@+id/timeslotList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/checkouterror"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="error"
+        android:textAlignment="center" />
+
+    <Button
+        android:id="@+id/payment_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="proceed payment" />
+
+</LinearLayout>

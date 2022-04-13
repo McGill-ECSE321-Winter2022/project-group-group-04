@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ public class CartPage extends Fragment {
     private Button create_button;
     private Button delete_button;
     private Button clear_button;
+    private Button checkout_button;
     private JSONArray cartItems;
     private String cartType;
     //private int TotalPrice = 0;
@@ -62,6 +64,7 @@ public class CartPage extends Fragment {
         binding.cartItemsTitle.setVisibility(View.GONE);
         binding.deleteCartButton.setVisibility(View.GONE);
         binding.clearCartButton.setVisibility(View.GONE);
+        binding.checkoutButton.setVisibility(View.GONE);
         //Button on click setters
         create_button = binding.createCartButton;
         create_button.setOnClickListener(new View.OnClickListener() {
@@ -82,6 +85,13 @@ public class CartPage extends Fragment {
             @Override
             public void onClick(View view) {
                 clearCart();
+            }
+        });
+        checkout_button = binding.checkoutButton;
+        checkout_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkout();
             }
         });
         //Spinner population and on select actions
@@ -157,6 +167,7 @@ public class CartPage extends Fragment {
                 binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
+                binding.checkoutButton.setVisibility(View.GONE);
                 //TotalPrice = 0;
                 items.clear();
                 Log.d("myTag", "test: Success");
@@ -174,6 +185,7 @@ public class CartPage extends Fragment {
                 binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
+                binding.checkoutButton.setVisibility(View.GONE);
                 //TotalPrice = 0;
                 items.clear();
             }
@@ -190,6 +202,7 @@ public class CartPage extends Fragment {
                 binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
+                binding.checkoutButton.setVisibility(View.GONE);
                 //TotalPrice = 0;
                 items.clear();
             }
@@ -215,6 +228,7 @@ public class CartPage extends Fragment {
                 try {
                     cartItems = response.getJSONArray("cartItems");
                     if(cartItems.length() >0){
+                        binding.checkoutButton.setVisibility(View.VISIBLE);
                         for(int i = 0; i < cartItems.length(); i++){
                             String listElement,productName,productPriceType;
                             int productPrice,productQuantity;
@@ -297,6 +311,13 @@ public class CartPage extends Fragment {
                 //TotalPrice = 0;
             }
         });
+    }
+
+    public void checkout(){
+        if(cartItems.length() >0){
+            NavHostFragment.findNavController(CartPage.this)
+                    .navigate(R.id.action_cart_to_checkout);
+        }
     }
     //Populates the listview with items from cart
     public void populateItemList(){
