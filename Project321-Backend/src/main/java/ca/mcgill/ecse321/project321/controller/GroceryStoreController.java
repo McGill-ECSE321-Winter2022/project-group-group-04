@@ -1466,6 +1466,7 @@ public class GroceryStoreController {
     }
     /**
      * Calculated the total value of all the items in the customers cart
+     * @return total price calculated
      */
     private int getCurrentTotal(Cart cart) {
         int totalPrice = 0;
@@ -1480,6 +1481,7 @@ public class GroceryStoreController {
     }
     /**
      * Compares Customer town equals to the stores town and returns true if customer is in same town or false otherwise.
+     * @return if user is out of town or not as a boolean
      */
     private boolean outOfTown(String customerEmail) {
         boolean outOfTown = true;
