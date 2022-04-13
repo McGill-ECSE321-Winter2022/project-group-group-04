@@ -45,6 +45,7 @@ public class CheckoutPage extends Fragment {
     private ArrayList<String> items = new ArrayList<>();
     private ArrayList<String> alltimeslots = new ArrayList<>();
     ArrayList<Timeslot> timeslots = new ArrayList<>();
+    private String t;
 
     private String paymentcode;
 
@@ -109,6 +110,9 @@ public class CheckoutPage extends Fragment {
                 if (timeslots.get(i).getDate().equals("1999-12-31")){
                     Toast.makeText(getActivity(), "There is no product in the system", Toast.LENGTH_SHORT).show();
                     ///
+                } else {
+                    t = alltimeslots.get(i);
+                    Log.d("mytag", t);
                 }
             }
         });
@@ -209,6 +213,19 @@ public class CheckoutPage extends Fragment {
         ListView lv = binding.timeslotList;
         ArrayAdapter<String> timeslotListAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, alltimeslots);
         lv.setAdapter(timeslotListAdapter);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.d("Status",String.valueOf(MainActivity.getStatus()));
+                if (timeslots.get(i).getDate().equals("1999-12-31")){
+                    Toast.makeText(getActivity(), "There is no product in the system", Toast.LENGTH_SHORT).show();
+                    ///
+                } else {
+                    t = alltimeslots.get(i);
+                    Log.d("mytag", t);
+                }
+            }
+        });
     }
 
     public void confirm_timeslot(Timeslot timeslot){
