@@ -214,7 +214,7 @@ public class GroceryStoreController {
     }
     
     /**
-     * Method used to retrieve an instance of the store owner 
+     * Method used to retrieve an instance of the store owner, FOR DEVELOPMENT ONLY.
      * @return DTO of the store owner containing the store owners information
      * @throws IllegalArgumentException Exception thrown in the case of failure during the 
      *         translation of the database object to the DTO
