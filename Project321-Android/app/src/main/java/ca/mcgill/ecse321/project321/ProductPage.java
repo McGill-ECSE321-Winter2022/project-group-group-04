@@ -71,7 +71,10 @@ public class ProductPage extends Fragment {
                     Toast.makeText(getActivity(), "You need to login first", Toast.LENGTH_SHORT).show();
                 } else if (!hasCart) {
                     Toast.makeText(getActivity(), "You need to create a cart first", Toast.LENGTH_SHORT).show();
-                } else {
+                } else if(products.get(i).getIsAvailableOnline().equalsIgnoreCase("no")) {
+                    Toast.makeText(getActivity(), "Sorry, this product is not available for online purchase", Toast.LENGTH_SHORT).show();
+                }
+                else {
                     addProduct(products.get(i));  // add the product to the cart
                 }
             }

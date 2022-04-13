@@ -204,7 +204,7 @@ public class CheckoutPage extends Fragment {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response){
                 Toast.makeText(getActivity(),"Your timeslot is confirmed",Toast.LENGTH_SHORT).show();
-                
+
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse){

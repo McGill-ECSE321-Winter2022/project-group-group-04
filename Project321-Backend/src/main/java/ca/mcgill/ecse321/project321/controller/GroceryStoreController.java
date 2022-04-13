@@ -5,7 +5,6 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +56,15 @@ public class GroceryStoreController {
 	
     public static String adminCode = "admin";
 
+    /**
+     * Private class used as return type for the userExists() method. It allows to
+     * create a JSON object containing a single boolean which communicates whether or
+     * not the email passed to the userExists() method is linked to an active account
+     * 
+     */
     private class AccountDTO{
-        private boolean exists;
+        // Sadly the variable appears to be unused but it is actually used to create the JSON object
+        private boolean exists;  
 
         public AccountDTO(boolean exists) {
             this.exists = exists;
@@ -67,15 +73,22 @@ public class GroceryStoreController {
         public void setExists(boolean exists) {
             this.exists = exists;
         }
-
-        public boolean getExists() {
-            return this.exists;
-        }
     }
     
     @Autowired
     private GroceryStoreService service;
 
+    /**
+     * Method used to log in a user. The method checks if a user with the specified email exists and checks if
+     * the password supplied corresponds to the password of the user with the specified email. The method then
+     * constructs a user DTO containing the user info and the type of user. The type of user will be used in the
+     * front end to make decisions on what the user can and cannot see. The DTO is then returned.
+     * @param email Email of the user to log in
+     * @param password Password of the user to log in
+     * @return DTO of the user 
+     * @throws IllegalArgumentException Exception thrown when password or email is wrong
+     * @throws IllegalStateException Exception thrown when we cant identify the usertype
+     */
     @GetMapping(value = {"/login", "/login/"})
     public UserDTO login(@RequestParam(name = "email")     String email,
                             @RequestParam(name = "password")  String password) throws IllegalArgumentException, IllegalStateException {
@@ -99,6 +112,12 @@ public class GroceryStoreController {
         return user;
     }
 
+    /**
+     * Method used to check if the email supplied is linked to an active account. If the account exists,
+     * the method returns a DTO with one boolean set to true to inform that the account exists.
+     * @param email Email to verify link to an active account
+     * @return DTO with information on whether the account exists or not
+     */
     @GetMapping(value = {"/userexists", "/userexists/"})
     public AccountDTO userExists(@RequestParam(name = "email")     String email) {
         AccountDTO a = new AccountDTO(false);
@@ -108,16 +127,44 @@ public class GroceryStoreController {
         return a;
     }
 
+    /**
+     * Method to retrieve all customer accounts on the database. The method returns a list of DTO containing
+     * every single customer recorded in database.
+     * @return List of all customers recorded in database
+     * @throws IllegalArgumentException Exception thrown when an error occurs during the translation of the 
+     *         database object list to the DTO list
+     */
     @GetMapping(value = {"/customers", "/customers/"})
     public List<CustomerDTO> getAllCustomers() throws IllegalArgumentException{
         return convertCustomerListToDTO(service.getAllCustomers());
     }
 
+    /**
+     * Method to retrieve the instance of the customer account linked to the specified email. 
+     * @param email Email of the customer instance to return
+     * @return DTO of the customer instance
+     * @throws IllegalArgumentException Exception thrown in the case of failure during the 
+     *         translation of the database object to the DTO
+     */
     @GetMapping(value = {"/customer", "/customer/"})
     public CustomerDTO getCustomer(@RequestParam(name = "email") String email) throws IllegalArgumentException{
         return convertToDTO(service.getCustomer(email));
     }
 
+    /**
+     * Method used to create a new customer account with the specified information.
+     * @param email Email linked with the new customer account to create
+     * @param name Name of the customer linked with the new customer account to create
+     * @param password Password linked with the new customer account to create
+     * @param phone Phone number linked with the new customer account to create
+     * @param town Name of the town of residence linked with the new customer account to create
+     * @param street Name of the street of residence linked with the new customer account to create
+     * @param postalcode Postal code of the residence linked with the new customer account to create
+     * @param unit Unit of the residence linked with the new customer account to create
+     * @return DTO of the customer account newly created
+     * @throws IllegalArgumentException Exception thrown when a customer account already linked to the
+     *         specified email exists
+     */
     @PostMapping(value = {"/customers", "/customers/"})
     public CustomerDTO createCustomer(@RequestParam(name = "email")     String email, 
                                       @RequestParam(name = "name")      String name, 
@@ -134,12 +181,23 @@ public class GroceryStoreController {
         }
         Customer c = service.createCustomer(email, name, password, phone, a);
         if(c == null) {
-            throw new IllegalArgumentException("Customer already exsist");
+            throw new IllegalArgumentException("Customer already exists");
         }
-        //System.out.println(c.getName());
         return convertToDTO(c);
     }
 
+    /**
+     * Method used to update the address of the customer linked to the email specified
+     * @param town New name of the town of residence linked with the customer account to update
+     * @param street New name of the street of residence linked with the customer account to update
+     * @param postalcode New postal code of the residence linked with the customer account to update
+     * @param unit New unit of the residence linked with the customer account to update
+     * @param customerEmail Email of the customer trying to update their address
+     * @param customerPassword Password of the customer trying to update their address
+     * @return DTO of the customer containing the updated address
+     * @throws IllegalArgumentException Exception thrown when the customer cant be found in database or if
+     *         the password supplied is wrong
+     */
     @PostMapping(value = {"/customers/address", "/customers/address/"})
     public CustomerDTO setCustomersAddress(@RequestParam(name = "town")      String town,
                                             @RequestParam(name = "street")      String street, 
@@ -155,11 +213,29 @@ public class GroceryStoreController {
         return convertToDTO(c);
     }
     
+    /**
+     * Method used to retrieve an instance of the store owner, FOR DEVELOPMENT ONLY.
+     * @return DTO of the store owner containing the store owners information
+     * @throws IllegalArgumentException Exception thrown in the case of failure during the 
+     *         translation of the database object to the DTO
+     */
     @GetMapping(value = {"/storeOwners", "/storeOwners/"})
     public StoreOwnerDTO getStoreOwner() throws IllegalArgumentException{
         return convertToDTO(service.getStoreOwner());
     }
     
+    /**
+     * Method to create a new store owner with the specified information. To create a new store owner, the
+     * user must know the secret admin code store. If a store owner account already exists, the current account
+     * is updated with the new information. This is because our system only keeps track of one owner account.
+     * @param email Email of the new store owner instance to create
+     * @param name Name of the new store owner instance to create
+     * @param password Password of the new store owner instance to create
+     * @param code Secret admin code
+     * @return DTO of the newly created owner account
+     * @throws IllegalArgumentException Exception thrown when an unexpected failure occurs in the service methods
+     * @throws IllegalAccessException Exception thrown when the admin code is incorrect
+     */
     @PostMapping(value = {"/storeOwners", "/storeOwners/"})
     public StoreOwnerDTO createStoreOwner(@RequestParam(name = "email")     String email, 
                                           @RequestParam(name = "name")      String name, 
@@ -177,6 +253,17 @@ public class GroceryStoreController {
         return convertToDTO(c);
     }
 
+    /**
+     * Method used to update the information for the owner account. The owner will have to supply the
+     * secret admin code to update the account information
+     * @param email New email linked to the user account
+     * @param name New name of the store owner
+     * @param password New password of the store owner
+     * @param code Secret admin code
+     * @return DTO of the updated store owner account
+     * @throws IllegalArgumentException  Exception thrown when an unexpected failure occurs in the service methods
+     * @throws IllegalAccessException Thrown when the admin code supplied is incorrect
+     */
     @PostMapping(value = {"/storeOwners/info", "/storeOwners/info/"})
     public StoreOwnerDTO setStoreOwnerInfo(@RequestParam(name = "email")     String email, 
                                            @RequestParam(name = "name")      String name, 
@@ -190,11 +277,25 @@ public class GroceryStoreController {
         return convertToDTO(c);
     }
 
+    /**
+     * Method used to retrieve the employee account linked to the specified email. 
+     * @param email Email of the employee account to retrieve
+     * @return DTO of the employee account containing the employee information
+     * @throws IllegalArgumentException Exception thrown in the case of failure during the 
+     *         translation of the database object to the DTO
+     */
     @GetMapping(value = {"/employee/{email}", "/employee/{email}/"})
     public EmployeeDTO getEmployee(@PathVariable("email") String email) throws IllegalArgumentException{
         return convertToDTO(service.getEmployee(email));
     }
     
+    /**
+     * Method used to retrieve all the carts recorded in the database regardless of which client the
+     * carts are linked to.
+     * @return List of DTOs representing all the carts recorded in the database
+     * @throws IllegalArgumentExceptionException Thrown in the case of failure during the 
+     *         translation of the database object list to the DTO list
+     */
     @GetMapping(value = {"/carts", "/carts/"})
     public List<CartDTO> getAllCarts() throws IllegalArgumentException {
         return convertCartListToDTO(service.getAllCarts());
@@ -230,6 +331,13 @@ public class GroceryStoreController {
         return convertToDTO(cart);
     }
 
+    /**
+     * Method used to retrieve the opened cart associated with the customer account with the specified email
+     * @param customerEmail Email of the customer trying to access his cart instance that is still opened
+     * @param customerPassword Password of the customer trying to access his cart instance that is still opened
+     * @return DTO of the opened cart instance linked to the customer account with the specified email 
+     * @throws IllegalStateException Thrown when the customer does not yet have an opened cart on their account
+     */
     @GetMapping(value = {"/cart", "/cart/"})
     public CartDTO getCart(@RequestParam(name = "customeremail")  String customerEmail, 
                             @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException {
@@ -240,6 +348,13 @@ public class GroceryStoreController {
         return convertToDTO(cart);
     }
 
+    /**
+     * Method used to get all the ordered and opened carts linked to the customer account with the specified email
+     * @param customerEmail Email of the customer trying to retrieve their order history
+     * @param customerPassword Password of the customer trying to retrieve their order history
+     * @return List of all carts associated to the customer account with the specified email
+     * @throws IllegalStateException Exception thrown when an unexpected failure occurs in the service methods
+     */
     @GetMapping(value = {"/cart/history", "/cart/history/"})
     public List<CartDTO> getHistoryCart(@RequestParam(name = "customeremail")  String customerEmail, 
                             @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException {
@@ -262,7 +377,7 @@ public class GroceryStoreController {
      * URL: localhost:8080/carts/clear?customeremail=aEmail&customerpassword=aPassword
      * @param customerEmail Email of customer for identification
      * @param customerPassword Password of customer for identification
-     * @throws IllegalStateException
+     * @throws IllegalStateException Exception thrown when an unexpected failure occurs in the service methods
      */
     @PostMapping(value = {"/carts/clear", "/carts/clear/"})
     public void clearCart(@RequestParam(name = "customeremail")  String customerEmail, 
@@ -278,6 +393,12 @@ public class GroceryStoreController {
         }
     }
     
+    /**
+     * Method used to delete the opened cart in the customer account associated with the specified email
+     * @param customerEmail Email of the customer trying to delete their currently opened cart
+     * @param customerPassword Password of the customer trying to delete their currently opened cart
+     * @throws IllegalStateException Exception thrown when an unexpected failure occurs in the service methods
+     */
     @PostMapping(value = {"/carts/delete", "/carts/delete/"})
     public void deleteCart(@RequestParam(name = "customeremail")  String customerEmail, 
             			   @RequestParam(name = "customerpassword") String customerPassword) throws IllegalStateException {
@@ -352,6 +473,11 @@ public class GroceryStoreController {
     	return convertTimeSlotListToDTO(availableTimeSlots);
     }
     
+    /**
+     * Method to retrieve all the timeslots recorded in database
+     * @return List of DTOs containing all the timeslots recorded in database
+     * @throws IllegalArgumentException Thrown if there are no timeslots in the database
+     */
     @GetMapping(value = {"/timeslots", "/timeslots/"})
     public List<TimeSlotDTO> getAllTimeSlots() throws IllegalArgumentException {
     	List<TimeSlot> tslot = service.getAllTimeSlots();
@@ -365,6 +491,19 @@ public class GroceryStoreController {
     	return convertTimeSlotListToDTO(tslot);
     }
     
+    /**
+     * Method used to delete a specified timeslot. No timeslot can overlap therefore we can uniquely identify timeslots
+     * with the date, start time and end time. Only the owner can delete timeslot, therefore the owner credentials must
+     * be supplied
+     * @param timeSlotDate Date of the timeslot to delete
+     * @param timeSlotStartTime Start time of the timeslot to delete
+     * @param timeSlotEndTime End time of the timeslot to delete
+     * @param email Email of the owner
+     * @param password Password of the owner
+     * @return DTO of the deleted timeslot
+     * @throws IllegalArgumentException Exception thrown in the case of failure during the 
+     *         translation of the database object to the DTO
+     */
     @PostMapping(value = {"/timeslot/delete", "/timeslot/delete/"})
     public TimeSlotDTO deleteTimeSlot(@RequestParam(name = "timeslotdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date timeSlotDate,
                                 @RequestParam(name = "timeslotstarttime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotStartTime,
@@ -378,6 +517,18 @@ public class GroceryStoreController {
         return (convertToDTO(service.deleteTimeSlot(startTime, endTime, date)));                         
     }
 
+    /**
+     * Method used to create a new timeslot. No timeslot can overlap therefore the user needs to supply a unique
+     * combination of date, start time and end time. Only the owner can create timeslots, therefore the owner credentials must
+     * must be supplied
+     * @param timeSlotDate Date of the timeslot to create
+     * @param timeSlotStartTime Start time of the timeslot to create
+     * @param timeSlotEndTime End time of the timeslot to creat 
+     * @param email Email of the owner account
+     * @param password Password of the owner account
+     * @return DTO of the newly created timeslot
+     * @throws IllegalArgumentException Thrown when the new timeslot overlaps with an existing timeslot
+     */
     @PostMapping(value = {"/timeslot", "/timeslot/"})
     public TimeSlotDTO createTimeSlot(@RequestParam(name = "timeslotdate") @DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date timeSlotDate,
                                         @RequestParam(name = "timeslotstarttime") @DateTimeFormat(pattern = "HH:mm:ss") java.util.Date timeSlotStartTime,
@@ -439,6 +590,15 @@ public class GroceryStoreController {
             }
         	return convertToDTO(e);
     }
+    
+    /**
+     * Method used by the owner to delete the employee  linked to the specified email. Only the owner can delete 
+     * employee account, therefore the owner credentials must be supplied.
+     * @param email Email of the employee account to delete
+     * @param ownerEmail Email of the owner account
+     * @param ownerPassword Password of the owner account
+     * @throws IllegalArgumentException Thrown when some other than owner tries to delete employee
+     */
     @PostMapping(value = {"/removeemployee", "/removeemployee/"})
     public void ownerremoveEmployee(@RequestParam(name = "employeeEmail") String email,							            
 						    		@RequestParam(name = "ownerEmail") String ownerEmail,
@@ -450,6 +610,16 @@ public class GroceryStoreController {
     		System.out.println("Employee deleted");
     }
     
+    /**
+     * Method used by the owner to update the status of the employee account linked to the specified email. Only the  
+     * owner can update an employee account, therefore the owner credentials must be supplied.
+     * @param email Email of the employee account to update
+     * @param ownerEmail Email of the owner account
+     * @param ownerPassword Password of the owner account
+     * @param status Status to update the employee account with
+     * @return DTO of the updated employee account
+     * @throws IllegalArgumentException Thrown when some other than owner tries to update employee
+     */
     @PostMapping(value = {"/employee/changeStatus", "/employee/changeStatus/"})
     public EmployeeDTO changeEmployeeStatus(@RequestParam(name = "employeeEmail") String email,							            
 						    		@RequestParam(name = "ownerEmail") String ownerEmail,
@@ -522,12 +692,12 @@ public class GroceryStoreController {
         return outOfTown(customerEmail);
     }
     ////helper method for testing things requiring customer
-    @PostMapping(value = {"/testcustomer", "/testcustomer/"})
-    public CustomerDTO createTestCustomer() {
-    	Address custAddress = new Address("Montreal", "McgillStreet", "HHHH", 1234);
-    	Customer c = service.createCustomer("bbbb", "Thomas", "789", "5149997777",custAddress);
-        return convertToDTO(c);
-    }
+    // @PostMapping(value = {"/testcustomer", "/testcustomer/"})
+    // public CustomerDTO createTestCustomer() {
+    // 	Address custAddress = new Address("Montreal", "McgillStreet", "HHHH", 1234);
+    // 	Customer c = service.createCustomer("bbbb", "Thomas", "789", "5149997777",custAddress);
+    //     return convertToDTO(c);
+    // }
     
     /**
      * This is an implementation for Req.04
@@ -548,7 +718,6 @@ public class GroceryStoreController {
     		return convertProductListDTO(service.getProductByStockGreaterThan(0));
     	}
     }
-    
     
     /**
      * This is an partial implementation of Req.13(1/3), covering the "create" aspect of the Req.
@@ -678,6 +847,15 @@ public class GroceryStoreController {
         return convertOrderListDTO(list);
     }
     
+    /**
+     * Method used to retrieve all instance of orders that have not been completed. By completed we mean prepared
+     * by an employee for delivery or pickup. Only an employee can check which orders need taking care of, therefore
+     * the credentials of an employee mus be supplied
+     * @param employeeEmail 
+     * @param employeePassword
+     * @return
+     * @throws IllegalArgumentException
+     */
     @GetMapping(value = {"/orders/fulfill", "/orders/fulfill/"})
     public List<OrderDTO> getAllOrdersToFullfill( @RequestParam(name = "employeeEmail") String employeeEmail,
 		    							@RequestParam(name = "employeePassword") String employeePassword) throws IllegalArgumentException{
@@ -990,7 +1168,11 @@ public class GroceryStoreController {
             return convertToDTO(item);
         }
     }
-
+    /**
+     * Creates a cart and add items specified. Used to make in store purchases.
+     * @param user identification of employee and product name and quantity
+     * @return returns instorepurchase object
+     */
     @PostMapping(value = {"/instorepurchase", "/instorepurchase/"})
     public InStorePurchaseDTO createInStorePurchase(@RequestParam(name = "useremail") String userEmail,
                                                     @RequestParam(name = "userpassword") String userPassword,
@@ -1004,7 +1186,10 @@ public class GroceryStoreController {
         service.setProductStock(productName, (p.getStock() - quantity));
         return convertToDTO(purchase);
     }
-
+    /**
+     * Make a list of all the in store purchases
+     * @return returns the list of all the in store purchases
+     */
     @GetMapping(value = {"/instorepurchases", "/instorepurchases/"})
     public List<InStorePurchaseDTO> getAllInStorePurchases() {
         List<InStorePurchase> localList = service.getAllInStorePurchases();
@@ -1017,6 +1202,16 @@ public class GroceryStoreController {
 
     /* Helper methods ---------------------------------------------------------------------------------------------------- */
     
+    /**
+     * Method used to check if an email is linked to a specific type of account. The method also checks if the password 
+     * submitted is correct for the account. 
+     * @param email Email of the account to verify
+     * @param password Password of the account to verify
+     * @param targetUserType Type of account to verify
+     * @param errorMsg Error message to be displayed in case of failure
+     * @return DTO of the user account
+     * @throws IllegalArgumentException
+     */
     public UserDTO CheckUser (String email, String password, String targetUserType, String errorMsg) throws IllegalArgumentException {
     	
     	if (service.getUser(email) == null) {
@@ -1068,6 +1263,13 @@ public class GroceryStoreController {
 			throw new IllegalArgumentException("target user type needs to be employee, owner, or customer");
 		}
     }
+
+    /**
+     * The following methods are used to transform a database object of database object list to a DTO or DTO list.
+     * They work by creating a new object of the target type and populating the fields according to the source object
+     * type. If the object contains association, these associations are also transformed to the proper object type
+     * iteratively.
+     */
     
     private List<CustomerDTO> convertCustomerListToDTO(List<Customer> customers) throws IllegalArgumentException{
         List<CustomerDTO> list = new ArrayList<CustomerDTO>();
@@ -1113,14 +1315,6 @@ public class GroceryStoreController {
         List<AddressDTO> list = new ArrayList<AddressDTO>();
         for(Address a : address) {
             list.add(convertToDTO(a));
-        }
-        return list;
-    }
-    
-    private List<InStorePurchaseDTO> convertInStorePurchaseListToDTO(List<InStorePurchase> purchases) throws IllegalArgumentException{
-        List<InStorePurchaseDTO> list = new ArrayList<InStorePurchaseDTO>();
-        for(InStorePurchase isb : purchases) {
-            list.add(convertToDTO(isb));
         }
         return list;
     }
@@ -1290,6 +1484,10 @@ public class GroceryStoreController {
         return p;
     }
 
+    /**
+     * The following methods are used to translate enums between the DTO enums and the database object enums
+     */
+
     private ProductDTO.PriceTypeDTO translateEnum(Product.PriceType priceType) {
         switch(priceType) {
             case PER_KILOS:
@@ -1360,6 +1558,12 @@ public class GroceryStoreController {
         }
     }
 
+    /**
+     * Retrieve cart if one exists for user
+     * @param userEmail user name to be checked
+     * @param userPassword user password to be checked
+     * @return returns the currently open cart of the user
+     */
     private Cart retrieveOpenCart(String customerEmail, String customerPassword) throws IllegalArgumentException {
         Customer customer = checkCustomer(customerEmail, customerPassword);
         List<Cart> carts= service.getCartsByCustomer(customer);
@@ -1372,8 +1576,13 @@ public class GroceryStoreController {
         }
         return cart;
     }
-    
 
+    /**
+     * Check if user is customer
+     * @param userEmail user name to be checked
+     * @param userPassword user password to be checked
+     * @return On success returns user object
+     */
     private Customer checkCustomer(String customerEmail, String customerPassword) throws IllegalArgumentException {
         Customer customer = service.getCustomer(customerEmail);
         if(customer == null) {
@@ -1385,14 +1594,12 @@ public class GroceryStoreController {
         return customer;
     }
 
-    private StoreOwner checkOwner(String ownerEmail, String ownerPassword) {
-        StoreOwner owner = service.getStoreOwner();
-        if(!owner.getEmail().equals(ownerEmail) || !owner.getPassword().equals(ownerPassword)) {
-            throw new IllegalArgumentException("Cannot create an in-store purchase! You need to have employee or store owner clearance");
-        }
-        return owner;
-    }
-
+    /**
+     * Check if user is owner or employee 
+     * @param userEmail user name to be checked
+     * @param userPassword user password to be checked
+     * @return On success return user object
+     */
     private User checkEmployeeOrOwner(String userEmail, String userPassword) throws IllegalArgumentException {
         User u = service.getEmployee(userEmail);
         if(u == null) {
@@ -1407,6 +1614,12 @@ public class GroceryStoreController {
         return u;
     }
 
+    /**
+     * Check if item of specified amount exists
+     * @param productName is the name of product in string 
+     * @param quanitity is the integer value of the number of items to be checked for availability 
+     * @return retruns product
+     */
     private Product verifyProductAvailability(String productName, int quantity) throws IllegalArgumentException {
         Product p = service.getProductByName(productName);
         if(p == null) {
@@ -1421,6 +1634,12 @@ public class GroceryStoreController {
         return p;
     }
 
+    /**
+     * Checks if the given item of specified quantity is available to shop online.
+     * @param productName is the name of product in string 
+     * @param quanitity is the integer value of the number of items to be checked for availability 
+     * @return on success returns product 
+     */
     private Product verifyProductAvailabilityAndShoppability(String productName, int quantity) throws IllegalArgumentException {
         Product p = verifyProductAvailability(productName, quantity);
         if(p.getIsAvailableOnline().equals("no")) {
@@ -1429,6 +1648,10 @@ public class GroceryStoreController {
         return p;
     }
 
+    /**
+     * Calculated the total value of all the items in the customers cart
+     * @return total price calculated
+     */
     private int getCurrentTotal(Cart cart) {
         int totalPrice = 0;
         List<CartItem> itemList = service.getCartItemsByCart(cart);
@@ -1441,6 +1664,10 @@ public class GroceryStoreController {
         return totalPrice;
     }
 
+    /**
+     * Compares Customer town equals to the stores town and returns true if customer is in same town or false otherwise.
+     * @return if user is out of town or not as a boolean
+     */
     private boolean outOfTown(String customerEmail) {
         boolean outOfTown = true;
         Customer customer = service.getCustomer(customerEmail);
