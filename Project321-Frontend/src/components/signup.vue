@@ -1,5 +1,6 @@
 <template>
-  <div id="signup">
+<!-- This page provides all the textfields for a customer to create an account -->
+<div id="signup">
     <h2 style="text-align:center">Create your account below</h2>
     <div class="item">
         <table>
@@ -118,49 +119,57 @@
     <div>
         <span v-if="error.length > 0" class="error_message">Error: {{error}} </span>
     </div>
-  </div> 
+</div>
 </template>
 
 <style>
-  #signup {
+#signup {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     color: #2c3e50;
     background: white;
-  }
-  .table_cell {
-      width: 300px;
-      text-align: left;
-  }
-  .separator_cell {
-      width: 40px;
-  }
-  .small_input {
-      text-align: left;
-      width: 150px;
-  }
-  .big_input {
-      text-align: left;
-      width: 300px;
-  }
-  .error_message {
-      color:red;
-      display: block;
-      text-align: center;
-  }
-  .password_error_message {
-      color:red;
-      font-size: 14px;
-      display: block;
-      text-align: left;
-  }
-  .signup_button {
+}
+
+.table_cell {
+    width: 300px;
+    text-align: left;
+}
+
+.separator_cell {
+    width: 40px;
+}
+
+.small_input {
+    text-align: left;
+    width: 150px;
+}
+
+.big_input {
+    text-align: left;
+    width: 300px;
+}
+
+.error_message {
+    color: red;
+    display: block;
+    text-align: center;
+}
+
+.password_error_message {
+    color: red;
+    font-size: 14px;
+    display: block;
+    text-align: left;
+}
+
+.signup_button {
     margin-bottom: 2rem;
-    margin-top: 2rem; 
-    width:240px;
-  }
-  .item {
+    margin-top: 2rem;
+    width: 240px;
+}
+
+.item {
     display: inline-block;
-  }
+}
 </style>
 
 <script src="./scripts/signup.js"></script>

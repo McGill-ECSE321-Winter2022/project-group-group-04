@@ -45,34 +45,56 @@
         android:text="@string/cart_create" />
 
     <Button
+        android:id="@+id/clear_cart_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/cart_clear"/>
+
+    <Button
         android:id="@+id/delete_cart_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/cart_delete"/>
 
-    <Button
-        android:id="@+id/get_cart_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/cart_get"/>
-
     <TextView
-        android:id="@+id/carterror"
+        android:id="@+id/cart_items_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:text="error" />
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:text="@string/cart_items_title" />
+    <!--
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
+        <TextView
+            android:id="@+id/total_price_title"
+            android:layout_width="312dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/total_price"
+            android:textAlignment="center" />
+        <TextView
+            android:id="@+id/total_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAlignment="center" />
+    </LinearLayout>
+    -->
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/cart_total_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:text="TextView" />
+        android:text="@string/total_price" />
 
     <ListView
         android:id="@+id/cartItemsList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

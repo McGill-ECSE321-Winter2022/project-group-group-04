@@ -2,12 +2,8 @@ package ca.mcgill.ecse321.project321;
 
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -27,24 +23,22 @@ import cz.msebera.android.httpclient.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
 
 public class CartPage extends Fragment {
     private CartPageBinding binding;
-    Button create_button;
-    Button delete_button;
-    Button get_button;
-    JSONArray cartItems;
+    private Button create_button;
+    private Button delete_button;
+    private Button clear_button;
+    private JSONArray cartItems;
     private String cartType;
+    private int TotalPrice = 0;
 
-    //Test variables
-    public String customeremail = "customer@email.com";
-    public String customerpassword = "customerPwd";
-    public ArrayList<String> items = new ArrayList<>();
-    //
+    private String customeremail = MainActivity.getEmail();
+    private String customerpassword = MainActivity.getPassword();
+    private ArrayList<String> items = new ArrayList<>();
 
 
     public CartPage() {
@@ -52,17 +46,15 @@ public class CartPage extends Fragment {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         binding = CartPageBinding.inflate(inflater, container, false);
-        binding.carterror.setVisibility(View.GONE);
+        //Set Visibility of Items that don't need to be seen yet
         binding.cartItemsList.setVisibility(View.GONE);
+        binding.cartItemsTitle.setVisibility(View.GONE);
         binding.deleteCartButton.setVisibility(View.GONE);
+        binding.clearCartButton.setVisibility(View.GONE);
+        binding.cartTotalPrice.setVisibility(View.GONE);
         //Button on click setters
         create_button = binding.createCartButton;
         create_button.setOnClickListener(new View.OnClickListener() {
@@ -75,14 +67,14 @@ public class CartPage extends Fragment {
         delete_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteCart();
+                clearDeleteCart();
             }
         });
-        get_button = binding.getCartButton;
-        get_button.setOnClickListener(new View.OnClickListener() {
+        clear_button = binding.clearCartButton;
+        clear_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getCart();
+                clearCart();
             }
         });
         //Spinner population and on select actions
@@ -97,11 +89,9 @@ public class CartPage extends Fragment {
                 //Called when item is selected, use position of item to find it from list of items
                 if(id == 0){
                     cartType = "Delivery";
-                    Log.d("myTag", "test: Selected " + cartType);
                 }
                 if(id == 1){
                     cartType = "Pickup";
-                    Log.d("myTag", "test: Selected " + cartType);
                 }
             }
 
@@ -109,15 +99,15 @@ public class CartPage extends Fragment {
             public void onNothingSelected(AdapterView<?> arg0)
             {
                 //Called when no item is selected
+                //In this case at least one item is always selected
             }
         });
-        //Get cart
+        //Get cart if possible
         getCart();
         return binding.getRoot();
     }
-    //Create new cart
+    //Create new cart using the cart type from spinner and customer info from being logged in
     public void createCart() {
-        TextView error = binding.carterror;
         RequestParams rp = new RequestParams();
         rp.add("type", cartType);
         rp.add("customeremail", customeremail);
@@ -125,107 +115,179 @@ public class CartPage extends Fragment {
         HttpUtils.post("carts", rp, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("myTag", "test: Success");
-                error.setVisibility(View.GONE);
                 binding.createCartButton.setVisibility(View.GONE);
                 binding.cartTypeSpinner.setVisibility(View.GONE);
                 binding.cartType.setVisibility(View.GONE);
-                getCart();
+                getCart(); //retrieves the cart after it is created
             }
-
+            //On failure it creates a toast that lets the user know why it failed. Either server issue or the user is not logged in
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                error.setVisibility(View.VISIBLE);
-                error.setText(errorResponse.toString());
-                Log.d("myTag", "test: Fail");
+                if(customeremail.isEmpty()&&customerpassword.isEmpty()){
+                    Toast.makeText(getActivity(), "You must Log in first!", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getActivity(), "Uhh oh something went wrong, try again later!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
-    //Method for deleting existing Cart
+    //Method for deleting existing Cart and resets visibility of components back to cart creation
     public void deleteCart(){
-        TextView error = binding.carterror;
         RequestParams rp = new RequestParams();
         rp.add("customeremail", customeremail);
         rp.add("customerpassword", customerpassword);
         HttpUtils.post("carts/delete", rp, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                error.setVisibility(View.GONE);
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
                 binding.cartItemsList.setVisibility(View.GONE);
+                binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
-                Log.d("myTag", "test: Success");
+                binding.clearCartButton.setVisibility(View.GONE);
+                binding.cartTotalPrice.setVisibility(View.GONE);
+                TotalPrice = 0;
+                items.clear();
+                Toast.makeText(getActivity(), "Cart was deleted!", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                error.setVisibility(View.VISIBLE);
-                error.setText(errorResponse.toString());
-                Log.d("myTag", "test: Fail");
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
                 binding.cartItemsList.setVisibility(View.GONE);
+                binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
+                binding.clearCartButton.setVisibility(View.GONE);
+                binding.cartTotalPrice.setVisibility(View.GONE);
+                TotalPrice = 0;
+                items.clear();
+                Toast.makeText(getActivity(), "Cart was deleted!", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable){
-                error.setVisibility(View.VISIBLE);
-                error.setText(errorResponse.toString());
-                Log.d("myTag", "test: Fail");
                 binding.createCartButton.setVisibility(View.VISIBLE);
                 binding.cartTypeSpinner.setVisibility(View.VISIBLE);
                 binding.cartType.setVisibility(View.VISIBLE);
                 binding.cartItemsList.setVisibility(View.GONE);
+                binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
+                binding.clearCartButton.setVisibility(View.GONE);
+                binding.cartTotalPrice.setVisibility(View.GONE);
+                TotalPrice = 0;
+                items.clear();
+                Toast.makeText(getActivity(), "Cart was deleted!", Toast.LENGTH_SHORT).show();
             }
         });
     }
-    //Gets cart if one already exists
+    //Attempts to retrieve cart the customer has and lists the items in cart if any to list view
     public void getCart(){
-        TextView error = binding.carterror;
         RequestParams rp = new RequestParams();
         rp.add("customeremail", customeremail);
         rp.add("customerpassword", customerpassword);
         HttpUtils.get("cart", rp, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                error.setVisibility(View.GONE);
                 binding.createCartButton.setVisibility(View.GONE);
                 binding.cartTypeSpinner.setVisibility(View.GONE);
                 binding.cartType.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.VISIBLE);
                 binding.cartItemsList.setVisibility(View.VISIBLE);
+                binding.cartItemsTitle.setVisibility(View.VISIBLE);
+                binding.clearCartButton.setVisibility(View.VISIBLE);
                 try {
                     cartItems = response.getJSONArray("cartItems");
+                    if(cartItems.length() >0){ //If cart is not empty then loop through all the items and add each item as a string to the items arraylist for the list view
+                        for(int i = 0; i < cartItems.length(); i++){
+                            String listElement,productName,productPriceType;
+                            int productPrice,productQuantity;
+                            productName = cartItems.getJSONObject(i).getJSONObject("product").getString("productName");
+                            productPrice = cartItems.getJSONObject(i).getJSONObject("product").getInt("price");
+                            productPriceType = cartItems.getJSONObject(i).getJSONObject("product").getString("priceType");
+                            productQuantity = cartItems.getJSONObject(i).getInt("quantity");
+                            listElement = productName + "    " + productPriceType + ": " + productPrice + "$  " + "Quantity: " + productQuantity + "                                  Item Total:  " + (productPrice*productQuantity)+ "$" ;
+                            items.add(listElement);
+                            TotalPrice += productPrice*productQuantity;
+                        }
+                    }
+                    else if(cartItems.length() == 0){
+                        TotalPrice = 0;
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                binding.cartTotalPrice.setVisibility(View.VISIBLE);
+                binding.cartTotalPrice.setText("Total Cart Price:  " + TotalPrice);
                 populateItemList();
-                Log.d("myTag", "test: Success");
-                Log.d("myTag", "test: CartItems: " + cartItems);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                error.setVisibility(View.VISIBLE);
-                error.setText(errorResponse.toString());
-                Log.d("myTag", "test: Fail");
+                if(customeremail.isEmpty()&&customerpassword.isEmpty()){
+                    Toast.makeText(getActivity(), "You must Log in first!", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getActivity(), "You must create a cart first!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
+    //clearCart and re-getCart to update listview
+    public void clearCart(){
+        RequestParams rp = new RequestParams();
+        rp.add("customeremail", customeremail);
+        rp.add("customerpassword", customerpassword);
+        HttpUtils.post("carts/clear", rp, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                items.clear();
+                getCart();
+            }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                items.clear();
+                getCart();
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable) {
+                items.clear();
+                getCart();
+            }
+        });
+    }
+    //needed a second clear for just deleting cart because the cart must be clear to delete
+    public void clearDeleteCart(){
+        RequestParams rp = new RequestParams();
+        rp.add("customeremail", customeremail);
+        rp.add("customerpassword", customerpassword);
+        HttpUtils.post("carts/clear", rp, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                items.clear();
+                deleteCart();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                items.clear();
+                deleteCart();
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String errorResponse, Throwable throwable) {
+                items.clear();
+                deleteCart();
+            }
+        });
+    }
+    //Populates the listview with items from cart
     public void populateItemList(){
-        //Test method
-        items.add("CartItem1");
-        items.add("CartItem2");
-        items.add("CartItem3");
-
         ListView lv = binding.cartItemsList;
-        ArrayAdapter<String> itemListAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
+        ArrayAdapter<String> itemListAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, items);
         lv.setAdapter(itemListAdapter);
     }
 
