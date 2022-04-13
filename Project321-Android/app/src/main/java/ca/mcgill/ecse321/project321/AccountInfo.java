@@ -40,7 +40,9 @@ private AccountInfoBinding binding;
     }
 
     /*
-    
+    * Method that initializes the view that we take on for this page. It calls the user that is currently
+    * logged in, to retrieve the name, email, phone and address. Then it displays these details on the page through
+    * the xml file. This method also handles trying to change an address without a complete address.
      */
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
@@ -99,6 +101,19 @@ private AccountInfoBinding binding;
             }
         });
     }
+
+    /*
+    *This is the method that is called from onViewCreated(). It calls the method in our controller
+    * setCustomerAddress. It allows the user to update their address only, as other variables/fields
+    * could be prone to security issues. This method then updates the view in order to confirm that the
+    * changes to the address have been made. It also accesses the controller method by calling the mainactivity
+    * class to get the email and password of said user. 
+    *
+    * @param newUnit the new unit string the customer has inputed
+    * @param newStreet the new street string the customer has inputed
+    * @param newTown the new town string the customer has inputed
+    * @param newPostCode the new postcode string the customer has inputed
+     */
 
     private void updateAccountInformation(String newUnit, String newStreet, String newTown, String newPostCode) {
      RequestParams rp = new RequestParams();
