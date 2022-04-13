@@ -1,6 +1,7 @@
 package ca.mcgill.ecse321.project321;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +27,6 @@ public class AccountInfo extends Fragment {
 
 private AccountInfoBinding binding;
 
-Button update_button;
 
     @Override
     public View onCreateView(
@@ -38,6 +38,10 @@ Button update_button;
         return binding.getRoot();
 
     }
+
+    /*
+    
+     */
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
         TextView name = (TextView) view.findViewById(R.id.currentusername);
@@ -48,7 +52,6 @@ Button update_button;
         TextView streetAddress = (TextView) view.findViewById(R.id.userstreet);
         TextView postCodeAddress = (TextView) view.findViewById(R.id.userpostcode);
         TextView accounterror = (TextView) view.findViewById(R.id.accountinfoerror);
-        TextView passworderror = (TextView) view.findViewById(R.id.passworderrorupdate);
         RequestParams rp = new RequestParams();
         rp.add("email", MainActivity.getEmail());
         HttpUtils.get("customer", rp , new JsonHttpResponseHandler(){
@@ -68,7 +71,6 @@ Button update_button;
                     e.printStackTrace();
                 }
                 accounterror.setVisibility(View.GONE);
-                passworderror.setVisibility(View.GONE);
 
             }
             @Override
@@ -77,6 +79,49 @@ Button update_button;
                     accounterror.setText(errorResponse.toString());
                     accounterror.setVisibility(View.VISIBLE);
                 }
+            }
+        });
+
+        binding.updatebutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String newUnit = binding.unitinputupdate.getText().toString();
+                String newStreet =  binding.streetinputupdate.getText().toString();
+                String newTown = binding.towninputupdate.getText().toString();
+                String newPostCode = binding.postalcodeinputupdate.getText().toString();
+                if(newUnit.length() == 0 || newStreet.length() == 0 || newTown.length() == 0 || newPostCode.length() == 0){
+                    accounterror.setText("All fields must be filled in order to update Address");
+                    accounterror.setVisibility(View.VISIBLE);
+                }else{
+                    updateAccountInformation(newUnit, newStreet,
+                            newTown, newPostCode );
+                }
+            }
+        });
+    }
+
+    private void updateAccountInformation(String newUnit, String newStreet, String newTown, String newPostCode) {
+     RequestParams rp = new RequestParams();
+     rp.add("town", newTown);
+     rp.add("street", newStreet);
+     rp.add("postalcode", newPostCode);
+     rp.add("unit", newUnit);
+     rp.add("customeremail", MainActivity.getEmail());
+     rp.add("customerpassword", MainActivity.getPassword());
+        HttpUtils.post("customers/address", rp, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                binding.userunit.setText(newUnit);
+                binding.userstreet.setText(newStreet);
+                binding.usertown.setText(newTown);
+                binding.userpostcode.setText(newPostCode);
+                binding.accountinfoerror.setVisibility(View.GONE);
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                binding.accountinfoerror.setText("Failed to update address due to server errors");
+                binding.accountinfoerror.setVisibility(View.VISIBLE);
+
             }
         });
     }
