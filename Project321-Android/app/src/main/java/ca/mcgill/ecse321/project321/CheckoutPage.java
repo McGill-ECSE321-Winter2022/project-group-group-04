@@ -27,6 +27,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Date;
+import java.sql.Time;
 import java.util.ArrayList;
 
 public class CheckoutPage extends Fragment {
@@ -35,8 +37,6 @@ public class CheckoutPage extends Fragment {
     private Button payment_button;
 
     private JSONArray cartItems;
-    private JSONArray allTimeslots;
-    private String cartType;
     private int TotalPrice = 0;
 
     private String customeremail = MainActivity.getEmail();
@@ -44,7 +44,6 @@ public class CheckoutPage extends Fragment {
     private ArrayList<String> items = new ArrayList<>();
     private ArrayList<String> timeslots = new ArrayList<>();
 
-    boolean timeslotSelected;
 
     private String paymentcode;
 
@@ -56,7 +55,10 @@ public class CheckoutPage extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = CheckoutPageBinding.inflate(inflater, container, false);
-        timeslotSelected = false;
+        Timeslot selectedTimeslot = new Timeslot(new Time(23,59,58),
+                                            new Time(23,59,59),
+                                            new Date(1999,12,31));
+
         //Set Visibility of Items that don't need to be seen yet
         binding.paymentButton.setEnabled(false);
         binding.checkouterror.setVisibility(View.GONE);
@@ -66,12 +68,28 @@ public class CheckoutPage extends Fragment {
             @Override
             public void onClick(View view) {
                 paymentcode = binding.paymentcodeinput.getText().toString();
+                Log.d("paymentcode input",paymentcode);
                 if(paymentcode.length() == 0) {
                     binding.checkouterror.setText("payment code cannot be empty");
                     binding.checkouterror.setVisibility(View.VISIBLE);
                 }
                 else {
                     pay(paymentcode);
+                }
+            }
+        });
+
+        timeslot_button = binding.timeslotButton;
+        timeslot_button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                if (selectedTimeslot.getDate()=="1999-12-31"){
+                    binding.checkouterror.setText("You should select Timeslot");
+                    binding.checkouterror.setVisibility(View.VISIBLE);
+
+                }
+                else {
+                    confirm_timeslot(selectedTimeslot);
                 }
             }
         });
@@ -144,19 +162,18 @@ public class CheckoutPage extends Fragment {
         RequestParams rp = new RequestParams();
         HttpUtils.get("availabletimeslots",rp,new JsonHttpResponseHandler(){
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response){
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response){
                 try {
-                    Log.d("mytag", String.valueOf(response.length()));
-//                    for(int i=0; i<response.length();i++){
-//                        String listElement, date, start, end;
-//                        date = response.getJSONObject(i).getString("date");
-//                        start = response.getJSONObject(i).getString("startTime");
-//                        end = response.getJSONObject(i).getString("endTime");
-//                        listElement = "["+date+"]"+start+"-"+end;
-//                        Log.d("myTag",listElement);
-//                        timeslots.add(listElement);
-//                    }
-                    response.getJSONObject("1ab3");
+
+                    for(int i=0; i<response.length();i++){
+                        String listElement, date, start, end;
+                        date = response.getJSONObject(i).getString("date");
+                        start = response.getJSONObject(i).getString("startTime");
+                        end = response.getJSONObject(i).getString("endTime");
+                        listElement = "["+date+"]"+start+"-"+end;
+                        Log.d("myTag",listElement);
+                        timeslots.add(listElement);
+                    }
 
                 } catch (JSONException e){
                     e.printStackTrace();
@@ -169,13 +186,13 @@ public class CheckoutPage extends Fragment {
             }
         });
     }
-
     //Populates the listview with items from cart
     public void populateTimeslotList(){
         ListView lv = binding.timeslotList;
         ArrayAdapter<String> timeslotListAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, timeslots);
         lv.setAdapter(timeslotListAdapter);
     }
+
     public void confirm_timeslot(Timeslot timeslot){
         RequestParams rp = new RequestParams();
         rp.add("customeremail", customeremail);
@@ -186,7 +203,8 @@ public class CheckoutPage extends Fragment {
         HttpUtils.post("/carts/timeslot",rp, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response){
-                binding.paymentcodeinput.setVisibility(View.VISIBLE);
+                Toast.makeText(getActivity(),"Your timeslot is confirmed",Toast.LENGTH_SHORT).show();
+                
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse){
