@@ -35,6 +35,7 @@ public class CheckoutPage extends Fragment {
     private CheckoutPageBinding binding;
     private Button timeslot_button;
     private Button payment_button;
+    TimeslotAdapter adapter;
 
     private JSONArray cartItems;
     private int TotalPrice = 0;
@@ -42,8 +43,8 @@ public class CheckoutPage extends Fragment {
     private String customeremail = MainActivity.getEmail();
     private String customerpassword = MainActivity.getPassword();
     private ArrayList<String> items = new ArrayList<>();
-    private ArrayList<String> timeslots = new ArrayList<>();
-
+    private ArrayList<String> alltimeslots = new ArrayList<>();
+    ArrayList<Timeslot> timeslots = new ArrayList<>();
 
     private String paymentcode;
 
@@ -58,6 +59,13 @@ public class CheckoutPage extends Fragment {
         Timeslot selectedTimeslot = new Timeslot(new Time(23,59,58),
                                             new Time(23,59,59),
                                             new Date(1999,12,31));
+
+        timeslots = new ArrayList<Timeslot>();
+        timeslots.add(selectedTimeslot);
+        View view = inflater.inflate(R.layout.checkout_page, container, false);
+        ListView listView = (ListView)view.findViewById(R.id.timeslotList);
+        adapter = new TimeslotAdapter(getActivity(),R.layout.custom_listview,timeslots);
+        listView.setAdapter(adapter);
 
         //Set Visibility of Items that don't need to be seen yet
         binding.paymentButton.setEnabled(false);
@@ -93,7 +101,17 @@ public class CheckoutPage extends Fragment {
                 }
             }
         });
-        //Spinner population and on select actions
+        //When the timeslot is clicked, the timeslot will be selected.
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.d("Status",String.valueOf(MainActivity.getStatus()));
+                if (timeslots.get(i).getDate().equals("1999-12-31")){
+                    Toast.makeText(getActivity(), "There is no product in the system", Toast.LENGTH_SHORT).show();
+                    ///
+                }
+            }
+        });
 
         //Get cart if possible
         getCart();
@@ -172,7 +190,7 @@ public class CheckoutPage extends Fragment {
                         end = response.getJSONObject(i).getString("endTime");
                         listElement = "["+date+"]"+start+"-"+end;
                         Log.d("myTag",listElement);
-                        timeslots.add(listElement);
+                        alltimeslots.add(listElement);
                     }
 
                 } catch (JSONException e){
@@ -189,7 +207,7 @@ public class CheckoutPage extends Fragment {
     //Populates the listview with items from cart
     public void populateTimeslotList(){
         ListView lv = binding.timeslotList;
-        ArrayAdapter<String> timeslotListAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, timeslots);
+        ArrayAdapter<String> timeslotListAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, alltimeslots);
         lv.setAdapter(timeslotListAdapter);
     }
 
@@ -204,6 +222,7 @@ public class CheckoutPage extends Fragment {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response){
                 Toast.makeText(getActivity(),"Your timeslot is confirmed",Toast.LENGTH_SHORT).show();
+                binding.paymentButton.setEnabled(true);
 
             }
             @Override
