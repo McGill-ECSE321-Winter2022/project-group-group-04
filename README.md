@@ -49,7 +49,7 @@ This repository holds the source code for the Grocery System
 | Jed  |    |   |
 | John  |  |  |
 | Karim  |   |  |
-| Thomas  | 20 | CartPage/debugging  |
+| Thomas  | 20 | CartPage/Debugging/Documentation |
 | Youjin  | |   |
 ### Deliverable Three Report
 * [Report](https://github.com/McGill-ECSE321-Winter2022/project-group-group-04/wiki)
