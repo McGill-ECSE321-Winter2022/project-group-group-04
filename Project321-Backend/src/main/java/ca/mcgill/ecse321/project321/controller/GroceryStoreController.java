@@ -850,10 +850,10 @@ public class GroceryStoreController {
     /**
      * Method used to retrieve all instance of orders that have not been completed. By completed we mean prepared
      * by an employee for delivery or pickup. Only an employee can check which orders need taking care of, therefore
-     * the credentials of an employee mus be supplied
+     * the credentials of an employee must be supplied
      * @param employeeEmail 
      * @param employeePassword
-     * @return
+     * @return list of all the orders that are incomplete
      * @throws IllegalArgumentException
      */
     @GetMapping(value = {"/orders/fulfill", "/orders/fulfill/"})
@@ -866,7 +866,14 @@ public class GroceryStoreController {
     	}
         return convertOrderListDTO(list);
     }
-    
+    /**
+     * sets order to status of being fulfilled
+     * @param employeeEmail for verification as only employee can fulfill order
+     * @param employeePassword for verification 
+     * @param creationDate to identify the order
+     * @param creationTime to identify the order
+     * @return return order object that has been fulfilled
+     */
     @PostMapping(value = {"/orders/fulfill", "/orders/fulfill/"})
     public OrderDTO setOrderforFullfillment( @RequestParam(name = "employeeEmail") String employeeEmail,
 		    							@RequestParam(name = "employeePassword") String employeePassword,
@@ -958,7 +965,10 @@ public class GroceryStoreController {
         }
         return convertToDTO(o);
     }
-    
+    /**
+     * Retrieves all shifts that exist
+     * @return list of all shifts
+     */
     @GetMapping(value = {"/shifts", "/shifts/"})
     public List<ShiftDTO> getAllShift() throws IllegalArgumentException {
         return convertShiftListToDTO(service.getAllShifts());
@@ -1029,7 +1039,10 @@ public class GroceryStoreController {
     	}
         return convertToDTO(shift);
     }
-    
+    /**
+     * gets all addresses that exist
+     * @return list of all the addresses 
+     */
     @GetMapping(value = {"/address", "/address/"})
     public List<AddressDTO> getAllAddress() throws IllegalArgumentException {
     	List<Address> list = service.getAllAddresses();
@@ -1038,7 +1051,14 @@ public class GroceryStoreController {
     	}
         return convertAddressListDTO(list);
     }
-    
+    /**
+     * creates new address object
+     * @param town, town of address being created
+     * @param street, street of address
+     * @param postalcode, postal code of address
+     * @param unit, unit of address
+     * @return created address
+     */
     @PostMapping(value = {"/address", "/address/"})
     public AddressDTO createAddress(@RequestParam(name = "town")     String town, 
                                       @RequestParam(name = "street")      String street, 
@@ -1048,7 +1068,21 @@ public class GroceryStoreController {
     	Address a = service.createAddresses(town, street, postalcode, unit);
         return convertToDTO(a);
     }
-    
+    /**
+     * Create store object
+     * @param telephone, phone number of the store
+     * @param email, Email of the store
+     * @param openingHour is the opening hour of the store
+     * @param closingHour is the closing hour of the store
+     * @param town, town of the store address
+     * @param street, street of store address
+     * @param postalcode, postal code of the store address
+     * @param unit, unit of the store address
+     * @param outoftownfee is the fee for shipping for people outside the store town
+     * @param ownerEmail for verification
+     * @param ownerPassword for verification
+     * @return returns created store object
+     */
     @PostMapping(value = {"/store", "/store/"})
     public StoreDTO createStore(@RequestParam(name = "telephone")     String telephone, 
                                       @RequestParam(name = "email")      String email, 
@@ -1112,7 +1146,12 @@ public class GroceryStoreController {
     	service.createStore(s);
         return convertToDTO(s);
     }
-    
+    /**
+     * deletes store object
+     * @param ownerEmail for verification
+     * @param ownerPassword for verification
+     * @return returns deleted store object
+     */
     @PostMapping(value = {"/store/delete", "/store/delete/"})
     public StoreDTO deleteStore( @RequestParam(name = "ownerEmail") String ownerEmail,
 			  					 @RequestParam(name = "ownerPassword") String ownerPassword) throws IllegalArgumentException{
@@ -1125,7 +1164,10 @@ public class GroceryStoreController {
     	service.deleteStore(s);
         return convertToDTO(s);
     }
-    
+    /**
+     * Retrieve current store 
+     * @return returns store object
+     */
     @GetMapping(value = {"/store", "/store/"})
     public StoreDTO getStore() throws IllegalArgumentException {
     	Store store = service.getStore();
@@ -1134,7 +1176,14 @@ public class GroceryStoreController {
     	}
         return convertToDTO(store);
     }
-    
+    /**
+     * Add item to cart of specified user
+     * @param useremail is the email of user
+     * @param userpassword is the password for the user
+     * @param productname the string name of the product being added
+     * @param quantity is the integer quantity of the number of the products to be added
+     * @return returns item object
+     */
     @PostMapping(value = {"/cart/item", "/cart/item/"})
     public CartItemDTO addItemToCart(@RequestParam(name = "useremail") String userEmail,
                                      @RequestParam(name = "userpassword") String userPassword,

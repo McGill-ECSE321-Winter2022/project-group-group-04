@@ -131,6 +131,11 @@ private AccountInfoBinding binding;
                 binding.usertown.setText(newTown);
                 binding.userpostcode.setText(newPostCode);
                 binding.accountinfoerror.setVisibility(View.GONE);
+                //
+                binding.unitinputupdate.setText("");
+                binding.streetinputupdate.setText("");
+                binding.towninputupdate.setText("");
+                binding.postalcodeinputupdate.setText("");
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
