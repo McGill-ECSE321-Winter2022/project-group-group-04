@@ -78,7 +78,7 @@ private AccountInfoBinding binding;
             @Override
             public void  onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse){
                 if(errorResponse != null){
-                    accounterror.setText(errorResponse.toString());
+                    accounterror.setText("You must be logged in to access this page");
                     accounterror.setVisibility(View.VISIBLE);
                 }
             }
