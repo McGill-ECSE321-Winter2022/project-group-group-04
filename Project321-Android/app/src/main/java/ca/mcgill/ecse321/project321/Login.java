@@ -34,7 +34,10 @@ public class Login extends Fragment {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-
+        if(MainActivity.getStatus()) {
+            NavHostFragment.findNavController(Login.this)
+                    .navigate(R.id.action_login_to_accountinfo);
+        }
         binding = LoginBinding.inflate(inflater, container, false);
         return binding.getRoot();
 

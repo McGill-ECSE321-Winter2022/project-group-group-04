@@ -19,6 +19,11 @@
         android:title="Account Info"
         app:showAsAction="never" />
     <item
+        android:id="@+id/logout"
+        android:orderInCategory="100"
+        android:title="Logout"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/login"
         android:orderInCategory="70"
         android:title="Login"

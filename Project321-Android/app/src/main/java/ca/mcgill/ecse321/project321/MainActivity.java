@@ -76,6 +76,12 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.ProductPage);
         }else if (id == R.id.account_info){
             navController.navigate(R.id.AcountInfo);
+        } else if(id == R.id.logout) {
+            useremail = "";
+            userpassword = "";
+            usertype = "";
+            status = false;
+            navController.navigate(R.id.Login);
         }
 
         return super.onOptionsItemSelected(item);

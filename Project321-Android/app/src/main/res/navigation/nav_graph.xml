@@ -55,6 +55,9 @@
         <action
             android:id="@+id/action_login_to_productpage"
             app:destination="@id/ProductPage" />
+        <action
+            android:id="@+id/action_login_to_accountinfo"
+            app:destination="@id/AcountInfo" />
     </fragment>
 
     <fragment
