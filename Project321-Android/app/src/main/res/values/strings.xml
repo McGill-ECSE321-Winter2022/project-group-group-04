@@ -15,10 +15,12 @@
     <string name="cart_delete">Delete Cart</string>
     <string name="cart_clear">Clear Cart</string>
     <string name="cart_items_title">Cart Items</string>
+    <string name="checkout_button">Click to Checkout</string>
     <string-array name="cart_type_spinner">
         <item>Delivery</item>
         <item>Pickup</item>
     </string-array>
+    <string-array name="timeslot_spinner"></string-array>
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>

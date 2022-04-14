@@ -41,6 +41,9 @@
         android:name="ca.mcgill.ecse321.project321.CartPage"
         android:label="Cart Page"
         tools:layout="@layout/cart_page">
+        <action
+            android:id="@+id/action_cart_to_checkout"
+            app:destination="@id/CheckoutPage" />
     </fragment>
 
     <fragment
@@ -78,5 +81,14 @@
         tools:layout="@layout/product_page">
     </fragment>
 
+    <fragment
+        android:id="@+id/CheckoutPage"
+        android:name="ca.mcgill.ecse321.project321.CheckoutPage"
+        android:label="Check Out"
+        tools:layout="@layout/checkout_page">
+        <action
+            android:id="@+id/action_payment_to_history"
+            app:destination="@id/OrderHistory" />
+    </fragment>
 
 </navigation>

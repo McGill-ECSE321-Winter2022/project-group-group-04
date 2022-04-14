@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CheckoutPage">
+
+
+    <TextView
+        android:id="@+id/checkout_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold"
+        android:textSize="32sp"
+        android:text="Checkout" />
+
+    <TextView
+        android:id="@+id/checkouterror"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="error"
+        android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/review_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:text="Review Your Cart" />
+
+    <ListView
+        android:id="@+id/cartItemsReviewList"
+        android:layout_width="match_parent"
+        android:layout_height="209dp" />
+    <TextView
+        android:id="@+id/cartItemsTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:text="Total Price for items : " />
+
+    <TextView
+        android:id="@+id/timeslot_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:text="Tap on a timeslot to select" />
+
+    <ListView
+        android:id="@+id/timeslotList"
+        android:layout_width="match_parent"
+        android:layout_height="130sp" />
+    <Button
+        android:id="@+id/timeslot_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="confirm this timeslot" />
+
+
+    <TextView
+        android:id="@+id/checkout_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:text="Complete Your payment" />
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/paymentcodeinput"
+        android:hint="put payment code here"
+        android:inputType="text"
+        android:maxLines="1"/>
+    <Button
+        android:id="@+id/payment_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="proceed payment" />
+
+</LinearLayout>

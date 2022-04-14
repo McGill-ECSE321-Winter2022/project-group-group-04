@@ -3,6 +3,7 @@ package ca.mcgill.ecse321.project321;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,12 +27,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-
 public class CartPage extends Fragment {
     private CartPageBinding binding;
     private Button create_button;
     private Button delete_button;
     private Button clear_button;
+    private Button checkout_button;
     private JSONArray cartItems;
     private String cartType;
     private int TotalPrice = 0;
@@ -54,6 +55,7 @@ public class CartPage extends Fragment {
         binding.cartItemsTitle.setVisibility(View.GONE);
         binding.deleteCartButton.setVisibility(View.GONE);
         binding.clearCartButton.setVisibility(View.GONE);
+        binding.checkoutButton.setEnabled(false);
         binding.cartTotalPrice.setVisibility(View.GONE);
         //Button on click setters
         create_button = binding.createCartButton;
@@ -75,6 +77,13 @@ public class CartPage extends Fragment {
             @Override
             public void onClick(View view) {
                 clearCart();
+            }
+        });
+        checkout_button = binding.checkoutButton;
+        checkout_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkout();
             }
         });
         //Spinner population and on select actions
@@ -147,6 +156,7 @@ public class CartPage extends Fragment {
                 binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
+                binding.checkoutButton.setEnabled(false);
                 binding.cartTotalPrice.setVisibility(View.GONE);
                 TotalPrice = 0;
                 items.clear();
@@ -162,6 +172,7 @@ public class CartPage extends Fragment {
                 binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
+                binding.checkoutButton.setEnabled(false);
                 binding.cartTotalPrice.setVisibility(View.GONE);
                 TotalPrice = 0;
                 items.clear();
@@ -178,6 +189,7 @@ public class CartPage extends Fragment {
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
                 binding.cartTotalPrice.setVisibility(View.GONE);
+                binding.checkoutButton.setEnabled(false);
                 TotalPrice = 0;
                 items.clear();
                 Toast.makeText(getActivity(), "Cart was deleted!", Toast.LENGTH_SHORT).show();
@@ -201,7 +213,10 @@ public class CartPage extends Fragment {
                 binding.clearCartButton.setVisibility(View.VISIBLE);
                 try {
                     cartItems = response.getJSONArray("cartItems");
+
                     if(cartItems.length() >0){ //If cart is not empty then loop through all the items and add each item as a string to the items arraylist for the list view
+
+                        binding.checkoutButton.setEnabled(true);
                         for(int i = 0; i < cartItems.length(); i++){
                             String listElement,productName,productPriceType;
                             int productPrice,productQuantity;
@@ -283,6 +298,14 @@ public class CartPage extends Fragment {
                 deleteCart();
             }
         });
+    }
+
+    public void checkout(){
+        if(cartItems.length() >0){
+            items.clear();
+            NavHostFragment.findNavController(CartPage.this)
+                    .navigate(R.id.action_cart_to_checkout);
+        }
     }
     //Populates the listview with items from cart
     public void populateItemList(){
