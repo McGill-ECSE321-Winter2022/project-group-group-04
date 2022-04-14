@@ -46,7 +46,7 @@ This repository holds the source code for the Grocery System
 | Members  | Hours | Tasks |
 | ------------- | ------------- | ------------- |
 | Cedric  | 22 | Project Setup / Documentation / Login / Sign up / Store info |
-| Jed  |    |   |
+| Jed  |  20  | Order History  |
 | John  |  |  |
 | Karim  | 18 | Account Info Page / Documentation |
 | Thomas  | 20 | CartPage/Debugging/Documentation |
