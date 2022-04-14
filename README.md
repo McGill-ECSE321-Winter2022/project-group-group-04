@@ -48,7 +48,7 @@ This repository holds the source code for the Grocery System
 | Cedric  | 22 | Project Setup / Documentation / Login / Sign up / Store info |
 | Jed  |    |   |
 | John  |  |  |
-| Karim  |   |  |
+| Karim  | 18 | Account Info Page / Documentation |
 | Thomas  | 20 | CartPage/Debugging/Documentation |
 | Youjin  | |   |
 ### Deliverable Three Report
