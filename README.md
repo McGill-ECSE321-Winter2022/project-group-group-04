@@ -41,11 +41,11 @@ This repository holds the source code for the Grocery System
 ### Deliverable Three Report
 * [Report](https://github.com/McGill-ECSE321-Winter2022/project-group-group-04/wiki)
 
-## Deliverable Three
+## Deliverable Four
 ### Hours
 | Members  | Hours | Tasks |
 | ------------- | ------------- | ------------- |
-| Cedric  |  |  |
+| Cedric  | 22 | Project Setup / Documentation / Login / Sign up / Store info |
 | Jed  |    |   |
 | John  |  |  |
 | Karim  |   |  |
