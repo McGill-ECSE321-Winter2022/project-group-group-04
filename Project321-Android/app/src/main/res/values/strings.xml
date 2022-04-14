@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Project321-Android</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="store_info_fragment_label">Store Info</string>
+    <string name="login_fragment_label">Login</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="cart_type">Cart Type:</string>
+    <string name="cart">Cart</string>
+    <string name="total_price">Total Price:</string>
+    <string name="cart_create">Create Cart</string>
+    <string name="cart_delete">Delete Cart</string>
+    <string name="cart_clear">Clear Cart</string>
+    <string name="cart_items_title">Cart Items</string>
+    <string name="checkout_button">Click to Checkout</string>
+    <string-array name="cart_type_spinner">
+        <item>Delivery</item>
+        <item>Pickup</item>
+    </string-array>
+    <string-array name="timeslot_spinner"></string-array>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="customer_page">Customer Page</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ProductPage_fragment_label">Product Page</string>
+</resources>

@@ -1,0 +1,1 @@
+web: java -jar Project321-Backend/build/libs/Project321-Backend-0.0.1-SNAPSHOT.jar

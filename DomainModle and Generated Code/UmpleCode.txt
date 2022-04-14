@@ -1,0 +1,141 @@
+namespace ca.mcgill.ecse321.project321.model;
+
+class User
+{
+  abstract;
+  email;
+  name;
+  password;
+  
+  public User() {}
+}
+
+class Customer
+{
+  isA User;
+  phone;
+  * Customer -> 1 Address;
+  
+  public Customer() { super(); }
+}
+
+class StoreOwner
+{
+  isA User;
+  
+  public StoreOwner() { super(); }
+}
+
+class Employee
+{
+  isA User;
+  enum EmployeeStatus {Sick, Inactive, Active}  
+  EmployeeStatus status;
+  
+  public Employee() { super(); }
+}
+
+class Cart
+{
+  enum ShoppingType {Delivery, Pickup};
+  ShoppingType type;
+  * -> 1 Customer;
+  * -> 0..1 TimeSlot;
+  lazy Integer cartId;
+  Date creationDate;
+  Time creationTime;
+  
+  public Cart() {}
+}
+
+class Order
+{
+  lazy Integer orderId;
+  Boolean completed;
+  Date orderDate;
+  Integer total;
+  payment;
+  * -> 1 Cart;
+  
+  public Order() {}
+}
+
+class Product
+{
+  enum PriceType {PER_UNIT, PER_KILOS}
+  PriceType priceType;
+  productName;
+  isAvailableOnline;
+  Integer price;
+  Integer stock;
+  
+  public Product() {}
+}
+
+class CartItem
+{
+  Integer quantity;
+  * -> 1 Product;
+  lazy Integer cartItemId;
+  * -> 0..1 Cart;
+  * -> 0..1 InStoreBill;
+  
+  public CartItem() {}
+}
+
+class TimeSlot
+{
+  Time startTime;
+  Time endTime;
+  Date date;
+  Integer maxOrderPerSlot;
+  lazy Integer timeSlotId;
+  
+  public TimeSlot() {}
+}
+
+class Shift
+{
+  Time startHour;
+  Time endHour;
+  Date date;
+  * -> 1 Employee;
+  lazy Integer shiftId;
+  
+  public Shift() {}
+}
+
+class Address
+{
+  town;
+  street;
+  postalCode;
+  Integer unit;
+  lazy Integer addressId;
+  
+  public Address() {}
+}
+
+class InStoreBill
+{
+  Integer total;
+  Date purchaseDate;
+  paymentCode;
+  lazy Integer inStoreBillId;
+  
+  public InStoreBill() {}
+}
+
+class Store
+{
+  telephone;
+  email;
+  Time openingHour;
+  Time closingHour;
+  * -> 1 StoreOwner;
+  * -> 1 Address;
+  lazy Integer storeId;
+  Integer outOfTownFee;
+  
+  public Store() {}
+}

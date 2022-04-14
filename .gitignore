@@ -1,0 +1,5 @@
+# Gradle folder
+.gradle/
+
+# VSCode
+.vscode/
