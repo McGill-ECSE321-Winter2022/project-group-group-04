@@ -40,9 +40,9 @@ public class TimeslotAdapter extends ArrayAdapter<Timeslot> {
         convertView = inflater.inflate(mResource, parent, false);  // Recycle view can be used if the list get really large
 
         // get TextViewsx
-        TextView tvDate = (TextView) convertView.findViewById(R.id.textView1);
-        TextView tvStartTime = (TextView) convertView.findViewById(R.id.textView2);
-        TextView tvEndTime = (TextView) convertView.findViewById(R.id.textView3);
+        TextView tvDate = (TextView) convertView.findViewById(R.id.text1);
+        TextView tvStartTime = (TextView) convertView.findViewById(R.id.text2);
+        TextView tvEndTime = (TextView) convertView.findViewById(R.id.text3);
 
         // Pair each text view with the fields
         tvDate.setText(date);

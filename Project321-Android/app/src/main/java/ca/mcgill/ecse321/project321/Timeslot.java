@@ -6,37 +6,37 @@ import java.text.SimpleDateFormat;
 
 public class Timeslot {
 
-    private Time startTime;
-    private Time endTime;
-    private Date date;
+    private String startTime;
+    private String endTime;
+    private String date;
 
-    public Timeslot(Time startTime, Time endTime, Date date){
+    public Timeslot(String startTime, String endTime, String date){
         this.startTime = startTime;
         this.endTime = endTime;
         this.date = date;
     }
-    public String getDate(){
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        String str_date = formatter.format(this.date);
-        return str_date;
+
+    public String getStartTime() {
+        return startTime;
     }
-    public void setDate(Date newdate){
-        this.date = newdate;
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
-    public String getStartTime(){
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-        String str_time = formatter.format(this.startTime);
-        return str_time;
+
+    public String getEndTime() {
+        return endTime;
     }
-    public void setStartTime(Time newStartTime){
-        this.startTime = newStartTime;
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
-    public String getEndTime(){
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-        String str_time = formatter.format(this.endTime);
-        return str_time;
+
+    public String getDate() {
+        return date;
     }
-    public void setEndTime(Time newEndTime){
-        this.startTime = newEndTime;
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

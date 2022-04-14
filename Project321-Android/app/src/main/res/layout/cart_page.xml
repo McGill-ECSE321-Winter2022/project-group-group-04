@@ -56,12 +56,6 @@
         android:layout_height="wrap_content"
         android:text="@string/cart_delete"/>
 
-    <TextView
-        android:id="@+id/carterror"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="error"
-        android:textAlignment="center" />
 
     <!--
     <LinearLayout
@@ -103,7 +97,7 @@
     <ListView
         android:id="@+id/cartItemsList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="260sp"/>
 
     <Button
         android:id="@+id/checkout_button"

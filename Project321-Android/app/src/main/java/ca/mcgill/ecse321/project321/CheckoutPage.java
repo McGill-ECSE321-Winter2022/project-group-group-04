@@ -44,11 +44,11 @@ public class CheckoutPage extends Fragment {
     private String customerpassword = MainActivity.getPassword();
     private ArrayList<String> items = new ArrayList<>();
     private ArrayList<String> alltimeslots = new ArrayList<>();
-    ArrayList<Timeslot> timeslots = new ArrayList<>();
-    private String t;
+    ArrayList<Timeslot> timeslots;
+
 
     private String paymentcode;
-
+    private Timeslot confirmedSlot;
     public CheckoutPage() {
         // Required empty public constructor
     }
@@ -57,15 +57,13 @@ public class CheckoutPage extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = CheckoutPageBinding.inflate(inflater, container, false);
-        Timeslot selectedTimeslot = new Timeslot(new Time(23,59,58),
-                                            new Time(23,59,59),
-                                            new Date(1999,12,31));
+        Timeslot selectedTimeslot = new Timeslot("N/A", "N/A", "No Timeslot In the system");
 
         timeslots = new ArrayList<Timeslot>();
         timeslots.add(selectedTimeslot);
-        View view = inflater.inflate(R.layout.checkout_page, container, false);
+        View view = binding.getRoot();
         ListView listView = (ListView)view.findViewById(R.id.timeslotList);
-        adapter = new TimeslotAdapter(getActivity(),R.layout.custom_listview,timeslots);
+        adapter = new TimeslotAdapter(getActivity(),R.layout.custom_timslots_listview,timeslots);
         listView.setAdapter(adapter);
 
         //Set Visibility of Items that don't need to be seen yet
@@ -89,16 +87,17 @@ public class CheckoutPage extends Fragment {
         });
 
         timeslot_button = binding.timeslotButton;
+        timeslot_button.setEnabled(false);
         timeslot_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                if (selectedTimeslot.getDate()=="1999-12-31"){
-                    binding.checkouterror.setText("You should select Timeslot");
+                if (confirmedSlot.getDate()=="No Timeslot In the system"){
+                    binding.checkouterror.setText("Sorry, no timeslot in the system");
                     binding.checkouterror.setVisibility(View.VISIBLE);
 
                 }
                 else {
-                    confirm_timeslot(selectedTimeslot);
+                    confirm_timeslot(confirmedSlot);
                 }
             }
         });
@@ -107,12 +106,14 @@ public class CheckoutPage extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.d("Status",String.valueOf(MainActivity.getStatus()));
-                if (timeslots.get(i).getDate().equals("1999-12-31")){
-                    Toast.makeText(getActivity(), "There is no product in the system", Toast.LENGTH_SHORT).show();
+                if (timeslots.get(i).getDate().equals("No Timeslot In the system")){
+                    Toast.makeText(getActivity(), "There is no time slot in the system", Toast.LENGTH_SHORT).show();
                     ///
-                } else {
-                    t = alltimeslots.get(i);
-                    Log.d("mytag", t);
+                }
+                else {
+                    confirmedSlot = timeslots.get(i);
+                    Log.d("OnTSClick", confirmedSlot.getDate());
+                    timeslot_button.setEnabled(true);
                 }
             }
         });
@@ -122,7 +123,7 @@ public class CheckoutPage extends Fragment {
         //get timeslot
         getTimeslot();
         //Get timeslots if possible
-        return binding.getRoot();
+        return view;
     }
 
     //Attempts to retrieve cart the customer has and lists the items in cart if any to list view
@@ -194,13 +195,18 @@ public class CheckoutPage extends Fragment {
                         end = response.getJSONObject(i).getString("endTime");
                         listElement = "["+date+"]"+start+"-"+end;
                         Log.d("myTag",listElement);
-                        alltimeslots.add(listElement);
+                        Timeslot t = new Timeslot(start, end, date);
+                        timeslots.add(t);
                     }
 
                 } catch (JSONException e){
                     e.printStackTrace();
                 }
-                populateTimeslotList();
+                if (timeslots.get(0).getDate().equals("No Timeslot In the system") && timeslots.size() >1 ) {
+                    timeslots.remove(0);
+                }
+                adapter.notifyDataSetChanged();
+                //populateTimeslotList();
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse){
@@ -213,19 +219,6 @@ public class CheckoutPage extends Fragment {
         ListView lv = binding.timeslotList;
         ArrayAdapter<String> timeslotListAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, alltimeslots);
         lv.setAdapter(timeslotListAdapter);
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.d("Status",String.valueOf(MainActivity.getStatus()));
-                if (timeslots.get(i).getDate().equals("1999-12-31")){
-                    Toast.makeText(getActivity(), "There is no product in the system", Toast.LENGTH_SHORT).show();
-                    ///
-                } else {
-                    t = alltimeslots.get(i);
-                    Log.d("mytag", t);
-                }
-            }
-        });
     }
 
     public void confirm_timeslot(Timeslot timeslot){

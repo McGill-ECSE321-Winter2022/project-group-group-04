@@ -55,7 +55,7 @@ public class CartPage extends Fragment {
         binding.cartItemsTitle.setVisibility(View.GONE);
         binding.deleteCartButton.setVisibility(View.GONE);
         binding.clearCartButton.setVisibility(View.GONE);
-        binding.checkoutButton.setVisibility(View.GONE);
+        binding.checkoutButton.setEnabled(false);
         binding.cartTotalPrice.setVisibility(View.GONE);
         //Button on click setters
         create_button = binding.createCartButton;
@@ -156,7 +156,7 @@ public class CartPage extends Fragment {
                 binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
-                binding.checkoutButton.setVisibility(View.GONE);
+                binding.checkoutButton.setEnabled(false);
                 binding.cartTotalPrice.setVisibility(View.GONE);
                 TotalPrice = 0;
                 items.clear();
@@ -172,7 +172,7 @@ public class CartPage extends Fragment {
                 binding.cartItemsTitle.setVisibility(View.GONE);
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
-                binding.checkoutButton.setVisibility(View.GONE);
+                binding.checkoutButton.setEnabled(false);
                 binding.cartTotalPrice.setVisibility(View.GONE);
                 TotalPrice = 0;
                 items.clear();
@@ -189,7 +189,7 @@ public class CartPage extends Fragment {
                 binding.deleteCartButton.setVisibility(View.GONE);
                 binding.clearCartButton.setVisibility(View.GONE);
                 binding.cartTotalPrice.setVisibility(View.GONE);
-                binding.checkoutButton.setVisibility(View.GONE);
+                binding.checkoutButton.setEnabled(false);
                 TotalPrice = 0;
                 items.clear();
                 Toast.makeText(getActivity(), "Cart was deleted!", Toast.LENGTH_SHORT).show();
@@ -216,7 +216,7 @@ public class CartPage extends Fragment {
 
                     if(cartItems.length() >0){ //If cart is not empty then loop through all the items and add each item as a string to the items arraylist for the list view
 
-                        binding.checkoutButton.setVisibility(View.VISIBLE);
+                        binding.checkoutButton.setEnabled(true);
                         for(int i = 0; i < cartItems.length(); i++){
                             String listElement,productName,productPriceType;
                             int productPrice,productQuantity;

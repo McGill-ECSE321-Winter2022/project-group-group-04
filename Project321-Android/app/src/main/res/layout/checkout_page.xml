@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textSize="20sp"
-        android:text="Choose timeslot to delivery/pickup" />
+        android:text="Tap on a timeslot to select" />
 
     <ListView
         android:id="@+id/timeslotList"
